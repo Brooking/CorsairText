@@ -12,3 +12,12 @@ type Support struct {
 	Out  screenprinter.ScreenPrinter
 	Rand random.Random
 }
+
+// NewSupport creates a real support struct
+func NewSupport() Support {
+	return Support{
+		In:   keyboardreader.NewKeyboardReader(),
+		Out:  screenprinter.NewScreenPrinter(),
+		Rand: random.NewRandom(),
+	}
+}

@@ -1,6 +1,9 @@
 package spot
 
-import "corsairtext/universe/action"
+import (
+	"corsairtext/support"
+	"corsairtext/universe/action"
+)
 
 // Spot is a location in the universe
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
@@ -37,6 +40,7 @@ const (
 
 // Init is the Spot initializer
 type Init struct {
+	Support     support.Support
 	Description string
 	BaseType    BaseType
 	Name        string
@@ -46,6 +50,7 @@ type Init struct {
 // NewSpot creates a Spot
 func NewSpot(init Init) Spot {
 	s := &spot{
+		s:           init.Support,
 		description: init.Description,
 		baseType:    init.BaseType,
 		name:        init.Name,
@@ -59,6 +64,7 @@ func NewSpot(init Init) Spot {
 
 // spot implements the Spot interface
 type spot struct {
+	s           support.Support
 	actionList  []action.ActionDescription
 	children    []Spot
 	description string
