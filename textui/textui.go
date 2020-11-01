@@ -50,11 +50,11 @@ func (t *textUI) Run() {
 
 func (t *textUI) composeActions(spot spot.Spot) string {
 	actionTypes := spot.Actions()
-	descriptions := action.ActionDescriptions(actionTypes)
+	descriptions := action.Descriptions(actionTypes)
 
 	var result string
 	for _, description := range descriptions {
-		result += fmt.Sprintf("%s - %s\n", description.Usage, description.Description)
+		result += fmt.Sprintf("%s - %s\n", description.ShortUsage, description.Description)
 	}
 	result += fmt.Sprintf("(Q)uit - exit the game\n")
 	return result
