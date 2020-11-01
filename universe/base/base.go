@@ -1,6 +1,6 @@
 package base
 
-import "corsairtext/universe/action"
+import "corsairtext/action"
 
 // Base is an abstraction of a space base
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
