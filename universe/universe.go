@@ -39,6 +39,6 @@ func (u *universe) generateMap() (spot.Spot, spot.Spot) {
 	all := spot.NewSpot(spot.Init{Name: "Galaxy", Description: "The whole thing"})
 	sol := spot.NewSpot(spot.Init{Name: "Sol", Description: "A system", Parent: all})
 	earth := spot.NewSpot(spot.Init{Name: "Earth", Description: "A planet", Parent: sol})
-	wm := spot.NewSpot(spot.Init{Name: "Winnemucca Base", Description: "A landside base", Base: true, Parent: earth})
+	wm := spot.NewSpot(spot.Init{Name: "Winnemucca Base", Description: "A landside base", BaseType: spot.BaseTypeFull, Parent: earth})
 	return all, wm
 }

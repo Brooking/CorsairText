@@ -12,10 +12,24 @@ type Spot interface {
 	Path() string
 }
 
+// BaseType describes what sort of base is at this spot
+type BaseType int
+
+const (
+	// BaseTypeNone indicates that there is no base here
+	BaseTypeNone BaseType = 0
+
+	// BaseTypeDirt indicates that there is just a spot to land here
+	BaseTypeDirt BaseType = 1
+
+	// BaseTypeFull indicates that there is a full base here
+	BaseTypeFull BaseType = 2
+)
+
 // Init is the Spot initializer
 type Init struct {
 	Description string
-	Base        bool
+	BaseType    BaseType
 	Name        string
 	Parent      Spot
 }
@@ -24,7 +38,7 @@ type Init struct {
 func NewSpot(init Init) Spot {
 	s := &spot{
 		description: init.Description,
-		base:        init.Base,
+		baseType:    init.BaseType,
 		name:        init.Name,
 		parent:      init.Parent,
 	}
@@ -39,7 +53,7 @@ type spot struct {
 	actionList  []action.ActionDescription
 	children    []Spot
 	description string
-	base        bool
+	baseType    BaseType
 	name        string
 	parent      Spot
 }
