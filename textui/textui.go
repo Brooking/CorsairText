@@ -1,8 +1,11 @@
 package textui
 
 import (
+	"corsairtext/action"
 	"corsairtext/support"
 	"corsairtext/universe"
+	"corsairtext/universe/spot"
+	"fmt"
 )
 
 // TextUI is the entry interface for the text ui
@@ -32,6 +35,7 @@ func (t *textUI) Run() {
 		spot := t.u.WhereAmI()
 		t.s.Out.Println("You are at", spot.Description())
 		t.s.Out.Println(spot.Path())
+		t.s.Out.Print(t.composeActions(spot))
 		t.s.Out.Print("ready> ")
 		text, err := t.s.In.Readln()
 		if err != nil {
@@ -42,4 +46,16 @@ func (t *textUI) Run() {
 		}
 		t.s.Out.Println("'" + text + "'")
 	}
+}
+
+func (t *textUI) composeActions(spot spot.Spot) string {
+	actionTypes := spot.Actions()
+	descriptions := action.ActionDescriptions(actionTypes)
+
+	var result string
+	for _, description := range descriptions {
+		result += fmt.Sprintf("%s - %s\n", description.Usage, description.Description)
+	}
+	result += fmt.Sprintf("(Q)uit - exit the game\n")
+	return result
 }
