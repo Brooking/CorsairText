@@ -2,9 +2,10 @@
 Single player text space economic sandbox game
 
 ## Ideas and Specs
-* Intial idea document: https://github.com/Brooking/CorsairText/blob/main/ideas.md#corsair-text
+* Initial idea document: https://github.com/Brooking/CorsairText/blob/main/ideas.md#corsair-text
 
-## Code Architecture
-
+## Code 
+* Architecture: https://github.com/Brooking/CorsairText/blob/main/ideas.md#corsair-text
+* Code Plan:
 
 ## Building and Running
