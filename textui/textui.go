@@ -8,6 +8,7 @@ import (
 // TextUI is the entry interface for the text ui
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type TextUI interface {
+	// Run starts the text based UI
 	Run()
 }
 
@@ -32,7 +33,7 @@ func (t *textUI) Run() {
 		t.s.Out.Println("You are at", spot.Description())
 		t.s.Out.Println(spot.Path())
 		t.s.Out.Print("ready> ")
-		text, err := t.s.In.ReadLn()
+		text, err := t.s.In.Readln()
 		if err != nil {
 			return
 		}

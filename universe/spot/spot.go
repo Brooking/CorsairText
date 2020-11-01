@@ -5,10 +5,19 @@ import "corsairtext/universe/action"
 // Spot is a location in the universe
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Spot interface {
+	// Actions returns a list of possible actions at this spot
 	Actions() []action.ActionDescription
+
+	// Act is a command to take an action
 	Act(action.Action)
+
+	// AddChild adds a child to this spot
 	AddChild(child Spot)
+
+	// Description returns a string describing this spot
 	Description() string
+
+	// Path returns a hierarchical location of this spot
 	Path() string
 }
 

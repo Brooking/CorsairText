@@ -5,7 +5,10 @@ import "fmt"
 // ScreenPrinter is the interface abstracting printing to the screen
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type ScreenPrinter interface {
+	// Print places text on the screen without a terminating \n
 	Print(a ...interface{}) (n int, err error)
+
+	// Println places text on the screen with a terminating \n
 	Println(a ...interface{}) (n int, err error)
 }
 
