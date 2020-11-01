@@ -9,7 +9,7 @@ An open world (universe), single player, single ship space adventure, in text.
 * Trader/bounty hunter/thief/courier/miner/smuggler
 * Economies evolve over time
 * No instant communication (all remote data is historical)
-* No boring flying/cutscenes
+* No boring flying/cut scenes
 * Cool new ships to buy
 * Cool toys to put on ships
 ## UI
@@ -22,7 +22,7 @@ An open world (universe), single player, single ship space adventure, in text.
 * Generated universe
 * Systems/Planets/Ports
 * Other discoverable spots in Systems
-* Astroids for ore
+* Asteroids for ore
 * gas giants for hydrogen
 * unofficial ‘ports’
 * distances are time and fuel
