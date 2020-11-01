@@ -6,6 +6,7 @@ import (
 )
 
 // TextUI is the entry interface for the text ui
+//go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type TextUI interface {
 	Run()
 }

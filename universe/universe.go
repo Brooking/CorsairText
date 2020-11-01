@@ -6,6 +6,7 @@ import (
 )
 
 // Universe is the main data layer interface
+//go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Universe interface {
 	Actions() []action.ActionDescription
 	Act(action.Action)

@@ -6,6 +6,7 @@ import (
 )
 
 // KeyboardReader is an interface that abstracts reading from the keyboard
+//go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type KeyboardReader interface {
 	Read() (rune, error)
 	ReadLn() (string, error)
