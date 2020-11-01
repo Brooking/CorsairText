@@ -3,6 +3,7 @@ package keyboardreader
 import (
 	"bufio"
 	"os"
+	"strings"
 )
 
 // KeyboardReader is an interface that abstracts reading from the keyboard
@@ -32,5 +33,7 @@ func (r read) Read() (rune, error) {
 
 // ReadLn returns a single line from the keyboard
 func (r read) ReadLn() (string, error) {
-	return r.stdin.ReadString('\n')
+	s, err := r.stdin.ReadString('\n')
+	s = strings.TrimRight(s, "\n")
+	return s, err
 }

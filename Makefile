@@ -5,7 +5,7 @@ gen: init
 	go generate ./...
 
 run: init
-	go run
+	go run main.go
 
 test: init
 	go test -cover -race ./...

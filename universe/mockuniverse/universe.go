@@ -5,7 +5,7 @@
 package mockuniverse
 
 import (
-	action "corsairtext/universe/action"
+	spot "corsairtext/universe/spot"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -33,28 +33,16 @@ func (m *MockUniverse) EXPECT() *MockUniverseMockRecorder {
 	return m.recorder
 }
 
-// Actions mocks base method
-func (m *MockUniverse) Actions() []action.ActionDescription {
+// WhereAmI mocks base method
+func (m *MockUniverse) WhereAmI() spot.Spot {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Actions")
-	ret0, _ := ret[0].([]action.ActionDescription)
+	ret := m.ctrl.Call(m, "WhereAmI")
+	ret0, _ := ret[0].(spot.Spot)
 	return ret0
 }
 
-// Actions indicates an expected call of Actions
-func (mr *MockUniverseMockRecorder) Actions() *gomock.Call {
+// WhereAmI indicates an expected call of WhereAmI
+func (mr *MockUniverseMockRecorder) WhereAmI() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Actions", reflect.TypeOf((*MockUniverse)(nil).Actions))
-}
-
-// Act mocks base method
-func (m *MockUniverse) Act(arg0 action.Action) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Act", arg0)
-}
-
-// Act indicates an expected call of Act
-func (mr *MockUniverseMockRecorder) Act(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Act", reflect.TypeOf((*MockUniverse)(nil).Act), arg0)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WhereAmI", reflect.TypeOf((*MockUniverse)(nil).WhereAmI))
 }

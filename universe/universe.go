@@ -2,33 +2,43 @@ package universe
 
 import (
 	"corsairtext/support"
-	"corsairtext/universe/action"
+	"corsairtext/universe/spot"
 )
 
 // Universe is the main data layer interface
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Universe interface {
-	Actions() []action.ActionDescription
-	Act(action.Action)
+	WhereAmI() spot.Spot
 }
 
 // NewUniverse creates a new Universe
 func NewUniverse(s support.Support) Universe {
-	return &universe{
+	u := &universe{
 		s: s,
 	}
+	u.root, u.current = u.generateMap()
+	return u
 }
 
 // universe is the concrete implimentation of Universe
 type universe struct {
-	s support.Support
+	s       support.Support
+	root    spot.Spot
+	current spot.Spot
 }
 
-// Actions returns a slice of actions for the current spot
-func (u *universe) Actions() []action.ActionDescription {
-	return []action.ActionDescription{}
+// WhereAmI returns the current location
+func (u *universe) WhereAmI() spot.Spot {
+	return u.current
 }
 
-// Act applies the action to the current spot
-func (u *universe) Act(action.Action) {
+// generateMap create a map of spots
+// returns the root of the map and a starting spot
+func (u *universe) generateMap() (spot.Spot, spot.Spot) {
+	// todo load from json
+	all := spot.NewSpot("Galaxy", "The whole thing", false, nil)
+	sol := spot.NewSpot("Sol", "A system", false, all)
+	earth := spot.NewSpot("Earth", "A planet", false, sol)
+	wm := spot.NewSpot("Winnemucca Base", "A landside base", true, earth)
+	return all, wm
 }
