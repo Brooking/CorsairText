@@ -12,24 +12,34 @@ type Spot interface {
 	Path() string
 }
 
-func NewSpot(name string, description string, inhabitable bool, parent Spot) Spot {
+// Init is the Spot initializer
+type Init struct {
+	Description string
+	Base        bool
+	Name        string
+	Parent      Spot
+}
+
+// NewSpot creates a Spot
+func NewSpot(init Init) Spot {
 	s := &spot{
-		description: description,
-		inhabitable: inhabitable,
-		name:        name,
-		parent:      parent,
+		description: init.Description,
+		base:        init.Base,
+		name:        init.Name,
+		parent:      init.Parent,
 	}
-	if parent != nil {
-		parent.AddChild(s)
+	if init.Parent != nil {
+		init.Parent.AddChild(s)
 	}
 	return s
 }
 
+// spot implements the Spot interface
 type spot struct {
 	actionList  []action.ActionDescription
 	children    []Spot
 	description string
-	inhabitable bool
+	base        bool
 	name        string
 	parent      Spot
 }
@@ -51,6 +61,7 @@ func (s *spot) AddChild(child Spot) {
 	s.children = append(s.children, child)
 }
 
+// Description returns a textual description of the spot
 func (s *spot) Description() string {
 	if s == nil {
 		return ""
@@ -58,6 +69,7 @@ func (s *spot) Description() string {
 	return s.name + ", " + s.description
 }
 
+// Path returns the path to the spot
 func (s *spot) Path() string {
 	var path string
 	for {

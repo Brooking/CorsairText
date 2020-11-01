@@ -36,9 +36,9 @@ func (u *universe) WhereAmI() spot.Spot {
 // returns the root of the map and a starting spot
 func (u *universe) generateMap() (spot.Spot, spot.Spot) {
 	// todo load from json
-	all := spot.NewSpot("Galaxy", "The whole thing", false, nil)
-	sol := spot.NewSpot("Sol", "A system", false, all)
-	earth := spot.NewSpot("Earth", "A planet", false, sol)
-	wm := spot.NewSpot("Winnemucca Base", "A landside base", true, earth)
+	all := spot.NewSpot(spot.Init{Name: "Galaxy", Description: "The whole thing"})
+	sol := spot.NewSpot(spot.Init{Name: "Sol", Description: "A system", Parent: all})
+	earth := spot.NewSpot(spot.Init{Name: "Earth", Description: "A planet", Parent: sol})
+	wm := spot.NewSpot(spot.Init{Name: "Winnemucca Base", Description: "A landside base", Base: true, Parent: earth})
 	return all, wm
 }
