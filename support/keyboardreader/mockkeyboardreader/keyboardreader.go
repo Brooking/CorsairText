@@ -47,17 +47,17 @@ func (mr *MockKeyboardReaderMockRecorder) Read() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockKeyboardReader)(nil).Read))
 }
 
-// ReadLn mocks base method
-func (m *MockKeyboardReader) ReadLn() (string, error) {
+// Readln mocks base method
+func (m *MockKeyboardReader) Readln() (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadLn")
+	ret := m.ctrl.Call(m, "Readln")
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ReadLn indicates an expected call of ReadLn
-func (mr *MockKeyboardReaderMockRecorder) ReadLn() *gomock.Call {
+// Readln indicates an expected call of Readln
+func (mr *MockKeyboardReaderMockRecorder) Readln() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadLn", reflect.TypeOf((*MockKeyboardReader)(nil).ReadLn))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Readln", reflect.TypeOf((*MockKeyboardReader)(nil).Readln))
 }
