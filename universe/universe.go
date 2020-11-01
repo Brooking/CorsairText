@@ -1,6 +1,9 @@
 package universe
 
-import "corsairtext/universe/action"
+import (
+	"corsairtext/support"
+	"corsairtext/universe/action"
+)
 
 // Universe is the main data layer interface
 type Universe interface {
@@ -9,12 +12,15 @@ type Universe interface {
 }
 
 // NewUniverse creates a new Universe
-func NewUniverse() Universe {
-	return &universe{}
+func NewUniverse(s support.Support) Universe {
+	return &universe{
+		s: s,
+	}
 }
 
 // universe is the concrete implimentation of Universe
 type universe struct {
+	s support.Support
 }
 
 // Actions returns a slice of actions for the current spot
