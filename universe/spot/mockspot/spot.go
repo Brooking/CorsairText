@@ -35,10 +35,10 @@ func (m *MockSpot) EXPECT() *MockSpotMockRecorder {
 }
 
 // Actions mocks base method
-func (m *MockSpot) Actions() []action.ActionDescription {
+func (m *MockSpot) Actions() action.List {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Actions")
-	ret0, _ := ret[0].([]action.ActionDescription)
+	ret0, _ := ret[0].(action.List)
 	return ret0
 }
 
@@ -46,18 +46,6 @@ func (m *MockSpot) Actions() []action.ActionDescription {
 func (mr *MockSpotMockRecorder) Actions() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Actions", reflect.TypeOf((*MockSpot)(nil).Actions))
-}
-
-// Act mocks base method
-func (m *MockSpot) Act(arg0 action.Action) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Act", arg0)
-}
-
-// Act indicates an expected call of Act
-func (mr *MockSpotMockRecorder) Act(arg0 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Act", reflect.TypeOf((*MockSpot)(nil).Act), arg0)
 }
 
 // AddChild mocks base method

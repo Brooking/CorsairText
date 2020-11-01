@@ -3,16 +3,14 @@ package spot
 import (
 	"corsairtext/support"
 	"corsairtext/universe/action"
+	"corsairtext/universe/base"
 )
 
 // Spot is a location in the universe
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Spot interface {
 	// Actions returns a list of possible actions at this spot
-	Actions() []action.ActionDescription
-
-	// Act is a command to take an action
-	Act(action.Action)
+	Actions() action.List
 
 	// AddChild adds a child to this spot
 	AddChild(child Spot)
@@ -24,25 +22,11 @@ type Spot interface {
 	Path() string
 }
 
-// BaseType describes what sort of base is at this spot
-type BaseType int
-
-const (
-	// BaseTypeNone indicates that there is no base here
-	BaseTypeNone BaseType = 0
-
-	// BaseTypeDirt indicates that there is just a spot to land here
-	BaseTypeDirt BaseType = 1
-
-	// BaseTypeFull indicates that there is a full base here
-	BaseTypeFull BaseType = 2
-)
-
 // Init is the Spot initializer
 type Init struct {
 	Support     support.Support
 	Description string
-	BaseType    BaseType
+	BaseType    base.Type
 	Name        string
 	Parent      Spot
 }
@@ -52,7 +36,7 @@ func NewSpot(init Init) Spot {
 	s := &spot{
 		s:           init.Support,
 		description: init.Description,
-		baseType:    init.BaseType,
+		base:        base.NewBase(init.BaseType),
 		name:        init.Name,
 		parent:      init.Parent,
 	}
@@ -65,21 +49,21 @@ func NewSpot(init Init) Spot {
 // spot implements the Spot interface
 type spot struct {
 	s           support.Support
-	actionList  []action.ActionDescription
+	actions     action.List
 	children    []Spot
 	description string
-	baseType    BaseType
+	base        base.Base
 	name        string
 	parent      Spot
 }
 
-// Actions returns a slice of actions for this spot
-func (s *spot) Actions() []action.ActionDescription {
-	return []action.ActionDescription{}
-}
-
-// Act applies the action to this spot
-func (s *spot) Act(action.Action) {
+// Actions returns a list of possible actions at this spot
+func (s *spot) Actions() action.List {
+	actions := s.actions
+	if s.base == nil {
+		return actions
+	}
+	return actions.Append(s.base.Actions())
 }
 
 // AddChild adds a child spot
@@ -112,4 +96,9 @@ func (s *spot) Path() string {
 		s = s.parent.(*spot)
 	}
 	return path
+}
+
+var spotActions = action.List{
+	action.TypeHelp,
+	action.TypeLook,
 }

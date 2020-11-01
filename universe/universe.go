@@ -2,6 +2,7 @@ package universe
 
 import (
 	"corsairtext/support"
+	"corsairtext/universe/base"
 	"corsairtext/universe/spot"
 )
 
@@ -40,6 +41,6 @@ func (u *universe) generateMap() (spot.Spot, spot.Spot) {
 	all := spot.NewSpot(spot.Init{Support: u.s, Name: "Galaxy", Description: "The whole thing"})
 	sol := spot.NewSpot(spot.Init{Support: u.s, Name: "Sol", Description: "A system", Parent: all})
 	earth := spot.NewSpot(spot.Init{Support: u.s, Name: "Earth", Description: "A planet", Parent: sol})
-	wm := spot.NewSpot(spot.Init{Support: u.s, Name: "Winnemucca Base", Description: "A landside base", BaseType: spot.BaseTypeFull, Parent: earth})
+	wm := spot.NewSpot(spot.Init{Support: u.s, Name: "Winnemucca Base", Description: "A landside base", BaseType: base.TypeFull, Parent: earth})
 	return all, wm
 }
