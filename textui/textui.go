@@ -27,8 +27,8 @@ type textUI struct {
 // Run is the main text ui entry point
 func (t *textUI) Run() {
 	for {
-		t.s.Out.Print("ready>")
-		text, err := t.s.In.Read()
+		t.s.Out.Print("ready> ")
+		text, err := t.s.In.ReadLn()
 		if err != nil {
 			return
 		}
