@@ -107,6 +107,7 @@ func (s *spot) Path() string {
 	return path
 }
 
+// spotActions lists this spots actions
 var spotActions = action.List{
 	action.TypeGo,
 	action.TypeHelp,
