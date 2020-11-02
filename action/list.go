@@ -23,3 +23,13 @@ func (l List) Descriptions() []Description {
 	}
 	return descriptions
 }
+
+// Includes indicates whether the action is in the list
+func (l List) Includes(actionType Type) bool {
+	for _, a := range l {
+		if a == actionType {
+			return true
+		}
+	}
+	return false
+}

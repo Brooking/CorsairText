@@ -41,9 +41,6 @@ func NewSpot(init Init) Spot {
 		name:        init.Name,
 		parent:      init.Parent,
 	}
-	if init.Parent != nil {
-		init.Parent.AddChild(s)
-	}
 	return s
 }
 
@@ -100,6 +97,7 @@ func (s *spot) Path() string {
 }
 
 var spotActions = action.List{
+	action.TypeGo,
 	action.TypeHelp,
 	action.TypeLook,
 }
