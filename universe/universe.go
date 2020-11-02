@@ -9,15 +9,11 @@ import (
 // Universe is the main data layer interface
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Universe interface {
-	//
-	// temporary methods, replace with a call to 'look'
-	//
-	Description() string
-	Path() string
+	// Actions returns the legal actions for the current spot
 	Actions() action.List
 
 	// Act is a command to do something
-	Act() string
+	Act(action.Request) (interface{}, error)
 }
 
 // NewUniverse creates a new Universe
@@ -25,7 +21,7 @@ func NewUniverse(s support.Support) Universe {
 	u := &universe{
 		s: s,
 	}
-	u.root, u.current = u.generateMap()
+	u.root, u.current, _ = u.generateMap()
 	return u
 }
 
@@ -35,16 +31,4 @@ type universe struct {
 	root    spot.Spot
 	current spot.Spot
 	index   map[string]spot.Spot
-}
-
-func (u *universe) Description() string {
-	return u.current.Description()
-}
-
-func (u *universe) Path() string {
-	return u.current.Path()
-}
-
-func (u *universe) Actions() action.List {
-	return u.current.Actions()
 }

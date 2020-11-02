@@ -11,86 +11,96 @@ func TestParseAction(t *testing.T) {
 	testCases := []struct {
 		name   string
 		input  string
-		assert func(action.Type, error)
+		assert func(action.Request, error)
 	}{
 		{
 			name:  "empty",
 			input: "",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.Error(t, err)
-				assert.Equal(t, action.TypeNone, actionType, "action type")
+				assert.Equal(t, action.TypeNone, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "matches h",
 			input: "h",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, action.TypeHelp, actionType, "action type")
+				assert.Equal(t, action.TypeHelp, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "fails he",
 			input: "he",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.Error(t, err)
-				assert.Equal(t, action.TypeNone, actionType, "action type")
+				assert.Equal(t, action.TypeNone, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "matches Help",
 			input: "Help",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, action.TypeHelp, actionType, "action type")
+				assert.Equal(t, action.TypeHelp, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "fails Help with parameters",
 			input: "Help me",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.Error(t, err)
-				assert.Equal(t, action.TypeHelp, actionType, "action type")
+				assert.Equal(t, action.TypeHelp, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "fails Go without parameters",
 			input: "G",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.Error(t, err)
-				assert.Equal(t, action.TypeGo, actionType, "action type")
+				assert.Equal(t, action.TypeGo, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "matches Go with 1 parameter",
 			input: "G moon",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, action.TypeGo, actionType, "action type")
+				assert.Equal(t, action.TypeGo, request.Type, "action type")
+				assert.Equal(t, 1, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "fails Go 2 parameters",
 			input: "Go to mars",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.Error(t, err)
-				assert.Equal(t, action.TypeGo, actionType, "action type")
+				assert.Equal(t, action.TypeGo, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "matches Sell with good parameters",
 			input: "Sell 14 ore",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, action.TypeSell, actionType, "action type")
+				assert.Equal(t, action.TypeSell, request.Type, "action type")
+				assert.Equal(t, 2, len(request.Parameters), "# parameters")
 			},
 		},
 		{
 			name:  "fails Sell with bad parameter",
 			input: "Sell fifty computers",
-			assert: func(actionType action.Type, err error) {
+			assert: func(request action.Request, err error) {
 				assert.Error(t, err)
-				assert.Equal(t, action.TypeSell, actionType, "action type")
+				assert.Equal(t, action.TypeSell, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},
 		},
 	}
@@ -109,10 +119,10 @@ func TestParseAction(t *testing.T) {
 			}
 
 			// act
-			actionType, err := textui.parseAction(testCase.input, actionList)
+			request, err := textui.parseAction(testCase.input, actionList)
 
 			// assert
-			testCase.assert(actionType, err)
+			testCase.assert(request, err)
 
 		})
 	}

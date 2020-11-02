@@ -18,6 +18,9 @@ type Spot interface {
 	// Description returns a string describing this spot
 	Description() string
 
+	// Name returns the name of the spot
+	Name() string
+
 	// Path returns a hierarchical location of this spot
 	Path() string
 }
@@ -77,7 +80,15 @@ func (s *spot) Description() string {
 	if s == nil {
 		return ""
 	}
-	return s.name + ", " + s.description
+	return s.description
+}
+
+// Name returns the name of the spot
+func (s *spot) Name() string {
+	if s == nil {
+		return ""
+	}
+	return s.name
 }
 
 // Path returns the path to the spot

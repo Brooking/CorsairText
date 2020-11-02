@@ -9,15 +9,27 @@ import (
 
 // generateMap create a map of spots
 // returns the root of the map and a starting spot
-func (u *universe) generateMap() (spot.Spot, spot.Spot) {
+func (u *universe) generateMap() (spot.Spot, spot.Spot, error) {
 	u.index = make(map[string]spot.Spot)
 
 	// todo load from json
-	all, _ := u.addSpot(spot.Init{Support: u.s, Name: "Galaxy", Description: "The whole thing"})
-	sol, _ := u.addSpot(spot.Init{Support: u.s, Name: "Sol", Description: "A system", Parent: all})
-	earth, _ := u.addSpot(spot.Init{Support: u.s, Name: "Earth", Description: "A planet", Parent: sol})
-	wm, _ := u.addSpot(spot.Init{Support: u.s, Name: "Winnemucca Base", Description: "A landside base", BaseType: base.TypeFull, Parent: earth})
-	return all, wm
+	all, err := u.addSpot(spot.Init{Support: u.s, Name: "Galaxy", Description: "the whole thing"})
+	if err != nil {
+		return nil, nil, err
+	}
+	sol, err := u.addSpot(spot.Init{Support: u.s, Name: "Sol", Description: "a system", Parent: all})
+	if err != nil {
+		return nil, nil, err
+	}
+	earth, err := u.addSpot(spot.Init{Support: u.s, Name: "Earth", Description: "a planet", Parent: sol})
+	if err != nil {
+		return nil, nil, err
+	}
+	wm, err := u.addSpot(spot.Init{Support: u.s, Name: "Winnemucca Base", Description: "a landside base", BaseType: base.TypeFull, Parent: earth})
+	if err != nil {
+		return nil, nil, err
+	}
+	return all, wm, nil
 }
 
 // addSpot creates a spot, adds it to the index, and links it to its parent

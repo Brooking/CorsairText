@@ -6,7 +6,8 @@ type Description struct {
 	Description string
 	ShortUsage  string
 	Usage       string
-	Regex       []string
+	NameRegex   string
+	Parameters  []ParameterType
 }
 
 // table is the complete list of action descriptions
@@ -16,41 +17,74 @@ var table = map[Type]Description{
 		Description: "List possible commands",
 		ShortUsage:  "(H)elp",
 		Usage:       "(H)elp",
-		Regex:       []string{"h(elp)?"},
+		NameRegex:   "h(elp)?",
+		Parameters:  []ParameterType{},
 	},
 	TypeLook: {
 		Type:        TypeLook,
 		Description: "Look around",
 		ShortUsage:  "(L)ook",
 		Usage:       "(L)ook",
-		Regex:       []string{"l(ook)?"},
+		NameRegex:   "l(ook)?",
 	},
 	TypeGo: {
 		Type:        TypeGo,
 		Description: "Travel",
 		ShortUsage:  "(G)o",
 		Usage:       "(G)o (destination)",
-		Regex:       []string{"g(o)?", ".+"},
+		NameRegex:   "g(o)?",
+		Parameters:  []ParameterType{ParameterTypeAny},
 	},
 	TypeMine: {
 		Type:        TypeMine,
 		Description: "Dig for ore",
 		ShortUsage:  "(M)ine",
 		Usage:       "(M)ine",
-		Regex:       []string{"m(ine)?"},
+		NameRegex:   "m(ine)?",
 	},
 	TypeBuy: {
 		Type:        TypeBuy,
 		Description: "Purchase a commodity",
 		ShortUsage:  "(B)uy",
 		Usage:       "(B)uy (number) (commodity)",
-		Regex:       []string{"b(uy)?", "[[:digit:]]+", ".+"},
+		NameRegex:   "b(uy)?",
+		Parameters:  []ParameterType{ParameterTypeNumber, ParameterTypeAny},
 	},
 	TypeSell: {
 		Type:        TypeSell,
 		Description: "Sell a commodity",
 		ShortUsage:  "(S)ell",
 		Usage:       "(S)ell (number) (commodity)",
-		Regex:       []string{"s(ell)?", "[[:digit:]]+", ".+"},
+		NameRegex:   "s(ell)?",
+		Parameters:  []ParameterType{ParameterTypeNumber, ParameterTypeAny},
 	},
+	TypeQuit: {
+		Type:        TypeQuit,
+		Description: "Leave the game",
+		ShortUsage:  "(Q)uit",
+		Usage:       "(Q)uit",
+		NameRegex:   "q(uit)?",
+	},
+}
+
+type ParameterType int
+
+const (
+	ParameterTypeNone   ParameterType = 0
+	ParameterTypeNumber ParameterType = 1
+	ParameterTypeAny    ParameterType = 2
+)
+
+var parameterTypeToString = map[ParameterType]string{
+	ParameterTypeNone:   "ParameterTypeNone",
+	ParameterTypeNumber: "ParameterTypeNumber",
+	ParameterTypeAny:    "ParameterTypeAny",
+}
+
+func (p ParameterType) String() string {
+	s, ok := parameterTypeToString[p]
+	if !ok {
+		return ""
+	}
+	return s
 }
