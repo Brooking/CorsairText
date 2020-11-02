@@ -31,12 +31,16 @@ type textUI struct {
 // Run is the main text ui entry point
 func (t *textUI) Run() {
 	for {
-		spot := t.u.WhereAmI()
-		actions := spot.Actions()
-		t.s.Out.Println("You are at", spot.Description())
-		t.s.Out.Println(spot.Path())
-		t.s.Out.Print(t.composeActions(actions))
-		t.s.Out.Print("ready> ")
+		var (
+			description      = t.u.Description()
+			path             = t.u.Path()
+			actionList       = t.u.Actions()
+			actionListString = t.composeActions(actionList)
+		)
+		t.s.Out.Println("You are at", description)
+		t.s.Out.Println(path)
+		t.s.Out.Print(actionListString)
+		t.s.Out.Print(" ready> ")
 		text, err := t.s.In.Readln()
 		if err != nil {
 			return
@@ -44,8 +48,10 @@ func (t *textUI) Run() {
 		if text == "q" {
 			return
 		}
-		action, err := t.parseAction(text, actions)
+		action, err := t.parseAction(text, actionList)
 		t.s.Out.Println("'" + action.String() + "'")
+		result := t.u.Act()
+		t.s.Out.Println(result)
 	}
 }
 
