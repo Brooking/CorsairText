@@ -4,8 +4,11 @@ import (
 	"corsairtext/action"
 	"corsairtext/support"
 	"corsairtext/universe"
-	"corsairtext/universe/spot"
 	"fmt"
+	"regexp"
+	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // TextUI is the entry interface for the text ui
@@ -33,9 +36,10 @@ type textUI struct {
 func (t *textUI) Run() {
 	for {
 		spot := t.u.WhereAmI()
+		actions := spot.Actions()
 		t.s.Out.Println("You are at", spot.Description())
 		t.s.Out.Println(spot.Path())
-		t.s.Out.Print(t.composeActions(spot))
+		t.s.Out.Print(t.composeActions(actions))
 		t.s.Out.Print("ready> ")
 		text, err := t.s.In.Readln()
 		if err != nil {
@@ -44,18 +48,60 @@ func (t *textUI) Run() {
 		if text == "q" {
 			return
 		}
-		t.s.Out.Println("'" + text + "'")
+		action, err := t.parseAction(text, actions)
+		t.s.Out.Println("'" + action.String() + "'")
 	}
 }
 
-func (t *textUI) composeActions(spot spot.Spot) string {
-	actionTypes := spot.Actions()
-	descriptions := action.Descriptions(actionTypes)
-
+func (t *textUI) composeActions(actions action.List) string {
 	var result string
-	for _, description := range descriptions {
+	for _, description := range actions.Descriptions() {
 		result += fmt.Sprintf("%s - %s\n", description.ShortUsage, description.Description)
 	}
 	result += fmt.Sprintf("(Q)uit - exit the game\n")
 	return result
+}
+
+func (*textUI) parseAction(input string, actions action.List) (action.Type, error) {
+	var matchedAction *action.Description
+	words := strings.Split(input, " ")
+
+	// find the command
+	command := strings.ToLower(words[0])
+	for _, description := range actions.Descriptions() {
+		match, err := regexp.MatchString("\\b"+description.Regex[0]+"\\b", command)
+		if err != nil {
+			continue
+		}
+		if !match {
+			continue
+		}
+		matchedAction = &description
+		break
+	}
+
+	if matchedAction == nil {
+		return action.TypeNone, errors.New("failed to match the command")
+	}
+
+	// validate the parameters
+	if len(words) > len(matchedAction.Regex) {
+		return matchedAction.Type, errors.New("missing parameters")
+	}
+
+	if len(words) < len(matchedAction.Regex) {
+		return matchedAction.Type, errors.New("too many parameters")
+	}
+
+	for i := 1; i < len(matchedAction.Regex); i++ {
+		match, err := regexp.MatchString("\\b"+matchedAction.Regex[i]+"\\b", words[i])
+		if err != nil {
+			return matchedAction.Type, errors.Wrapf(err, "malformed parameter #%v", i)
+		}
+		if !match {
+			return matchedAction.Type, errors.Errorf("malformed parameter %v", i)
+		}
+	}
+
+	return matchedAction.Type, nil
 }

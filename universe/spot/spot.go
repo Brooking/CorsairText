@@ -35,6 +35,7 @@ type Init struct {
 func NewSpot(init Init) Spot {
 	s := &spot{
 		s:           init.Support,
+		actions:     spotActions,
 		description: init.Description,
 		base:        base.NewBase(init.BaseType),
 		name:        init.Name,
