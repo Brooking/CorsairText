@@ -69,11 +69,11 @@ func describe(actionType action.Type) actionDescription {
 	return actionDescription{}
 }
 
-// parameterType describes a parameter
+// parameterType enum describes a parameter
 type parameterType string
 
 const (
-	parameterTypeNone      parameterType = "ParameterTypeNone"
+	parameterTypeNone      parameterType = ""
 	parameterTypeNumber    parameterType = "ParameterTypeNumber"
 	parameterTypeAny       parameterType = "ParameterTypeAny"
 	parameterTypeOptNumber parameterType = "parameterTypeOptNumber"

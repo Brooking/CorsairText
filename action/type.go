@@ -1,66 +1,47 @@
 package action
 
-// Type indicates the action
-type Type int
+// Type enum indicates the action
+type Type string
 
 const (
 	// TypeNone is a pseudo action for coding convenience
-	TypeNone Type = 0
+	TypeNone Type = ""
 
 	//
 	// Universal
 	//
 
 	// TypeQuit will end the game
-	TypeQuit Type = iota
+	TypeQuit Type = "quit"
 
 	// TypeHelp is a plea for which actions are available
-	TypeHelp Type = iota
+	TypeHelp Type = "help"
 
 	// TypeLook asks for current location information
-	TypeLook Type = iota
+	TypeLook Type = "look"
 
 	// TypeGo is a move request
-	TypeGo Type = iota
+	TypeGo Type = "go"
 
 	//
 	// Dirt
 	//
 
 	// TypeMine is an order to dig for ore
-	TypeMine Type = iota
+	TypeMine Type = "mine"
 
 	//
 	// Base
 	//
 
 	// TypeBuy is a buy order
-	TypeBuy Type = iota
+	TypeBuy Type = "buy"
 
 	// TypeSell is a sell order
-	TypeSell Type = iota
+	TypeSell Type = "sell"
 )
 
 // String returns a string representation of a Type value
 func (t *Type) String() string {
-	if t == nil {
-		return ""
-	}
-	s, ok := typeToString[*t]
-	if !ok {
-		return ""
-	}
-	return s
-}
-
-// typeToString is a mapping between Types and strings
-var typeToString = map[Type]string{
-	TypeNone: "TypeNone",
-	TypeQuit: "TypeQuit",
-	TypeHelp: "TypeHelp",
-	TypeLook: "TypeLook",
-	TypeGo:   "TypeGo",
-	TypeMine: "TypeMine",
-	TypeBuy:  "TypeBuy",
-	TypeSell: "TypeSell",
+	return string(*t)
 }

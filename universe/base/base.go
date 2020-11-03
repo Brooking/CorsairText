@@ -37,19 +37,24 @@ func (b *base) Actions() action.List {
 	return b.actions
 }
 
-// Type describes what sort of base this is
-type Type int
+// Type enum describes what sort of base this is
+type Type string
 
 const (
 	// TypeNone indicates that there is no base here
-	TypeNone Type = iota
+	TypeNone Type = ""
 
 	// TypeDirt indicates that there is just a spot to land here
-	TypeDirt Type = iota
+	TypeDirt Type = "dirt"
 
 	// TypeFull indicates that there is a full base here
-	TypeFull Type = iota
+	TypeFull Type = "full"
 )
+
+// String returns a textual representation of Type
+func (t *Type) String() string {
+	return string(*t)
+}
 
 // dirtActions stores the possible actions for a dirt base
 var dirtActions = action.List{

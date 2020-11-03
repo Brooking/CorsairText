@@ -33,7 +33,7 @@ func TestCall(t *testing.T) {
 		{
 			name: "fail bad type",
 			request: Request{
-				Type: 1000,
+				Type: "1000",
 			},
 			assert: func(quit bool, err error) {
 				assert.Error(t, err)
