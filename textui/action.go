@@ -15,9 +15,10 @@ type actionDescription struct {
 var actionDescriptionTable = []actionDescription{
 	{
 		Type:       action.TypeHelp,
-		Usage:      "(H)elp - List possible commands",
+		ShortUsage: "(H)elp - List commands",
+		Usage:      "(H)elp <command> - List command(s)",
 		NameRegex:  "h(elp)?",
-		Parameters: []parameterType{},
+		Parameters: []parameterType{parameterTypeOptAny},
 	},
 	{
 		Type:      action.TypeQuit,
@@ -72,19 +73,23 @@ func describe(actionType action.Type) actionDescription {
 type parameterType int
 
 const (
-	parameterTypeNone   parameterType = 0
-	parameterTypeNumber parameterType = 1
-	parameterTypeAny    parameterType = 2
+	parameterTypeNone      parameterType = iota
+	parameterTypeNumber    parameterType = iota
+	parameterTypeAny       parameterType = iota
+	parameterTypeOptNumber parameterType = iota
+	parameterTypeOptAny    parameterType = iota
 )
 
-// parameterToString is a mapping from ParameterType to a string describing it
+// parameterToString is a mapping from parameterType to a string describing it
 var parameterTypeToString = map[parameterType]string{
-	parameterTypeNone:   "ParameterTypeNone",
-	parameterTypeNumber: "ParameterTypeNumber",
-	parameterTypeAny:    "ParameterTypeAny",
+	parameterTypeNone:      "ParameterTypeNone",
+	parameterTypeNumber:    "ParameterTypeNumber",
+	parameterTypeAny:       "ParameterTypeAny",
+	parameterTypeOptNumber: "parameterTypeOptNumber",
+	parameterTypeOptAny:    "parameterTypeOptAny",
 }
 
-// String returns a textual represention of a ParameterType
+// String returns a textual represention of a parameterType
 func (p parameterType) String() string {
 	s, ok := parameterTypeToString[p]
 	if !ok {

@@ -50,8 +50,18 @@ func TestParseAction(t *testing.T) {
 			},
 		},
 		{
-			name:  "fails Help with parameters",
-			input: "Help me",
+			name:  "matches Help with one parameter",
+			input: "Help Buy",
+			assert: func(request Request, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, action.TypeHelp, request.Type, "action type")
+				assert.Equal(t, 1, len(request.Parameters), "# parameters")
+				assert.Equal(t, "Buy", request.Parameters[0], "parameter 0")
+			},
+		},
+		{
+			name:  "fails Help with two parameters",
+			input: "Help look go",
 			assert: func(request Request, err error) {
 				assert.Error(t, err)
 				assert.Equal(t, action.TypeHelp, request.Type, "action type")
@@ -94,7 +104,7 @@ func TestParseAction(t *testing.T) {
 				assert.Equal(t, action.TypeSell, request.Type, "action type")
 				assert.Equal(t, 2, len(request.Parameters), "# parameters")
 				assert.Equal(t, 14, request.Parameters[0], "parameter 0")
-				assert.Equal(t, "ore", request.Parameters[1], "parameter 0")
+				assert.Equal(t, "ore", request.Parameters[1], "parameter 1")
 			},
 		},
 		{

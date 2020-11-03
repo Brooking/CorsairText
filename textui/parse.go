@@ -18,57 +18,62 @@ type Request struct {
 // parseAction matches the input string with an action's regex
 func (t *textUI) parseAction(input string) (Request, error) {
 	var (
-		request                  Request
-		matchedActionDescription *actionDescription
+		request           Request
+		targetDescription *actionDescription
 
-		words      []string = strings.Split(input, " ")
-		command    string   = strings.ToLower(words[0])
-		parameters []string = words[1:]
+		rawWords      []string = strings.Split(input, " ")
+		rawCommand    string   = strings.ToLower(rawWords[0])
+		rawParameters []string = rawWords[1:]
 	)
 
 	// find the command
-	matchedActionDescription, err := parseCommand(command)
+	targetDescription, err := parseCommand(rawCommand)
 	if err != nil {
-		return request, errors.Wrapf(err, "could not find %v", command)
+		return request, errors.Wrapf(err, "could not find %v", rawCommand)
 	}
-	request.Type = matchedActionDescription.Type
+	request.Type = targetDescription.Type
 
 	// validate the parameters
-	if len(parameters) > len(matchedActionDescription.Parameters) {
-		return request, errors.Errorf("missing parameters (expected %v, got %v)", len(matchedActionDescription.Parameters), len(parameters))
-	}
-
-	if len(parameters) < len(matchedActionDescription.Parameters) {
-		return request, errors.Errorf("too many parameters (expected %v, got %v)", len(matchedActionDescription.Parameters), len(parameters))
-	}
-
-	for i := 0; i < len(matchedActionDescription.Parameters); i++ {
-		parameterType := matchedActionDescription.Parameters[i]
+	var parameters []interface{}
+	i := 0
+	for ; i < len(targetDescription.Parameters); i++ {
+		parameterType := targetDescription.Parameters[i]
 		regex, ok := parameterRegex[parameterType]
 		if !ok {
 			return request, errors.Errorf("unknown parameter type %v (index %v)", parameterType, i)
 		}
 
-		match, err := regexp.MatchString(regex, parameters[i])
+		if i >= len(rawParameters) {
+			if parameterType != parameterTypeOptNumber && parameterType != parameterTypeOptAny {
+				return request, errors.Errorf("missing parameters (expected %v, got %v)", len(targetDescription.Parameters), len(rawParameters))
+			}
+			break
+		}
+
+		match, err := regexp.MatchString(regex, rawParameters[i])
 		if err != nil {
-			return request, errors.Wrapf(err, "malformed parameter #%v (%v) of type %v", i, parameters[i], parameterType)
+			return request, errors.Wrapf(err, "malformed parameter #%v (%v) of type %v", i, rawParameters[i], parameterType)
 		}
 		if !match {
-			return request, errors.Errorf("malformed parameter %v (%v) of type %v", i, parameters[i], parameterType)
+			return request, errors.Errorf("malformed parameter %v (%v) of type %v", i, rawParameters[i], parameterType)
 		}
 
 		switch parameterType {
-		case parameterTypeNumber:
-			value, err := strconv.Atoi(parameters[i])
+		case parameterTypeNumber, parameterTypeOptNumber:
+			value, err := strconv.Atoi(rawParameters[i])
 			if err != nil {
-				return request, errors.Errorf("unable to convert parameter %v (%v) to a number", i, parameters[i])
+				return request, errors.Errorf("unable to convert parameter %v (%v) to a number", i, rawParameters[i])
 			}
-			request.Parameters = append(request.Parameters, value)
-		case parameterTypeAny:
-			request.Parameters = append(request.Parameters, parameters[i])
+			parameters = append(parameters, value)
+		case parameterTypeAny, parameterTypeOptAny:
+			parameters = append(parameters, rawParameters[i])
 		}
 	}
+	if i < len(rawParameters) {
+		return request, errors.Errorf("too many parameters (expected %v, got %v)", len(targetDescription.Parameters), len(rawParameters))
+	}
 
+	request.Parameters = parameters
 	return request, nil
 }
 
@@ -90,7 +95,9 @@ func parseCommand(command string) (*actionDescription, error) {
 
 // parameterRegex provides the proper regex for parameter types
 var parameterRegex = map[parameterType]string{
-	parameterTypeNone:   `\b`,
-	parameterTypeNumber: `\b\d+\b`,
-	parameterTypeAny:    `\b.+\b`,
+	parameterTypeNone:      `\b`,
+	parameterTypeNumber:    `\b\d+\b`,
+	parameterTypeAny:       `\b.+\b`,
+	parameterTypeOptNumber: `\b\d+\b`,
+	parameterTypeOptAny:    `\b.+\b`,
 }
