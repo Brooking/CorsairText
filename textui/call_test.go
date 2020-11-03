@@ -244,12 +244,28 @@ func TestCallHelp(t *testing.T) {
 		helpReturn []action.Type
 		helpError  error
 		helpCalls  int
-		out        []string
+		outInput   string
 		outCalls   int
 		assert     func(bool, error)
 	}{
 		{
-			name: "help success",
+			name: "success 0 params (Go)",
+			request: Request{
+				Type: action.TypeHelp,
+			},
+			helpReturn: []action.Type{
+				action.TypeGo,
+			},
+			helpCalls: 1,
+			outInput:  "(G)o - Travel",
+			outCalls:  1,
+			assert: func(quit bool, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, false, quit)
+			},
+		},
+		{
+			name: "success 0 params (Look)",
 			request: Request{
 				Type: action.TypeHelp,
 			},
@@ -257,7 +273,7 @@ func TestCallHelp(t *testing.T) {
 				action.TypeLook,
 			},
 			helpCalls: 1,
-			out:       []string{"(L)ook", "-", "Look around"},
+			outInput:  "(L)ook - Look around",
 			outCalls:  1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
@@ -271,7 +287,52 @@ func TestCallHelp(t *testing.T) {
 			},
 			helpError: errors.New("some go error"),
 			helpCalls: 1,
-			out:       []string{"", "", ""},
+			assert: func(quit bool, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, false, quit)
+			},
+		},
+		{
+			name: "success 1 param",
+			request: Request{
+				Type:       action.TypeHelp,
+				Parameters: []interface{}{"Go"},
+			},
+			outInput: "(G)o <destination> - Travel to destination",
+			outCalls: 1,
+			assert: func(quit bool, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, false, quit)
+			},
+		},
+		{
+			name: "fail 1 nil param",
+			request: Request{
+				Type:       action.TypeHelp,
+				Parameters: []interface{}{nil},
+			},
+			assert: func(quit bool, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, false, quit)
+			},
+		},
+		{
+			name: "fail 1 unknown param",
+			request: Request{
+				Type:       action.TypeHelp,
+				Parameters: []interface{}{"DoAFlip"},
+			},
+			assert: func(quit bool, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, false, quit)
+			},
+		},
+		{
+			name: "fail 2 params",
+			request: Request{
+				Type:       action.TypeHelp,
+				Parameters: []interface{}{"Go", "Travel"},
+			},
 			assert: func(quit bool, err error) {
 				assert.Error(t, err)
 				assert.Equal(t, false, quit)
@@ -292,7 +353,7 @@ func TestCallHelp(t *testing.T) {
 				Times(testCase.helpCalls)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			outMock.EXPECT().
-				Println(testCase.out[0], testCase.out[1], testCase.out[2]).
+				Println(testCase.outInput).
 				Return(0, nil).
 				Times(testCase.outCalls)
 			support := support.Support{
@@ -301,58 +362,6 @@ func TestCallHelp(t *testing.T) {
 			textui := &textUI{
 				s: support,
 				u: universeMock,
-			}
-
-			// act
-			quit, err := textui.call(testCase.request)
-
-			// assert
-			testCase.assert(quit, err)
-		})
-	}
-}
-func TestCallHelpCmd(t *testing.T) {
-	testCases := []struct {
-		name       string
-		request    Request
-		helpReturn []action.Type
-		helpError  error
-		helpCalls  int
-		out        []string
-		outCalls   int
-		assert     func(bool, error)
-	}{
-		{
-			name: "success",
-			request: Request{
-				Type:       action.TypeHelp,
-				Parameters: []interface{}{"Look"},
-			},
-			out:      []string{"(L)ook"},
-			outCalls: 1,
-			assert: func(quit bool, err error) {
-				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-	}
-
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			// arrange
-			ctrl := gomock.NewController(t)
-			defer ctrl.Finish()
-
-			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
-			outMock.EXPECT().
-				Println(testCase.out[0]).
-				Return(0, nil).
-				Times(testCase.outCalls)
-			support := support.Support{
-				Out: outMock,
-			}
-			textui := &textUI{
-				s: support,
 			}
 
 			// act

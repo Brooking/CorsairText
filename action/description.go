@@ -2,68 +2,56 @@ package action
 
 // Description gives human readable information about an action
 type Description struct {
-	Type        Type
-	Description string
-	ShortUsage  string
-	Usage       string
-	NameRegex   string
-	Parameters  []ParameterType
+	Type       Type
+	ShortUsage string
+	Usage      string
+	NameRegex  string
+	Parameters []ParameterType
 }
 
 // DescriptionTable is the complete list of action descriptions
 var DescriptionTable = []Description{
 	{
-		Type:        TypeHelp,
-		Description: "List possible commands",
-		ShortUsage:  "(H)elp",
-		Usage:       "(H)elp",
-		NameRegex:   "h(elp)?",
-		Parameters:  []ParameterType{},
+		Type:       TypeHelp,
+		Usage:      "(H)elp - List possible commands",
+		NameRegex:  "h(elp)?",
+		Parameters: []ParameterType{},
 	},
 	{
-		Type:        TypeQuit,
-		Description: "Leave the game",
-		ShortUsage:  "(Q)uit",
-		Usage:       "(Q)uit",
-		NameRegex:   "q(uit)?",
+		Type:      TypeQuit,
+		Usage:     "(Q)uit - Leave the game",
+		NameRegex: "q(uit)?",
 	},
 	{
-		Type:        TypeLook,
-		Description: "Look around",
-		ShortUsage:  "(L)ook",
-		Usage:       "(L)ook",
-		NameRegex:   "l(ook)?",
+		Type:      TypeLook,
+		Usage:     "(L)ook - Look around",
+		NameRegex: "l(ook)?",
 	},
 	{
-		Type:        TypeGo,
-		Description: "Travel",
-		ShortUsage:  "(G)o",
-		Usage:       "(G)o (destination)",
-		NameRegex:   "g(o)?",
-		Parameters:  []ParameterType{ParameterTypeAny},
+		Type:       TypeGo,
+		ShortUsage: "(G)o - Travel",
+		Usage:      "(G)o <destination> - Travel to destination",
+		NameRegex:  "g(o)?",
+		Parameters: []ParameterType{ParameterTypeAny},
 	},
 	{
-		Type:        TypeMine,
-		Description: "Dig for ore",
-		ShortUsage:  "(M)ine",
-		Usage:       "(M)ine",
-		NameRegex:   "m(ine)?",
+		Type:      TypeMine,
+		Usage:     "(M)ine - Dig for ore",
+		NameRegex: "m(ine)?",
 	},
 	{
-		Type:        TypeBuy,
-		Description: "Purchase a commodity",
-		ShortUsage:  "(B)uy",
-		Usage:       "(B)uy (number) (commodity)",
-		NameRegex:   "b(uy)?",
-		Parameters:  []ParameterType{ParameterTypeNumber, ParameterTypeAny},
+		Type:       TypeBuy,
+		ShortUsage: "(B)uy - Purchase items",
+		Usage:      "(B)uy <amount> <item> - Purchase specified amount of items",
+		NameRegex:  "b(uy)?",
+		Parameters: []ParameterType{ParameterTypeNumber, ParameterTypeAny},
 	},
 	{
-		Type:        TypeSell,
-		Description: "Sell a commodity",
-		ShortUsage:  "(S)ell",
-		Usage:       "(S)ell (number) (commodity)",
-		NameRegex:   "s(ell)?",
-		Parameters:  []ParameterType{ParameterTypeNumber, ParameterTypeAny},
+		Type:       TypeSell,
+		ShortUsage: "(S)ell - Sell items",
+		Usage:      "(S)ell <amount> <item> - Sell specified amount of items",
+		NameRegex:  "s(ell)?",
+		Parameters: []ParameterType{ParameterTypeNumber, ParameterTypeAny},
 	},
 }
 

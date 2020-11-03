@@ -69,12 +69,16 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 		}
 		for _, actionType := range actionList {
 			description := action.Describe(actionType)
-			t.s.Out.Println(description.ShortUsage, "-", description.Description)
+			usage := description.ShortUsage
+			if usage == "" {
+				usage = description.Usage
+			}
+			t.s.Out.Println(usage)
 		}
 	case 1:
 		command, ok := arg[0].(string)
 		if !ok {
-			return false, errors.Errorf("help passed non-string %v", arg[1])
+			return false, errors.Errorf("help passed non-string %v", arg[0])
 		}
 		command = strings.ToLower(command)
 		description, err := parseCommand(command)
