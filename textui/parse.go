@@ -18,12 +18,12 @@ type Request struct {
 // parseAction matches the input string with an action's regex
 func (t *textUI) parseAction(input string) (Request, error) {
 	var (
-		request           Request
-		targetDescription *actionDescription
-
 		rawWords      []string = strings.Split(input, " ")
 		rawCommand    string   = strings.ToLower(rawWords[0])
 		rawParameters []string = rawWords[1:]
+
+		request           Request
+		targetDescription *actionDescription
 	)
 
 	// find the command
@@ -34,47 +34,8 @@ func (t *textUI) parseAction(input string) (Request, error) {
 	request.Type = targetDescription.Type
 
 	// validate the parameters
-	var parameters []interface{}
-	i := 0
-	for ; i < len(targetDescription.Parameters); i++ {
-		parameterType := targetDescription.Parameters[i]
-		regex, ok := parameterRegex[parameterType]
-		if !ok {
-			return request, errors.Errorf("unknown parameter type %v (index %v)", parameterType, i)
-		}
-
-		if i >= len(rawParameters) {
-			if parameterType != parameterTypeOptNumber && parameterType != parameterTypeOptAny {
-				return request, errors.Errorf("missing parameters (expected %v, got %v)", len(targetDescription.Parameters), len(rawParameters))
-			}
-			break
-		}
-
-		match, err := regexp.MatchString(regex, rawParameters[i])
-		if err != nil {
-			return request, errors.Wrapf(err, "malformed parameter #%v (%v) of type %v", i, rawParameters[i], parameterType)
-		}
-		if !match {
-			return request, errors.Errorf("malformed parameter %v (%v) of type %v", i, rawParameters[i], parameterType)
-		}
-
-		switch parameterType {
-		case parameterTypeNumber, parameterTypeOptNumber:
-			value, err := strconv.Atoi(rawParameters[i])
-			if err != nil {
-				return request, errors.Errorf("unable to convert parameter %v (%v) to a number", i, rawParameters[i])
-			}
-			parameters = append(parameters, value)
-		case parameterTypeAny, parameterTypeOptAny:
-			parameters = append(parameters, rawParameters[i])
-		}
-	}
-	if i < len(rawParameters) {
-		return request, errors.Errorf("too many parameters (expected %v, got %v)", len(targetDescription.Parameters), len(rawParameters))
-	}
-
-	request.Parameters = parameters
-	return request, nil
+	request.Parameters, err = parseParameters(targetDescription, rawParameters)
+	return request, err
 }
 
 // parseCommand matches a command to an action
@@ -91,6 +52,50 @@ func parseCommand(command string) (*actionDescription, error) {
 		return &description, nil
 	}
 	return nil, errors.Errorf("failed to match the command %v", command)
+}
+
+// parseParameters loops through the parameters an parses them out
+func parseParameters(targetDescription *actionDescription, rawParameters []string) ([]interface{}, error) {
+	var parameters []interface{}
+	count := 0
+	for ; count < len(targetDescription.Parameters); count++ {
+		parameterType := targetDescription.Parameters[count]
+		regex, ok := parameterRegex[parameterType]
+		if !ok {
+			return nil, errors.Errorf("unknown parameter type %v (index %v)", parameterType, count)
+		}
+
+		if count >= len(rawParameters) {
+			if parameterType != parameterTypeOptNumber && parameterType != parameterTypeOptAny {
+				return nil, errors.Errorf("missing parameters (expected %v, got %v)", len(targetDescription.Parameters), len(rawParameters))
+			}
+			break
+		}
+
+		match, err := regexp.MatchString(regex, rawParameters[count])
+		if err != nil {
+			return nil, errors.Wrapf(err, "malformed parameter #%v (%v) of type %v", count, rawParameters[count], parameterType)
+		}
+		if !match {
+			return nil, errors.Errorf("malformed parameter %v (%v) of type %v", count, rawParameters[count], parameterType)
+		}
+
+		switch parameterType {
+		case parameterTypeNumber, parameterTypeOptNumber:
+			value, err := strconv.Atoi(rawParameters[count])
+			if err != nil {
+				return parameters, errors.Errorf("unable to convert parameter %v (%v) to a number", count, rawParameters[count])
+			}
+			parameters = append(parameters, value)
+		case parameterTypeAny, parameterTypeOptAny:
+			parameters = append(parameters, rawParameters[count])
+		}
+	}
+	if count < len(rawParameters) {
+		return nil, errors.Errorf("too many parameters (expected %v, got %v)", len(targetDescription.Parameters), len(rawParameters))
+	}
+
+	return parameters, nil
 }
 
 // parameterRegex provides the proper regex for parameter types

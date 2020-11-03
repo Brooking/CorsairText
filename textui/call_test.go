@@ -354,7 +354,6 @@ func TestCallHelp(t *testing.T) {
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			outMock.EXPECT().
 				Println(testCase.outInput).
-				Return(0, nil).
 				Times(testCase.outCalls)
 			support := support.Support{
 				Out: outMock,

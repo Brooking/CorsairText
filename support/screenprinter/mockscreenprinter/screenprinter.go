@@ -33,16 +33,13 @@ func (m *MockScreenPrinter) EXPECT() *MockScreenPrinterMockRecorder {
 }
 
 // Print mocks base method
-func (m *MockScreenPrinter) Print(a ...interface{}) (int, error) {
+func (m *MockScreenPrinter) Print(a ...interface{}) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{}
 	for _, a_2 := range a {
 		varargs = append(varargs, a_2)
 	}
-	ret := m.ctrl.Call(m, "Print", varargs...)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	m.ctrl.Call(m, "Print", varargs...)
 }
 
 // Print indicates an expected call of Print
@@ -51,41 +48,14 @@ func (mr *MockScreenPrinterMockRecorder) Print(a ...interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Print", reflect.TypeOf((*MockScreenPrinter)(nil).Print), a...)
 }
 
-// Printf mocks base method
-func (m *MockScreenPrinter) Printf(format string, a ...interface{}) (int, error) {
-	m.ctrl.T.Helper()
-	varargs := []interface{}{format}
-	for _, a_2 := range a {
-		varargs = append(varargs, a_2)
-	}
-	ret := m.ctrl.Call(m, "Printf", varargs...)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Printf indicates an expected call of Printf
-func (mr *MockScreenPrinterMockRecorder) Printf(format interface{}, a ...interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{format}, a...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Printf", reflect.TypeOf((*MockScreenPrinter)(nil).Printf), varargs...)
-}
-
 // Println mocks base method
-func (m *MockScreenPrinter) Println(a ...interface{}) (int, error) {
+func (m *MockScreenPrinter) Println(a string) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{}
-	for _, a_2 := range a {
-		varargs = append(varargs, a_2)
-	}
-	ret := m.ctrl.Call(m, "Println", varargs...)
-	ret0, _ := ret[0].(int)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	m.ctrl.Call(m, "Println", a)
 }
 
 // Println indicates an expected call of Println
-func (mr *MockScreenPrinterMockRecorder) Println(a ...interface{}) *gomock.Call {
+func (mr *MockScreenPrinterMockRecorder) Println(a interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Println", reflect.TypeOf((*MockScreenPrinter)(nil).Println), a...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Println", reflect.TypeOf((*MockScreenPrinter)(nil).Println), a)
 }

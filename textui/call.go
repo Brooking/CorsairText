@@ -99,7 +99,7 @@ func (t *textUI) look(arg []interface{}) (bool, error) {
 		return false, errors.Wrap(err, "look failed")
 	}
 
-	t.s.Out.Printf("You are at %s, %s.\n", name, description)
+	t.s.Out.Println(strings.Join([]string{"You are at ", name, ", ", description, "."}, ""))
 	t.s.Out.Println(path)
 	return false, nil
 }

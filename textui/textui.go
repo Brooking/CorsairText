@@ -4,6 +4,8 @@ import (
 	"corsairtext/support"
 	"corsairtext/universe"
 
+	"strings"
+
 	"github.com/pkg/errors"
 )
 
@@ -42,7 +44,7 @@ func (t *textUI) Run() {
 			break
 		}
 		if err != nil {
-			t.s.Out.Println("Error: ", err)
+			t.s.Out.Println(strings.Join([]string{"Error: ", err.Error()}, ""))
 		}
 	}
 }
