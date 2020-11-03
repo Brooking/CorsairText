@@ -16,11 +16,11 @@ func NewBase(baseType Type) Base {
 		return nil
 	case TypeDirt:
 		return &base{
-			actions: dirtActions,
+			actions: dirtConstActions,
 		}
 	case TypeFull:
 		return &base{
-			actions: fullActions,
+			actions: fullConstActions,
 		}
 	default:
 		return nil
@@ -34,6 +34,9 @@ type base struct {
 
 // Actions returns a list of possible actions at this base
 func (b *base) Actions() action.List {
+	if b == nil {
+		return nil
+	}
 	return b.actions
 }
 
@@ -56,13 +59,13 @@ func (t *Type) String() string {
 	return string(*t)
 }
 
-// dirtActions stores the possible actions for a dirt base
-var dirtActions = action.List{
+// dirtConstActions stores the possible actions for a dirt base
+var dirtConstActions = action.List{
 	action.TypeDig,
 }
 
-// fullActions stores the possible actions for a full base
-var fullActions = action.List{
+// fullConstActions stores the possible actions for a full base
+var fullConstActions = action.List{
 	action.TypeBuy,
 	action.TypeSell,
 }

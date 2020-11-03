@@ -38,11 +38,15 @@ type Init struct {
 func NewSpot(init Init) Spot {
 	s := &spot{
 		s:           init.Support,
-		actions:     spotActions,
+		actions:     spotConstActions,
 		description: init.Description,
 		base:        base.NewBase(init.BaseType),
 		name:        init.Name,
 		parent:      init.Parent,
+	}
+
+	if s.base != nil {
+		s.actions = s.actions.Append(s.base.Actions())
 	}
 	return s
 }
@@ -60,11 +64,7 @@ type spot struct {
 
 // Actions returns a list of possible actions at this spot
 func (s *spot) Actions() action.List {
-	actions := s.actions
-	if s.base == nil {
-		return actions
-	}
-	return actions.Append(s.base.Actions())
+	return s.actions
 }
 
 // AddChild adds a child spot
@@ -107,8 +107,10 @@ func (s *spot) Path() string {
 	return path
 }
 
-// spotActions lists this spots actions
-var spotActions = action.List{
+// spotConstActions lists this spots actions
+var spotConstActions = action.List{
 	action.TypeGo,
+	action.TypeHelp,
 	action.TypeLook,
+	action.TypeQuit,
 }

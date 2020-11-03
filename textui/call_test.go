@@ -377,7 +377,7 @@ func TestCallLook(t *testing.T) {
 	testCases := []struct {
 		name         string
 		request      Request
-		lookReturn   universe.View
+		lookReturn   *universe.View
 		lookError    error
 		out1Expected string
 		out2Expected string
@@ -389,7 +389,7 @@ func TestCallLook(t *testing.T) {
 			request: Request{
 				Type: action.TypeLook,
 			},
-			lookReturn: universe.View{
+			lookReturn: &universe.View{
 				Name:        "Mars",
 				Description: "a red planet",
 				Path:        "sol>Mars",

@@ -1,6 +1,8 @@
 package textui
 
 import (
+	"corsairtext/action"
+	"corsairtext/e"
 	"corsairtext/support"
 	"corsairtext/universe"
 
@@ -34,8 +36,9 @@ type textUI struct {
 func (t *textUI) Run() {
 	t.act("look")
 	for {
-		t.s.Out.Print(" ready> ")
+		t.s.Out.Print("ready> ")
 		text, err := t.s.In.Readln()
+		t.s.Out.Println("")
 		if err != nil {
 			return
 		}
@@ -44,7 +47,24 @@ func (t *textUI) Run() {
 			break
 		}
 		if err != nil {
-			t.s.Out.Println(strings.Join([]string{"Error: ", err.Error()}, ""))
+			cause := errors.Cause(err)
+
+			switch {
+			case e.IsShowToUserError(cause):
+				t.s.Out.Println(cause.Error())
+			default:
+				t.s.Out.Println(strings.Join([]string{"Error: ", err.Error()}, ""))
+			}
+
+			switch {
+			case e.IsShowAllHelpError(cause):
+				t.call(Request{Type: action.TypeHelp})
+			case e.IsShowHelpError(cause):
+				t.call(Request{
+					Type:       action.TypeHelp,
+					Parameters: []interface{}{e.GetActionTypeForHelp(cause).String()},
+				})
+			}
 		}
 	}
 }

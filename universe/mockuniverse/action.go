@@ -63,10 +63,10 @@ func (mr *MockActionMockRecorder) Go(arg0 interface{}) *gomock.Call {
 }
 
 // Help mocks base method
-func (m *MockAction) Help() ([]action.Type, error) {
+func (m *MockAction) Help() (action.List, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Help")
-	ret0, _ := ret[0].([]action.Type)
+	ret0, _ := ret[0].(action.List)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -78,10 +78,10 @@ func (mr *MockActionMockRecorder) Help() *gomock.Call {
 }
 
 // Look mocks base method
-func (m *MockAction) Look() (universe.View, error) {
+func (m *MockAction) Look() (*universe.View, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Look")
-	ret0, _ := ret[0].(universe.View)
+	ret0, _ := ret[0].(*universe.View)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -104,20 +104,6 @@ func (m *MockAction) Dig() error {
 func (mr *MockActionMockRecorder) Dig() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Dig", reflect.TypeOf((*MockAction)(nil).Dig))
-}
-
-// Quit mocks base method
-func (m *MockAction) Quit() error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Quit")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Quit indicates an expected call of Quit
-func (mr *MockActionMockRecorder) Quit() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Quit", reflect.TypeOf((*MockAction)(nil).Quit))
 }
 
 // Sell mocks base method

@@ -2,6 +2,7 @@ package textui
 
 import (
 	"corsairtext/action"
+	"corsairtext/e"
 	"regexp"
 	"strconv"
 	"strings"
@@ -29,7 +30,7 @@ func (t *textUI) parseAction(input string) (Request, error) {
 	// find the command
 	targetDescription, err := parseCommand(rawCommand)
 	if err != nil {
-		return request, errors.Wrapf(err, "could not find %v", rawCommand)
+		return request, err
 	}
 	request.Type = targetDescription.Type
 
@@ -44,14 +45,14 @@ func parseCommand(command string) (*actionDescription, error) {
 		regexQuery := `\b` + description.NameRegex + `\b`
 		match, err := regexp.MatchString(regexQuery, command)
 		if err != nil {
-			return nil, errors.Wrapf(err, "bad match string, regex:%v command:%v", regexQuery, command)
+			return nil, errors.Wrapf(err, "internal: bad match string, regex:%v command:%v", regexQuery, command)
 		}
 		if !match {
 			continue
 		}
 		return &description, nil
 	}
-	return nil, errors.Errorf("failed to match the command %v", command)
+	return nil, e.NewUnknownCommandError(command)
 }
 
 // parseParameters loops through the parameters an parses them out
@@ -62,29 +63,29 @@ func parseParameters(targetDescription *actionDescription, rawParameters []strin
 		parameterType := targetDescription.Parameters[count]
 		regex, ok := parameterRegex[parameterType]
 		if !ok {
-			return nil, errors.Errorf("unknown parameter type %v (index %v)", parameterType, count)
+			return nil, errors.Errorf("internal: unknown parameter type %v (index %v)", parameterType, count)
 		}
 
 		if count >= len(rawParameters) {
 			if parameterType != parameterTypeOptNumber && parameterType != parameterTypeOptAny {
-				return nil, errors.Errorf("missing parameters (expected %v, got %v)", len(targetDescription.Parameters), len(rawParameters))
+				return nil, e.NewMissingParameterError(targetDescription.Type, len(targetDescription.Parameters), len(rawParameters))
 			}
 			break
 		}
 
 		match, err := regexp.MatchString(regex, rawParameters[count])
 		if err != nil {
-			return nil, errors.Wrapf(err, "malformed parameter #%v (%v) of type %v", count, rawParameters[count], parameterType)
+			return nil, errors.Wrapf(err, "internal: malformed parameter #%v (%v) of type %v", count, rawParameters[count], parameterType)
 		}
 		if !match {
-			return nil, errors.Errorf("malformed parameter %v (%v) of type %v", count, rawParameters[count], parameterType)
+			return nil, e.NewBadParameterError(targetDescription.Type, rawParameters[count])
 		}
 
 		switch parameterType {
 		case parameterTypeNumber, parameterTypeOptNumber:
 			value, err := strconv.Atoi(rawParameters[count])
 			if err != nil {
-				return parameters, errors.Errorf("unable to convert parameter %v (%v) to a number", count, rawParameters[count])
+				return parameters, errors.Errorf("internal: unable to convert parameter %v (%v) to a number", count, rawParameters[count])
 			}
 			parameters = append(parameters, value)
 		case parameterTypeAny, parameterTypeOptAny:
@@ -92,7 +93,7 @@ func parseParameters(targetDescription *actionDescription, rawParameters []strin
 		}
 	}
 	if count < len(rawParameters) {
-		return nil, errors.Errorf("too many parameters (expected %v, got %v)", len(targetDescription.Parameters), len(rawParameters))
+		return nil, e.NewExtraParameterError(targetDescription.Type, len(targetDescription.Parameters), len(rawParameters))
 	}
 
 	return parameters, nil

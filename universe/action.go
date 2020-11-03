@@ -2,6 +2,7 @@ package universe
 
 import (
 	"corsairtext/action"
+	"corsairtext/e"
 
 	"github.com/pkg/errors"
 )
@@ -11,10 +12,9 @@ import (
 type Action interface {
 	Buy(int, string) error
 	Go(string) error
-	Help() ([]action.Type, error)
-	Look() (View, error)
+	Help() (action.List, error)
+	Look() (*View, error)
 	Dig() error
-	Quit() error
 	Sell(int, string) error
 }
 
@@ -27,23 +27,34 @@ type View struct {
 
 // Buy acquires a certain amount of a commodity at a base
 func (u *universe) Buy(amount int, commodity string) error {
+	if !u.allowed(action.TypeBuy) {
+		return e.NewBadSpotError(u.current, action.TypeBuy)
+	}
 	return errors.New("buy not yet implemented")
 }
 
 // Go moves current to a new spot
 func (u *universe) Go(destination string) error {
+	if !u.allowed(action.TypeGo) {
+		return e.NewBadSpotError(u.current, action.TypeGo)
+	}
 	return errors.New("go not yet implemented")
 }
 
 // Help returns the list of actions available at the current spot
-func (u *universe) Help() ([]action.Type, error) {
-	actions := universalActions
-	return actions.Append(u.current.Actions()), nil
+func (u *universe) Help() (action.List, error) {
+	if !u.allowed(action.TypeHelp) {
+		return nil, e.NewBadSpotError(u.current, action.TypeHelp)
+	}
+	return u.current.Actions(), nil
 }
 
 // Look returns information about the current spot
-func (u *universe) Look() (View, error) {
-	return View{
+func (u *universe) Look() (*View, error) {
+	if !u.allowed(action.TypeLook) {
+		return nil, e.NewBadSpotError(u.current, action.TypeLook)
+	}
+	return &View{
 		Description: u.current.Description(),
 		Name:        u.current.Name(),
 		Path:        u.current.Path(),
@@ -52,27 +63,21 @@ func (u *universe) Look() (View, error) {
 
 // Dig mines for ore
 func (u *universe) Dig() error {
+	if !u.allowed(action.TypeDig) {
+		return e.NewBadSpotError(u.current, action.TypeDig)
+	}
 	return errors.New("dig not yet implemented")
-}
-
-// Quit shut everything down
-func (u *universe) Quit() error {
-	return nil
 }
 
 // Sell sells a certain amount of a commodity at a base
 func (u *universe) Sell(amount int, commodity string) error {
-	return errors.New("buy not yet implemented")
+	if !u.allowed(action.TypeSell) {
+		return e.NewBadSpotError(u.current, action.TypeSell)
+	}
+	return errors.New("sell not yet implemented")
 }
 
-// actions returns the legal actions for the current spot
-func (u *universe) actions() action.List {
-	actions := universalActions
-	return actions.Append(u.current.Actions())
-}
-
-// universalActions lists the universal actions
-var universalActions = action.List{
-	action.TypeHelp,
-	action.TypeQuit,
+// allowed checks whether the action is allowed at the current spot
+func (u *universe) allowed(actionType action.Type) bool {
+	return u.current.Actions().Includes(actionType)
 }

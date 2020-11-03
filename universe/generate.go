@@ -25,8 +25,16 @@ func (u *universe) generateMap() (spot.Spot, spot.Spot, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	wm, err := u.addSpot(spot.Init{Support: u.s, Name: "Winnemucca Base", Description: "a landside base", BaseType: base.TypeFull, Parent: earth})
+	wm, err := u.addSpot(spot.Init{Support: u.s, Name: "Winnemucca Base", Description: "a full base", BaseType: base.TypeFull, Parent: earth})
+	if err != nil || wm == nil {
+		return nil, nil, err
+	}
+	luna, err := u.addSpot(spot.Init{Support: u.s, Name: "Luna", Description: "a moon", Parent: sol})
 	if err != nil {
+		return nil, nil, err
+	}
+	tb, err := u.addSpot(spot.Init{Support: u.s, Name: "Tranquility Base", Description: "a rough base", BaseType: base.TypeDirt, Parent: luna})
+	if err != nil || tb == nil {
 		return nil, nil, err
 	}
 	return all, wm, nil
@@ -37,7 +45,7 @@ func (u *universe) addSpot(init spot.Init) (spot.Spot, error) {
 	spot := spot.NewSpot(init)
 	_, exists := u.index[init.Name]
 	if exists {
-		return nil, errors.Errorf("%v already exists", init.Name)
+		return nil, errors.Errorf("internal: %v already exists", init.Name)
 	}
 	u.index[init.Name] = spot
 	if init.Parent != nil {

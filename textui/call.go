@@ -2,6 +2,7 @@ package textui
 
 import (
 	"corsairtext/action"
+	"corsairtext/e"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -19,7 +20,7 @@ func (t *textUI) call(request Request) (bool, error) {
 	}
 	handler, ok := actHandler[request.Type]
 	if !ok {
-		return false, errors.Errorf("no handler for %v", request.Type)
+		return false, errors.Errorf("internal: no handler for %v", request.Type)
 	}
 
 	quit, err := handler(request.Parameters)
@@ -32,15 +33,15 @@ func (t *textUI) call(request Request) (bool, error) {
 // buy handles a buy action
 func (t *textUI) buy(arg []interface{}) (bool, error) {
 	if len(arg) != 2 {
-		return false, errors.Errorf("buy passed wrong number of args, expected 2, got %v", len(arg))
+		return false, errors.Errorf("internal: buy passed wrong number of args, expected 2, got %v", len(arg))
 	}
 	amount, ok := arg[0].(int)
 	if !ok {
-		return false, errors.Errorf("buy passed non-int %v", arg[0])
+		return false, errors.Errorf("internal: buy passed non-int %v", arg[0])
 	}
 	item, ok := arg[1].(string)
 	if !ok {
-		return false, errors.Errorf("buy passed non-string %v", arg[1])
+		return false, errors.Errorf("internal: buy passed non-string %v", arg[1])
 	}
 
 	return false, t.u.Buy(amount, item)
@@ -49,11 +50,11 @@ func (t *textUI) buy(arg []interface{}) (bool, error) {
 // move handles a go action
 func (t *textUI) move(arg []interface{}) (bool, error) {
 	if len(arg) != 1 {
-		return false, errors.Errorf("move passed wrong number of args, expected 1, got %v", len(arg))
+		return false, errors.Errorf("internal: move passed wrong number of args, expected 1, got %v", len(arg))
 	}
 	destination, ok := arg[0].(string)
 	if !ok {
-		return false, errors.Errorf("move passed non-string %v", arg[0])
+		return false, errors.Errorf("internal: move passed non-string %v", arg[0])
 	}
 
 	return false, t.u.Go(destination)
@@ -65,7 +66,7 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 	case 0:
 		actionList, err := t.u.Help()
 		if err != nil {
-			return false, errors.Wrap(err, "unable to get help list")
+			return false, errors.Wrap(err, "internal: unable to get help list")
 		}
 		for _, actionType := range actionList {
 			description := describe(actionType)
@@ -78,16 +79,16 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 	case 1:
 		command, ok := arg[0].(string)
 		if !ok {
-			return false, errors.Errorf("help passed non-string %v", arg[0])
+			return false, errors.Errorf("internal: help passed non-string %v", arg[0])
 		}
 		command = strings.ToLower(command)
 		description, err := parseCommand(command)
 		if err != nil {
-			return false, errors.Wrapf(err, "help passed an unknown command %v", command)
+			return false, e.NewUnknownCommandError(command)
 		}
 		t.s.Out.Println(description.Usage)
 	default:
-		return false, errors.Errorf("move passed wrong number of args, expected 0 or 1, got %v", len(arg))
+		return false, errors.Errorf("internal: move passed wrong number of args, expected 0 or 1, got %v", len(arg))
 	}
 	return false, nil
 }
@@ -96,7 +97,7 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 func (t *textUI) look(arg []interface{}) (bool, error) {
 	view, err := t.u.Look()
 	if err != nil {
-		return false, errors.Wrap(err, "look failed")
+		return false, errors.Wrap(err, "internal: look failed")
 	}
 
 	t.s.Out.Println(strings.Join([]string{"You are at ", view.Name, ", ", view.Description, "."}, ""))
@@ -117,15 +118,15 @@ func (t *textUI) quit(arg []interface{}) (bool, error) {
 // sell handles a sell action
 func (t *textUI) sell(arg []interface{}) (bool, error) {
 	if len(arg) != 2 {
-		return false, errors.Errorf("sell passed wrong number of args, expected 2, got %v", len(arg))
+		return false, errors.Errorf("internal: sell passed wrong number of args, expected 2, got %v", len(arg))
 	}
 	amount, ok := arg[0].(int)
 	if !ok {
-		return false, errors.Errorf("sell passed non-int %v", arg[0])
+		return false, errors.Errorf("internal: sell passed non-int %v", arg[0])
 	}
 	item, ok := arg[1].(string)
 	if !ok {
-		return false, errors.Errorf("sell passed non-string %v", arg[1])
+		return false, errors.Errorf("internal: sell passed non-string %v", arg[1])
 	}
 
 	return false, t.u.Sell(amount, item)
