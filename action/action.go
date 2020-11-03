@@ -6,9 +6,12 @@ type Request struct {
 	Parameters []interface{}
 }
 
-// LookResponse is returned by a Look action
+// LookResponse is returned by a look action
 type LookResponse struct {
 	Name        string
 	Description string
 	Path        string
 }
+
+// HelpResponse is returned by a help action
+type HelpResponse []Description
