@@ -9,10 +9,16 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Request is a parsed command
+type Request struct {
+	Type       action.Type
+	Parameters []interface{}
+}
+
 // parseAction matches the input string with an action's regex
-func (*textUI) parseAction(input string, actions action.List) (action.Request, error) {
+func (t *textUI) parseAction(input string) (Request, error) {
 	var (
-		request                  action.Request
+		request                  Request
 		matchedActionDescription *action.Description
 
 		words      []string = strings.Split(input, " ")
@@ -21,21 +27,9 @@ func (*textUI) parseAction(input string, actions action.List) (action.Request, e
 	)
 
 	// find the command
-	for _, description := range actions.Descriptions() {
-		regexQuery := `\b` + description.NameRegex + `\b`
-		match, err := regexp.MatchString(regexQuery, command)
-		if err != nil {
-			return request, errors.Wrapf(err, "bad match string, regex:%v command:%v", regexQuery, command)
-		}
-		if !match {
-			continue
-		}
-		matchedActionDescription = &description
-		break
-	}
-
-	if matchedActionDescription == nil {
-		return request, errors.Errorf("failed to match the command %v", command)
+	matchedActionDescription, err := parseCommand(command)
+	if err != nil {
+		return request, errors.Wrapf(err, "could not find %v", command)
 	}
 	request.Type = matchedActionDescription.Type
 
@@ -76,6 +70,22 @@ func (*textUI) parseAction(input string, actions action.List) (action.Request, e
 	}
 
 	return request, nil
+}
+
+// parseCommand matches a command to an action
+func parseCommand(command string) (*action.Description, error) {
+	for _, description := range action.DescriptionTable {
+		regexQuery := `\b` + description.NameRegex + `\b`
+		match, err := regexp.MatchString(regexQuery, command)
+		if err != nil {
+			return nil, errors.Wrapf(err, "bad match string, regex:%v command:%v", regexQuery, command)
+		}
+		if !match {
+			continue
+		}
+		return &description, nil
+	}
+	return nil, errors.Errorf("failed to match the command %v", command)
 }
 
 // parameterRegex provides the proper regex for parameter types

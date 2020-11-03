@@ -3,6 +3,8 @@ package textui
 import (
 	"corsairtext/support"
 	"corsairtext/universe"
+
+	"github.com/pkg/errors"
 )
 
 // TextUI is the entry interface for the text ui
@@ -13,7 +15,7 @@ type TextUI interface {
 }
 
 // NewTextUI create a new text ui
-func NewTextUI(s support.Support, u universe.Universe) TextUI {
+func NewTextUI(s support.Support, u universe.Action) TextUI {
 	return &textUI{
 		s: s,
 		u: u,
@@ -23,19 +25,19 @@ func NewTextUI(s support.Support, u universe.Universe) TextUI {
 // textUI is the concrete implementation of TextUI
 type textUI struct {
 	s support.Support
-	u universe.Universe
+	u universe.Action
 }
 
 // Run is the main text ui entry point
 func (t *textUI) Run() {
-	t.act("look", t.u.Actions())
+	t.act("look")
 	for {
 		t.s.Out.Print(" ready> ")
 		text, err := t.s.In.Readln()
 		if err != nil {
 			return
 		}
-		quit, err := t.act(text, t.u.Actions())
+		quit, err := t.act(text)
 		if quit {
 			break
 		}
@@ -43,4 +45,13 @@ func (t *textUI) Run() {
 			t.s.Out.Println("Error: ", err)
 		}
 	}
+}
+
+// act handles a user's command
+func (t *textUI) act(command string) (bool, error) {
+	request, err := t.parseAction(command)
+	if err != nil {
+		return false, errors.Wrap(err, "parsing action")
+	}
+	return t.call(request)
 }

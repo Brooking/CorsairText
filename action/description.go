@@ -10,9 +10,9 @@ type Description struct {
 	Parameters  []ParameterType
 }
 
-// table is the complete list of action descriptions
-var table = map[Type]Description{
-	TypeHelp: {
+// DescriptionTable is the complete list of action descriptions
+var DescriptionTable = []Description{
+	{
 		Type:        TypeHelp,
 		Description: "List possible commands",
 		ShortUsage:  "(H)elp",
@@ -20,14 +20,21 @@ var table = map[Type]Description{
 		NameRegex:   "h(elp)?",
 		Parameters:  []ParameterType{},
 	},
-	TypeLook: {
+	{
+		Type:        TypeQuit,
+		Description: "Leave the game",
+		ShortUsage:  "(Q)uit",
+		Usage:       "(Q)uit",
+		NameRegex:   "q(uit)?",
+	},
+	{
 		Type:        TypeLook,
 		Description: "Look around",
 		ShortUsage:  "(L)ook",
 		Usage:       "(L)ook",
 		NameRegex:   "l(ook)?",
 	},
-	TypeGo: {
+	{
 		Type:        TypeGo,
 		Description: "Travel",
 		ShortUsage:  "(G)o",
@@ -35,14 +42,14 @@ var table = map[Type]Description{
 		NameRegex:   "g(o)?",
 		Parameters:  []ParameterType{ParameterTypeAny},
 	},
-	TypeMine: {
+	{
 		Type:        TypeMine,
 		Description: "Dig for ore",
 		ShortUsage:  "(M)ine",
 		Usage:       "(M)ine",
 		NameRegex:   "m(ine)?",
 	},
-	TypeBuy: {
+	{
 		Type:        TypeBuy,
 		Description: "Purchase a commodity",
 		ShortUsage:  "(B)uy",
@@ -50,7 +57,7 @@ var table = map[Type]Description{
 		NameRegex:   "b(uy)?",
 		Parameters:  []ParameterType{ParameterTypeNumber, ParameterTypeAny},
 	},
-	TypeSell: {
+	{
 		Type:        TypeSell,
 		Description: "Sell a commodity",
 		ShortUsage:  "(S)ell",
@@ -58,15 +65,20 @@ var table = map[Type]Description{
 		NameRegex:   "s(ell)?",
 		Parameters:  []ParameterType{ParameterTypeNumber, ParameterTypeAny},
 	},
-	TypeQuit: {
-		Type:        TypeQuit,
-		Description: "Leave the game",
-		ShortUsage:  "(Q)uit",
-		Usage:       "(Q)uit",
-		NameRegex:   "q(uit)?",
-	},
 }
 
+// Describe returns a complete description of a Type
+func Describe(actionType Type) Description {
+	for _, description := range DescriptionTable {
+		if description.Type != actionType {
+			continue
+		}
+		return description
+	}
+	return Description{}
+}
+
+// ParameterType describes a parameter
 type ParameterType int
 
 const (
@@ -75,12 +87,14 @@ const (
 	ParameterTypeAny    ParameterType = 2
 )
 
+// parameterToString is a mapping from ParameterType to a string describing it
 var parameterTypeToString = map[ParameterType]string{
 	ParameterTypeNone:   "ParameterTypeNone",
 	ParameterTypeNumber: "ParameterTypeNumber",
 	ParameterTypeAny:    "ParameterTypeAny",
 }
 
+// String returns a textual represention of a ParameterType
 func (p ParameterType) String() string {
 	s, ok := parameterTypeToString[p]
 	if !ok {

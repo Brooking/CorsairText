@@ -6,22 +6,12 @@ type List []Type
 // Append allows two action lists to be concatinated
 func (l List) Append(more List) List {
 	for _, item := range more {
+		if l.Includes(item) {
+			continue
+		}
 		l = append(l, item)
 	}
 	return l
-}
-
-// Descriptions returns a slice of descriptions
-func (l List) Descriptions() []Description {
-	var descriptions []Description
-	for _, actionType := range l {
-		description, ok := table[actionType]
-		if !ok {
-			continue
-		}
-		descriptions = append(descriptions, description)
-	}
-	return descriptions
 }
 
 // Includes indicates whether the action is in the list

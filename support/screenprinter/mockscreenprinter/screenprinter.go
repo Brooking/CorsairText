@@ -51,6 +51,26 @@ func (mr *MockScreenPrinterMockRecorder) Print(a ...interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Print", reflect.TypeOf((*MockScreenPrinter)(nil).Print), a...)
 }
 
+// Printf mocks base method
+func (m *MockScreenPrinter) Printf(format string, a ...interface{}) (int, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{format}
+	for _, a_2 := range a {
+		varargs = append(varargs, a_2)
+	}
+	ret := m.ctrl.Call(m, "Printf", varargs...)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Printf indicates an expected call of Printf
+func (mr *MockScreenPrinterMockRecorder) Printf(format interface{}, a ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{format}, a...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Printf", reflect.TypeOf((*MockScreenPrinter)(nil).Printf), varargs...)
+}
+
 // Println mocks base method
 func (m *MockScreenPrinter) Println(a ...interface{}) (int, error) {
 	m.ctrl.T.Helper()
