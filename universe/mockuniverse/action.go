@@ -6,6 +6,7 @@ package mockuniverse
 
 import (
 	action "corsairtext/action"
+	universe "corsairtext/universe"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -77,14 +78,12 @@ func (mr *MockActionMockRecorder) Help() *gomock.Call {
 }
 
 // Look mocks base method
-func (m *MockAction) Look() (string, string, string, error) {
+func (m *MockAction) Look() (universe.View, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Look")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(string)
-	ret2, _ := ret[2].(string)
-	ret3, _ := ret[3].(error)
-	return ret0, ret1, ret2, ret3
+	ret0, _ := ret[0].(universe.View)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // Look indicates an expected call of Look

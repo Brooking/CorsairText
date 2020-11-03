@@ -70,30 +70,17 @@ func describe(actionType action.Type) actionDescription {
 }
 
 // parameterType describes a parameter
-type parameterType int
+type parameterType string
 
 const (
-	parameterTypeNone      parameterType = iota
-	parameterTypeNumber    parameterType = iota
-	parameterTypeAny       parameterType = iota
-	parameterTypeOptNumber parameterType = iota
-	parameterTypeOptAny    parameterType = iota
+	parameterTypeNone      parameterType = "ParameterTypeNone"
+	parameterTypeNumber    parameterType = "ParameterTypeNumber"
+	parameterTypeAny       parameterType = "ParameterTypeAny"
+	parameterTypeOptNumber parameterType = "parameterTypeOptNumber"
+	parameterTypeOptAny    parameterType = "parameterTypeOptAny"
 )
-
-// parameterToString is a mapping from parameterType to a string describing it
-var parameterTypeToString = map[parameterType]string{
-	parameterTypeNone:      "ParameterTypeNone",
-	parameterTypeNumber:    "ParameterTypeNumber",
-	parameterTypeAny:       "ParameterTypeAny",
-	parameterTypeOptNumber: "parameterTypeOptNumber",
-	parameterTypeOptAny:    "parameterTypeOptAny",
-}
 
 // String returns a textual represention of a parameterType
 func (p parameterType) String() string {
-	s, ok := parameterTypeToString[p]
-	if !ok {
-		return ""
-	}
-	return s
+	return string(p)
 }

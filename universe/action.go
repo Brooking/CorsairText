@@ -12,10 +12,17 @@ type Action interface {
 	Buy(int, string) error
 	Go(string) error
 	Help() ([]action.Type, error)
-	Look() (string, string, string, error)
+	Look() (View, error)
 	Mine() error
 	Quit() error
 	Sell(int, string) error
+}
+
+// View is what you get when you look
+type View struct {
+	Name        string
+	Description string
+	Path        string
 }
 
 // Buy acquires a certain amount of a commodity at a base
@@ -35,8 +42,12 @@ func (u *universe) Help() ([]action.Type, error) {
 }
 
 // Look returns information about the current spot
-func (u *universe) Look() ( /* Name */ string /* Description */, string /* Path */, string, error) {
-	return u.current.Name(), u.current.Description(), u.current.Path(), nil
+func (u *universe) Look() (View, error) {
+	return View{
+		Description: u.current.Description(),
+		Name:        u.current.Name(),
+		Path:        u.current.Path(),
+	}, nil
 }
 
 // Mine digs for ore

@@ -94,13 +94,13 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 
 // look handles a look action
 func (t *textUI) look(arg []interface{}) (bool, error) {
-	name, description, path, err := t.u.Look()
+	view, err := t.u.Look()
 	if err != nil {
 		return false, errors.Wrap(err, "look failed")
 	}
 
-	t.s.Out.Println(strings.Join([]string{"You are at ", name, ", ", description, "."}, ""))
-	t.s.Out.Println(path)
+	t.s.Out.Println(strings.Join([]string{"You are at ", view.Name, ", ", view.Description, "."}, ""))
+	t.s.Out.Println(view.Path)
 	return false, nil
 }
 
