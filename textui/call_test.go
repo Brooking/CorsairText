@@ -7,6 +7,7 @@ import (
 	"corsairtext/action"
 	"corsairtext/support"
 	"corsairtext/support/screenprinter/mockscreenprinter"
+	"corsairtext/universe"
 	"corsairtext/universe/mockuniverse"
 
 	"github.com/golang/mock/gomock"
@@ -374,28 +375,28 @@ func TestCallHelp(t *testing.T) {
 
 func TestCallLook(t *testing.T) {
 	testCases := []struct {
-		name            string
-		request         Request
-		lookName        string
-		lookDescription string
-		lookPath        string
-		lookError       error
-		out1Expected    string
-		out2Expected    string
-		outCalls        int
-		assert          func(bool, error)
+		name         string
+		request      Request
+		lookReturn   universe.View
+		lookError    error
+		out1Expected string
+		out2Expected string
+		outCalls     int
+		assert       func(bool, error)
 	}{
 		{
 			name: "success",
 			request: Request{
 				Type: action.TypeLook,
 			},
-			lookName:        "Mars",
-			lookDescription: "a red planet",
-			lookPath:        "sol>Mars",
-			out1Expected:    "You are at Mars, a red planet.",
-			out2Expected:    "sol>Mars",
-			outCalls:        1,
+			lookReturn: universe.View{
+				Name:        "Mars",
+				Description: "a red planet",
+				Path:        "sol>Mars",
+			},
+			out1Expected: "You are at Mars, a red planet.",
+			out2Expected: "sol>Mars",
+			outCalls:     1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, false, quit)
@@ -423,7 +424,7 @@ func TestCallLook(t *testing.T) {
 			universeMock := mockuniverse.NewMockAction(ctrl)
 			universeMock.EXPECT().
 				Look().
-				Return(testCase.lookName, testCase.lookDescription, testCase.lookPath, testCase.lookError).
+				Return(testCase.lookReturn, testCase.lookError).
 				Times(1)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			first := outMock.EXPECT().
