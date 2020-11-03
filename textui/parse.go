@@ -19,7 +19,7 @@ type Request struct {
 func (t *textUI) parseAction(input string) (Request, error) {
 	var (
 		request                  Request
-		matchedActionDescription *action.Description
+		matchedActionDescription *actionDescription
 
 		words      []string = strings.Split(input, " ")
 		command    string   = strings.ToLower(words[0])
@@ -58,13 +58,13 @@ func (t *textUI) parseAction(input string) (Request, error) {
 		}
 
 		switch parameterType {
-		case action.ParameterTypeNumber:
+		case parameterTypeNumber:
 			value, err := strconv.Atoi(parameters[i])
 			if err != nil {
 				return request, errors.Errorf("unable to convert parameter %v (%v) to a number", i, parameters[i])
 			}
 			request.Parameters = append(request.Parameters, value)
-		case action.ParameterTypeAny:
+		case parameterTypeAny:
 			request.Parameters = append(request.Parameters, parameters[i])
 		}
 	}
@@ -73,8 +73,8 @@ func (t *textUI) parseAction(input string) (Request, error) {
 }
 
 // parseCommand matches a command to an action
-func parseCommand(command string) (*action.Description, error) {
-	for _, description := range action.DescriptionTable {
+func parseCommand(command string) (*actionDescription, error) {
+	for _, description := range actionDescriptionTable {
 		regexQuery := `\b` + description.NameRegex + `\b`
 		match, err := regexp.MatchString(regexQuery, command)
 		if err != nil {
@@ -89,8 +89,8 @@ func parseCommand(command string) (*action.Description, error) {
 }
 
 // parameterRegex provides the proper regex for parameter types
-var parameterRegex = map[action.ParameterType]string{
-	action.ParameterTypeNone:   `\b`,
-	action.ParameterTypeNumber: `\b\d+\b`,
-	action.ParameterTypeAny:    `\b.+\b`,
+var parameterRegex = map[parameterType]string{
+	parameterTypeNone:   `\b`,
+	parameterTypeNumber: `\b\d+\b`,
+	parameterTypeAny:    `\b.+\b`,
 }

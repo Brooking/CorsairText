@@ -68,7 +68,7 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 			return false, errors.Wrap(err, "unable to get help list")
 		}
 		for _, actionType := range actionList {
-			description := action.Describe(actionType)
+			description := describe(actionType)
 			usage := description.ShortUsage
 			if usage == "" {
 				usage = description.Usage
