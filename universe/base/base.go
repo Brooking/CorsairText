@@ -58,7 +58,7 @@ func (t *Type) String() string {
 
 // dirtActions stores the possible actions for a dirt base
 var dirtActions = action.List{
-	action.TypeMine,
+	action.TypeDig,
 }
 
 // fullActions stores the possible actions for a full base

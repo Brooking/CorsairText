@@ -13,7 +13,7 @@ type Action interface {
 	Go(string) error
 	Help() ([]action.Type, error)
 	Look() (View, error)
-	Mine() error
+	Dig() error
 	Quit() error
 	Sell(int, string) error
 }
@@ -50,9 +50,9 @@ func (u *universe) Look() (View, error) {
 	}, nil
 }
 
-// Mine digs for ore
-func (u *universe) Mine() error {
-	return errors.New("mine not yet implemented")
+// Dig mines for ore
+func (u *universe) Dig() error {
+	return errors.New("dig not yet implemented")
 }
 
 // Quit shut everything down

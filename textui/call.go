@@ -13,7 +13,7 @@ func (t *textUI) call(request Request) (bool, error) {
 		action.TypeGo:   t.move,
 		action.TypeHelp: t.help,
 		action.TypeLook: t.look,
-		action.TypeMine: t.mine,
+		action.TypeDig:  t.dig,
 		action.TypeQuit: t.quit,
 		action.TypeSell: t.sell,
 	}
@@ -104,9 +104,9 @@ func (t *textUI) look(arg []interface{}) (bool, error) {
 	return false, nil
 }
 
-// mine handles a mine action
-func (t *textUI) mine(arg []interface{}) (bool, error) {
-	return false, t.u.Mine()
+// dig handles a mining action
+func (t *textUI) dig(arg []interface{}) (bool, error) {
+	return false, t.u.Dig()
 }
 
 // quit handles a quit command

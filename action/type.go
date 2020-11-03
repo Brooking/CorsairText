@@ -27,8 +27,8 @@ const (
 	// Dirt
 	//
 
-	// TypeMine is an order to dig for ore
-	TypeMine Type = "mine"
+	// TypeDig is an order to dig for ore
+	TypeDig Type = "dig"
 
 	//
 	// Base

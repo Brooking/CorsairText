@@ -92,18 +92,18 @@ func (mr *MockActionMockRecorder) Look() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Look", reflect.TypeOf((*MockAction)(nil).Look))
 }
 
-// Mine mocks base method
-func (m *MockAction) Mine() error {
+// Dig mocks base method
+func (m *MockAction) Dig() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Mine")
+	ret := m.ctrl.Call(m, "Dig")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Mine indicates an expected call of Mine
-func (mr *MockActionMockRecorder) Mine() *gomock.Call {
+// Dig indicates an expected call of Dig
+func (mr *MockActionMockRecorder) Dig() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Mine", reflect.TypeOf((*MockAction)(nil).Mine))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Dig", reflect.TypeOf((*MockAction)(nil).Dig))
 }
 
 // Quit mocks base method

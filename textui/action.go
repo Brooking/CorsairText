@@ -38,9 +38,9 @@ var actionDescriptionTable = []actionDescription{
 		Parameters: []parameterType{parameterTypeAny},
 	},
 	{
-		Type:      action.TypeMine,
-		Usage:     "(M)ine - Dig for ore",
-		NameRegex: "m(ine)?",
+		Type:      action.TypeDig,
+		Usage:     "(D)ig - Mine for ore",
+		NameRegex: "d(ig)?",
 	},
 	{
 		Type:       action.TypeBuy,
