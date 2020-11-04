@@ -3,6 +3,7 @@ package universe
 import (
 	"corsairtext/universe/base"
 	"corsairtext/universe/spot"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -43,11 +44,11 @@ func (u *universe) generateMap() (spot.Spot, spot.Spot, error) {
 // addSpot creates a spot, adds it to the index, and links it to its parent
 func (u *universe) addSpot(init spot.Init) (spot.Spot, error) {
 	spot := spot.NewSpot(init)
-	_, exists := u.index[init.Name]
+	_, exists := u.index[strings.ToLower(init.Name)]
 	if exists {
 		return nil, errors.Errorf("internal: %v already exists", init.Name)
 	}
-	u.index[init.Name] = spot
+	u.index[strings.ToLower(init.Name)] = spot
 	if init.Parent != nil {
 		init.Parent.AddChild(spot)
 	}

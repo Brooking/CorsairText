@@ -90,6 +90,9 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 			if usage == "" {
 				usage = description.Usage
 			}
+			if usage == "" {
+				continue
+			}
 			t.s.Out.Println(usage)
 		}
 	case 1:

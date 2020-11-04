@@ -3,6 +3,7 @@ package universe
 import (
 	"corsairtext/action"
 	"corsairtext/e"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -45,16 +46,18 @@ func (u *universe) Go(destination string) error {
 	if !u.allowed(action.TypeGo) {
 		return e.NewBadSpotError(u.current, action.TypeGo)
 	}
+
+	_, ok := u.index[strings.ToLower(destination)]
+	if !ok {
+		return e.NewUnknownDestinationError(destination)
+	}
+
 	adjacencies := u.current.ListAdjacent()
 	for _, adjacent := range adjacencies {
-		if destination == adjacent.Name() {
+		if strings.ToLower(destination) == strings.ToLower(adjacent.Name()) {
 			u.current = adjacent
 			return nil
 		}
-	}
-	_, ok := u.index[destination]
-	if !ok {
-		return e.NewUnknownDestinationError(destination)
 	}
 	return e.NewNotAdjacentError(u.current.Name(), destination)
 }
