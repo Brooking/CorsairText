@@ -34,7 +34,7 @@ type textUI struct {
 
 // Run is the main text ui entry point
 func (t *textUI) Run() {
-	t.act("look")
+	t.call(Request{Type: action.TypeLook})
 	for {
 		t.s.Out.Print("ready> ")
 		text, err := t.s.In.Readln()
@@ -42,10 +42,12 @@ func (t *textUI) Run() {
 		if err != nil {
 			return
 		}
+
 		quit, err := t.act(text)
 		if quit {
 			break
 		}
+
 		if err != nil {
 			cause := errors.Cause(err)
 
@@ -73,7 +75,7 @@ func (t *textUI) Run() {
 
 // act handles a user's command
 func (t *textUI) act(command string) (bool, error) {
-	request, err := t.parseAction(command)
+	request, err := t.parse(command)
 	if err != nil {
 		return false, errors.Wrap(err, "parsing action")
 	}

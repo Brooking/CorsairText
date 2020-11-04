@@ -16,8 +16,8 @@ type Request struct {
 	Parameters []interface{}
 }
 
-// parseAction matches the input string with an action's regex
-func (t *textUI) parseAction(input string) (Request, error) {
+// parse matches the input string with an action's regex
+func (t *textUI) parse(input string) (Request, error) {
 	var (
 		rawWords      []string = strings.Split(input, " ")
 		rawCommand    string   = strings.ToLower(rawWords[0])
@@ -66,6 +66,7 @@ func parseParameters(targetDescription *actionDescription, rawParameters []strin
 			return nil, errors.Errorf("internal: unknown parameter type %v (index %v)", parameterType, count)
 		}
 
+		// Missing actual parameters, it only a problem it they are not optional
 		if count >= len(rawParameters) {
 			if parameterType != parameterTypeOptNumber && parameterType != parameterTypeOptAny {
 				return nil, e.NewMissingParameterError(targetDescription.Type, len(targetDescription.Parameters), len(rawParameters))
@@ -73,6 +74,7 @@ func parseParameters(targetDescription *actionDescription, rawParameters []strin
 			break
 		}
 
+		// validate this parameter
 		match, err := regexp.MatchString(regex, rawParameters[count])
 		if err != nil {
 			return nil, errors.Wrapf(err, "internal: malformed parameter #%v (%v) of type %v", count, rawParameters[count], parameterType)
@@ -81,6 +83,7 @@ func parseParameters(targetDescription *actionDescription, rawParameters []strin
 			return nil, e.NewBadParameterError(targetDescription.Type, rawParameters[count])
 		}
 
+		// convert this parameter
 		switch parameterType {
 		case parameterTypeNumber, parameterTypeOptNumber:
 			value, err := strconv.Atoi(rawParameters[count])

@@ -124,7 +124,7 @@ func TestParseAction(t *testing.T) {
 			textui := &textUI{}
 
 			// act
-			request, err := textui.parseAction(testCase.input)
+			request, err := textui.parse(testCase.input)
 
 			// assert
 			testCase.assert(request, err)
