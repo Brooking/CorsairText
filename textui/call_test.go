@@ -161,32 +161,24 @@ func TestCallGo(t *testing.T) {
 		goDestination string
 		goReturn      error
 		goCalls       int
+		lookCalls     int
 		assert        func(bool, error)
 	}{
 		{
-			name: "go success",
+			name: "go success with dest",
 			request: Request{
 				Type:       action.TypeGo,
 				Parameters: []interface{}{"mars"},
 			},
 			goDestination: "mars",
 			goCalls:       1,
+			lookCalls:     1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, false, quit)
 			},
 		},
-		{
-			name: "go failed missing param",
-			request: Request{
-				Type:       action.TypeGo,
-				Parameters: []interface{}{},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
+		// for "success no params", see TestCallGoList()
 		{
 			name: "go failed bad param",
 			request: Request{
@@ -225,12 +217,79 @@ func TestCallGo(t *testing.T) {
 				Go(testCase.goDestination).
 				Return(testCase.goReturn).
 				Times(testCase.goCalls)
+			universeMock.EXPECT().
+				Look().
+				Return(&universe.View{}, nil).
+				Times(testCase.lookCalls)
+			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
+			outMock.EXPECT().
+				Println(gomock.Any()).
+				AnyTimes()
+			support := support.Support{
+				Out: outMock,
+			}
 			textui := &textUI{
+				s: support,
 				u: universeMock,
 			}
 
 			// act
 			quit, err := textui.call(testCase.request)
+
+			// assert
+			testCase.assert(quit, err)
+		})
+	}
+}
+
+func TestCallGoList(t *testing.T) {
+	testCases := []struct {
+		name         string
+		golistReturn []universe.Neighbor
+		golistError  error
+		golistCalls  int
+		outInput     string
+		outCalls     int
+		assert       func(bool, error)
+	}{
+		{
+			name:         "go success no params",
+			golistReturn: []universe.Neighbor{{Index: 0, Name: "Moon"}},
+			golistCalls:  1,
+			outInput:     "Moon",
+			outCalls:     1,
+			assert: func(quit bool, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, false, quit)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			// arrange
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			universeMock := mockuniverse.NewMockAction(ctrl)
+			universeMock.EXPECT().
+				GoList().
+				Return(testCase.golistReturn, testCase.golistError).
+				Times(testCase.golistCalls)
+			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
+			outMock.EXPECT().
+				Println(testCase.outInput).
+				Times(testCase.outCalls)
+			support := support.Support{
+				Out: outMock,
+			}
+			textui := &textUI{
+				s: support,
+				u: universeMock,
+			}
+
+			// act
+			quit, err := textui.call(Request{Type: action.TypeGo})
 
 			// assert
 			testCase.assert(quit, err)

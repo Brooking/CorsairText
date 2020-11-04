@@ -12,6 +12,7 @@ import (
 type Action interface {
 	Buy(int, string) error
 	Go(string) error
+	GoList() ([]Neighbor, error)
 	Help() (action.List, error)
 	Look() (*View, error)
 	Dig() error
@@ -23,6 +24,12 @@ type View struct {
 	Name        string
 	Description string
 	Path        string
+}
+
+// Neighbor is used to designate destinations
+type Neighbor struct {
+	Index int
+	Name  string
 }
 
 // Buy acquires a certain amount of a commodity at a base
@@ -38,7 +45,32 @@ func (u *universe) Go(destination string) error {
 	if !u.allowed(action.TypeGo) {
 		return e.NewBadSpotError(u.current, action.TypeGo)
 	}
-	return errors.New("go not yet implemented")
+	adjacencies := u.current.ListAdjacent()
+	for _, adjacent := range adjacencies {
+		if destination == adjacent.Name() {
+			u.current = adjacent
+			return nil
+		}
+	}
+	_, ok := u.index[destination]
+	if !ok {
+		return e.NewUnknownDestinationError(destination)
+	}
+	return e.NewNotAdjacentError(u.current.Name(), destination)
+}
+
+// GoList returns a list of go targets
+func (u *universe) GoList() ([]Neighbor, error) {
+	if !u.allowed(action.TypeGoList) {
+		return nil, e.NewBadSpotError(u.current, action.TypeGoList)
+	}
+
+	var list []Neighbor
+	adjacencies := u.current.ListAdjacent()
+	for i, adjacent := range adjacencies {
+		list = append(list, Neighbor{Index: i, Name: adjacent.Name()})
+	}
+	return list, nil
 }
 
 // Help returns the list of actions available at the current spot

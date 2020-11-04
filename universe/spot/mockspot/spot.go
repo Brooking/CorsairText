@@ -48,18 +48,6 @@ func (mr *MockSpotMockRecorder) Actions() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Actions", reflect.TypeOf((*MockSpot)(nil).Actions))
 }
 
-// AddChild mocks base method
-func (m *MockSpot) AddChild(child spot.Spot) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "AddChild", child)
-}
-
-// AddChild indicates an expected call of AddChild
-func (mr *MockSpotMockRecorder) AddChild(child interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddChild", reflect.TypeOf((*MockSpot)(nil).AddChild), child)
-}
-
 // Description mocks base method
 func (m *MockSpot) Description() string {
 	m.ctrl.T.Helper()
@@ -100,4 +88,58 @@ func (m *MockSpot) Path() string {
 func (mr *MockSpotMockRecorder) Path() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Path", reflect.TypeOf((*MockSpot)(nil).Path))
+}
+
+// ListAdjacent mocks base method
+func (m *MockSpot) ListAdjacent() []spot.Spot {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListAdjacent")
+	ret0, _ := ret[0].([]spot.Spot)
+	return ret0
+}
+
+// ListAdjacent indicates an expected call of ListAdjacent
+func (mr *MockSpotMockRecorder) ListAdjacent() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListAdjacent", reflect.TypeOf((*MockSpot)(nil).ListAdjacent))
+}
+
+// AddChild mocks base method
+func (m *MockSpot) AddChild(child spot.Spot) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "AddChild", child)
+}
+
+// AddChild indicates an expected call of AddChild
+func (mr *MockSpotMockRecorder) AddChild(child interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddChild", reflect.TypeOf((*MockSpot)(nil).AddChild), child)
+}
+
+// Parent mocks base method
+func (m *MockSpot) Parent() spot.Spot {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Parent")
+	ret0, _ := ret[0].(spot.Spot)
+	return ret0
+}
+
+// Parent indicates an expected call of Parent
+func (mr *MockSpotMockRecorder) Parent() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Parent", reflect.TypeOf((*MockSpot)(nil).Parent))
+}
+
+// Children mocks base method
+func (m *MockSpot) Children() []spot.Spot {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Children")
+	ret0, _ := ret[0].([]spot.Spot)
+	return ret0
+}
+
+// Children indicates an expected call of Children
+func (mr *MockSpotMockRecorder) Children() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Children", reflect.TypeOf((*MockSpot)(nil).Children))
 }

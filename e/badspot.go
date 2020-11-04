@@ -11,7 +11,7 @@ type BadSpotError struct {
 	Type action.Type
 }
 
-// Error returns a textual representation of the bad spot error
+// Error returns a textual representation of the BadSpotError
 func (e *BadSpotError) Error() string {
 	return e.Type.String() + " not allowed at " + e.Spot.Name()
 }
@@ -22,7 +22,7 @@ func (e *BadSpotError) IsShowToUser() {}
 // IsShowAllHelp marks this error to show a full help screen
 func (e *BadSpotError) IsShowAllHelp() {}
 
-// NewBadSpotError creates a bad spot error
+// NewBadSpotError creates a BadSpotError
 func NewBadSpotError(spot spot.Spot, actionType action.Type) error {
 	return &BadSpotError{
 		Spot: spot,
@@ -30,7 +30,7 @@ func NewBadSpotError(spot spot.Spot, actionType action.Type) error {
 	}
 }
 
-// IsBadSpotError indicated whether the error is a bad spot error
+// IsBadSpotError indicated whether the error is a BadSpotError
 func IsBadSpotError(err error) bool {
 	_, ok := err.(*BadSpotError)
 	return ok

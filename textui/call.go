@@ -49,15 +49,31 @@ func (t *textUI) buy(arg []interface{}) (bool, error) {
 
 // move handles a go action
 func (t *textUI) move(arg []interface{}) (bool, error) {
-	if len(arg) != 1 {
-		return false, errors.Errorf("internal: move passed wrong number of args, expected 1, got %v", len(arg))
-	}
-	destination, ok := arg[0].(string)
-	if !ok {
-		return false, errors.Errorf("internal: move passed non-string %v", arg[0])
-	}
+	switch len(arg) {
+	case 0:
+		adjacency, err := t.u.GoList()
+		if err != nil {
+			return false, errors.Wrap(err, "internal: unable to get adjacency list")
+		}
+		for _, neighbor := range adjacency {
+			t.s.Out.Println(neighbor.Name)
+		}
+	case 1:
+		destination, ok := arg[0].(string)
+		if !ok {
+			return false, errors.Errorf("internal: move passed non-string %v", arg[0])
+		}
 
-	return false, t.u.Go(destination)
+		err := t.u.Go(destination)
+		if err != nil {
+			return false, err
+		}
+
+		t.look([]interface{}{nil})
+	default:
+		return false, errors.Errorf("internal: move passed wrong number of args, expected 0 or 1, got %v", len(arg))
+	}
+	return false, nil
 }
 
 // help handles a help action
@@ -88,7 +104,7 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 		}
 		t.s.Out.Println(description.Usage)
 	default:
-		return false, errors.Errorf("internal: move passed wrong number of args, expected 0 or 1, got %v", len(arg))
+		return false, errors.Errorf("internal: help passed wrong number of args, expected 0 or 1, got %v", len(arg))
 	}
 	return false, nil
 }

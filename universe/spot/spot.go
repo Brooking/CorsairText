@@ -12,9 +12,6 @@ type Spot interface {
 	// Actions returns a list of possible actions at this spot
 	Actions() action.List
 
-	// AddChild adds a child to this spot
-	AddChild(child Spot)
-
 	// Description returns a string describing this spot
 	Description() string
 
@@ -23,6 +20,18 @@ type Spot interface {
 
 	// Path returns a hierarchical location of this spot
 	Path() string
+
+	// ListAdjacent returns a list of adjacent spots
+	ListAdjacent() []Spot
+
+	// AddChild adds a child to this spot
+	AddChild(child Spot)
+
+	// Parent returns the parent of this spot
+	Parent() Spot
+
+	// Children lists the children of this spot
+	Children() []Spot
 }
 
 // Init is the Spot initializer
@@ -75,6 +84,14 @@ func (s *spot) AddChild(child Spot) {
 	s.children = append(s.children, child)
 }
 
+func (s *spot) Parent() Spot {
+	return s.parent
+}
+
+func (s *spot) Children() []Spot {
+	return s.children
+}
+
 // Description returns a textual description of the spot
 func (s *spot) Description() string {
 	if s == nil {
@@ -93,23 +110,45 @@ func (s *spot) Name() string {
 
 // Path returns the path to the spot
 func (s *spot) Path() string {
+	var current Spot = s
 	var path string
 	for {
-		if s == nil {
+		if current == nil {
 			break
 		}
-		path = s.name + ">" + path
-		if s.parent == nil {
+		path = current.Name() + ">" + path
+		if current.Parent() == nil {
 			break
 		}
-		s = s.parent.(*spot)
+		current = current.Parent()
 	}
 	return path
+}
+
+// ListAdjacent returns a list of adjacent spots
+// todo, we should not do this every time (cache it somewhere)
+func (s *spot) ListAdjacent() []Spot {
+	var list []Spot
+	if s.Parent() != nil {
+		list = append(list, s.Parent())
+		siblings := s.Parent().Children()
+		for _, sibling := range siblings {
+			if sibling == s {
+				continue
+			}
+			list = append(list, sibling)
+		}
+	}
+	for _, child := range s.Children() {
+		list = append(list, child)
+	}
+	return list
 }
 
 // spotConstActions lists this spots actions
 var spotConstActions = action.List{
 	action.TypeGo,
+	action.TypeGoList,
 	action.TypeHelp,
 	action.TypeLook,
 	action.TypeQuit,

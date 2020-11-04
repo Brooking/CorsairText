@@ -35,7 +35,7 @@ var actionDescriptionTable = []actionDescription{
 		ShortUsage: "(G)o - Travel",
 		Usage:      "(G)o <destination> - Travel to destination",
 		NameRegex:  "g(o)?",
-		Parameters: []parameterType{parameterTypeAny},
+		Parameters: []parameterType{parameterTypeOptAny},
 	},
 	{
 		Type:      action.TypeDig,

@@ -25,7 +25,7 @@ func (u *universe) generateMap() (spot.Spot, spot.Spot, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	wm, err := u.addSpot(spot.Init{Support: u.s, Name: "Winnemucca Base", Description: "a full base", BaseType: base.TypeFull, Parent: earth})
+	wm, err := u.addSpot(spot.Init{Support: u.s, Name: "Winnemucca", Description: "a full base", BaseType: base.TypeFull, Parent: earth})
 	if err != nil || wm == nil {
 		return nil, nil, err
 	}
@@ -33,7 +33,7 @@ func (u *universe) generateMap() (spot.Spot, spot.Spot, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	tb, err := u.addSpot(spot.Init{Support: u.s, Name: "Tranquility Base", Description: "a rough base", BaseType: base.TypeDirt, Parent: luna})
+	tb, err := u.addSpot(spot.Init{Support: u.s, Name: "Tranquility", Description: "a rough base", BaseType: base.TypeDirt, Parent: luna})
 	if err != nil || tb == nil {
 		return nil, nil, err
 	}

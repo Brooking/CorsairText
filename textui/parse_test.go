@@ -72,7 +72,7 @@ func TestParseAction(t *testing.T) {
 			name:  "fails Go without parameters",
 			input: "G",
 			assert: func(request Request, err error) {
-				assert.Error(t, err)
+				assert.NoError(t, err)
 				assert.Equal(t, action.TypeGo, request.Type, "action type")
 				assert.Equal(t, 0, len(request.Parameters), "# parameters")
 			},

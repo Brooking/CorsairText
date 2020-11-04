@@ -1,6 +1,8 @@
 package e
 
-import "corsairtext/action"
+import (
+	"corsairtext/action"
+)
 
 // ShowAllHelpError is the interface that marks an error for full help
 type ShowAllHelpError interface {
@@ -42,5 +44,16 @@ type ShowToUserError interface {
 // IsShowToUserError indicates whether the error should be shown to the user
 func IsShowToUserError(err error) bool {
 	_, ok := err.(ShowToUserError)
+	return ok
+}
+
+// ShowAdjacencyError is the interface that marks an error for adjacency help
+type ShowAdjacencyError interface {
+	IsShowAdjacent()
+}
+
+// IsShowAdjacencyError indicates whether the error should be followed by adjacency help screen
+func IsShowAdjacencyError(err error) bool {
+	_, ok := err.(ShowAdjacencyError)
 	return ok
 }

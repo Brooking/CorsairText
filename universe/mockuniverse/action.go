@@ -62,6 +62,21 @@ func (mr *MockActionMockRecorder) Go(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Go", reflect.TypeOf((*MockAction)(nil).Go), arg0)
 }
 
+// GoList mocks base method
+func (m *MockAction) GoList() ([]universe.Neighbor, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GoList")
+	ret0, _ := ret[0].([]universe.Neighbor)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GoList indicates an expected call of GoList
+func (mr *MockActionMockRecorder) GoList() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GoList", reflect.TypeOf((*MockAction)(nil).GoList))
+}
+
 // Help mocks base method
 func (m *MockAction) Help() (action.List, error) {
 	m.ctrl.T.Helper()
