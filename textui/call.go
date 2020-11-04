@@ -120,7 +120,12 @@ func (t *textUI) look(arg []interface{}) (bool, error) {
 	}
 
 	t.s.Out.Println(strings.Join([]string{"You are at ", view.Name, ", ", view.Description, "."}, ""))
-	t.s.Out.Println(view.Path)
+
+	var path string
+	for _, spot := range view.Path {
+		path = path + spot + "/"
+	}
+	t.s.Out.Println(path)
 	return false, nil
 }
 

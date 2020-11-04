@@ -451,10 +451,10 @@ func TestCallLook(t *testing.T) {
 			lookReturn: &universe.View{
 				Name:        "Mars",
 				Description: "a red planet",
-				Path:        "sol>Mars",
+				Path:        []string{"sol", "Mars"},
 			},
 			out1Expected: "You are at Mars, a red planet.",
-			out2Expected: "sol>Mars",
+			out2Expected: "sol/Mars/",
 			outCalls:     1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)

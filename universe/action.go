@@ -24,7 +24,7 @@ type Action interface {
 type View struct {
 	Name        string
 	Description string
-	Path        string
+	Path        []string
 }
 
 // Neighbor is used to designate destinations

@@ -19,7 +19,7 @@ type Spot interface {
 	Name() string
 
 	// Path returns a hierarchical location of this spot
-	Path() string
+	Path() []string
 
 	// ListAdjacent returns a list of adjacent spots
 	ListAdjacent() []Spot
@@ -109,14 +109,14 @@ func (s *spot) Name() string {
 }
 
 // Path returns the path to the spot
-func (s *spot) Path() string {
+func (s *spot) Path() []string {
 	var current Spot = s
-	var path string
+	var path []string
 	for {
 		if current == nil {
 			break
 		}
-		path = current.Name() + ">" + path
+		path = append([]string{current.Name()}, path...)
 		if current.Parent() == nil {
 			break
 		}
