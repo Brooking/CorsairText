@@ -148,7 +148,6 @@ func (s *spot) ListAdjacent() []Spot {
 // spotConstActions lists this spots actions
 var spotConstActions = action.List{
 	action.TypeGo,
-	action.TypeGoList,
 	action.TypeHelp,
 	action.TypeLook,
 	action.TypeQuit,

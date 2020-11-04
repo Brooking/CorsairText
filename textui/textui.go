@@ -65,7 +65,7 @@ func (t *textUI) Run() {
 					Parameters: []interface{}{e.GetActionTypeForHelp(cause).String()},
 				})
 			case e.IsShowAdjacencyError(cause):
-				t.call(Request{Type: action.TypeGoList})
+				t.call(Request{Type: action.TypeGo})
 			}
 		}
 	}

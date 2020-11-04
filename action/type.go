@@ -23,9 +23,6 @@ const (
 	// TypeGo is a move request
 	TypeGo Type = "go"
 
-	// TypeGoList is a move destination list request
-	TypeGoList Type = "golist"
-
 	//
 	// Dirt
 	//

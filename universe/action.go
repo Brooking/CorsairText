@@ -64,8 +64,8 @@ func (u *universe) Go(destination string) error {
 
 // GoList returns a list of go targets
 func (u *universe) GoList() ([]Neighbor, error) {
-	if !u.allowed(action.TypeGoList) {
-		return nil, e.NewBadSpotError(u.current, action.TypeGoList)
+	if !u.allowed(action.TypeGo) {
+		return nil, e.NewBadSpotError(u.current, action.TypeGo)
 	}
 
 	var list []Neighbor
