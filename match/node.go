@@ -20,10 +20,10 @@ type node struct {
 	// Next is a pointer to the root of then next level
 	Next *node
 
-	// Letter is the letter held here
+	// Letter is the comparison letter held here
 	Letter string
 
-	// Word is the word that this letter uniquely leads to
+	// Word is the original word that this letter uniquely leads to
 	Word string
 
 	// FullWord indicates that this is the end of a known word
@@ -63,14 +63,14 @@ func addLetter(letter string, word string, finalLetter bool, root *node, trailer
 }
 
 // addWord distributes the letters of the word into the search tree
-func addWord(word string, index int, root *node, trailer **node) error {
-	if index == len(word) {
+func addWord(originalWord string, comparisonWord string, index int, root *node, trailer **node) error {
+	if index == len(comparisonWord) {
 		return nil
 	}
-	letter := word[index : index+1]
-	finalLetter := index+1 == len(word)
-	this := addLetter(letter, word, finalLetter, root, trailer)
-	addWord(word, index+1, this.Next, &this.Next)
+	letter := comparisonWord[index : index+1]
+	finalLetter := index+1 == len(comparisonWord)
+	this := addLetter(letter, originalWord, finalLetter, root, trailer)
+	addWord(originalWord, comparisonWord, index+1, this.Next, &this.Next)
 	return nil
 }
 

@@ -31,14 +31,14 @@ func TestMatcher(t *testing.T) {
 				assert.Equal(t, "", actual)
 			},
 		},
-		// {
-		// 	name:        "simple insensitive success, stored capital",
-		// 	wordList:    []string{"A"},
-		// 	inputWord:   "a",
-		// 	assert: func(actual string) {
-		// 		assert.Equal(t, "A", actual)
-		// 	},
-		// },
+		{
+			name:      "simple insensitive success, stored capital",
+			wordList:  []string{"A"},
+			inputWord: "a",
+			assert: func(actual string) {
+				assert.Equal(t, "A", actual)
+			},
+		},
 		{
 			name:      "simple insensitive success, stored lower",
 			wordList:  []string{"a"},

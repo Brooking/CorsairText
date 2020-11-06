@@ -304,7 +304,7 @@ func TestAddWord(t *testing.T) {
 			var root = testCase.root
 
 			// act
-			addWord(testCase.word, 0, root, &root)
+			addWord(testCase.word, testCase.word, 0, root, &root)
 
 			// assert
 			testCase.assert(root)

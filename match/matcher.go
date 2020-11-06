@@ -33,11 +33,12 @@ type matcher struct {
 }
 
 // Add adds a word to the matcher's dictionary
-func (m *matcher) Add(word string) {
+func (m *matcher) Add(originalWord string) {
+	comparisonWord := originalWord
 	if !m.matchCase {
-		word = strings.ToLower(word)
+		comparisonWord = strings.ToLower(originalWord)
 	}
-	addWord(word, 0, m.root, &m.root)
+	addWord(originalWord, comparisonWord, 0, m.root, &m.root)
 }
 
 // Ingest adds a word list to the matcher's dictionary
