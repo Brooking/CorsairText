@@ -15,10 +15,6 @@ func printOrdered(root *node, depth int) {
 }
 
 func printNode(node *node, depth int) {
-	var full string
-	if node.FullWord {
-		full = "*"
-	}
-	text := strings.Join([]string{node.Letter, node.Word, full}, " ")
+	text := strings.Join([]string{node.Letter}, " ")
 	println(text, depth)
 }

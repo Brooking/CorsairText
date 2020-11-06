@@ -146,8 +146,8 @@ func TestCallBuy(t *testing.T) {
 			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
-				DoAndReturn(func(s string) string {
-					return s
+				DoAndReturn(func(s string) []string {
+					return []string{s}
 				}).
 				AnyTimes()
 			textui := &textUI{
@@ -238,9 +238,18 @@ func TestCallGo(t *testing.T) {
 			support := support.Support{
 				Out: outMock,
 			}
+			matcherMock := mockmatch.NewMockMatcher(ctrl)
+			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
+			matcherMock.EXPECT().
+				Match(gomock.Any()).
+				DoAndReturn(func(s string) []string {
+					return []string{s}
+				}).
+				AnyTimes()
 			textui := &textUI{
-				s: support,
-				u: universeMock,
+				s:              support,
+				u:              universeMock,
+				commandMatcher: matcherMock,
 			}
 
 			// act
@@ -297,8 +306,8 @@ func TestCallGoList(t *testing.T) {
 			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
-				DoAndReturn(func(s string) string {
-					return s
+				DoAndReturn(func(s string) []string {
+					return []string{s}
 				}).
 				AnyTimes()
 			textui := &textUI{
@@ -441,8 +450,8 @@ func TestCallHelp(t *testing.T) {
 			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
-				DoAndReturn(func(s string) string {
-					return s
+				DoAndReturn(func(s string) []string {
+					return []string{s}
 				}).
 				AnyTimes()
 			textui := &textUI{
@@ -528,8 +537,8 @@ func TestCallLook(t *testing.T) {
 			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
-				DoAndReturn(func(s string) string {
-					return s
+				DoAndReturn(func(s string) []string {
+					return []string{s}
 				}).
 				AnyTimes()
 			textui := &textUI{
@@ -636,8 +645,8 @@ func TestCallSell(t *testing.T) {
 			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
-				DoAndReturn(func(s string) string {
-					return s
+				DoAndReturn(func(s string) []string {
+					return []string{s}
 				}).
 				AnyTimes()
 			textui := &textUI{

@@ -26,8 +26,8 @@ func TestAddLetter(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.Nil(t, root.Next, "root.Next")
 				assert.Equal(t, "m", root.Letter, "root.Letter")
-				assert.Equal(t, "ma", root.Word, "root.Word")
-				assert.Equal(t, false, root.FullWord, "root.FullWord")
+				assert.Equal(t, 1, len(root.Words), "len root.Words")
+				assert.Equal(t, "ma", root.Words[0], "root.Words[0]")
 			},
 		},
 		{
@@ -36,7 +36,7 @@ func TestAddLetter(t *testing.T) {
 			word:   "ma",
 			root: &node{
 				Letter: "n",
-				Word:   "no",
+				Words:  []string{"no"},
 			},
 			assert: func(root *node) {
 				assert.NotNil(t, root, "root")
@@ -44,15 +44,15 @@ func TestAddLetter(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.Nil(t, root.Next, "root.Next")
 				assert.Equal(t, "n", root.Letter, "root.Letter")
-				assert.Equal(t, "no", root.Word, "root.Word")
-				assert.Equal(t, false, root.FullWord, "root.FullWord")
+				assert.Equal(t, 1, len(root.Words), "len root.Words")
+				assert.Equal(t, "no", root.Words[0], "root.Words[0]")
 
 				assert.Nil(t, root.Less.Less, "root.Less.Less")
 				assert.Nil(t, root.Less.More, "root.Less.More")
 				assert.Nil(t, root.Less.Next, "root.Less.Next")
 				assert.Equal(t, "m", root.Less.Letter, "root.Less.Letter")
-				assert.Equal(t, "ma", root.Less.Word, "root.Less.Word")
-				assert.Equal(t, false, root.Less.FullWord, "root.Less.FullWord")
+				assert.Equal(t, 1, len(root.Less.Words), "len root.Words")
+				assert.Equal(t, "ma", root.Less.Words[0], "root.Less.Words[0]")
 			},
 		},
 		{
@@ -61,7 +61,7 @@ func TestAddLetter(t *testing.T) {
 			word:   "pa",
 			root: &node{
 				Letter: "n",
-				Word:   "no",
+				Words:  []string{"no"},
 			},
 			assert: func(root *node) {
 				assert.NotNil(t, root, "root")
@@ -69,15 +69,15 @@ func TestAddLetter(t *testing.T) {
 				assert.NotNil(t, root.More, "root.More")
 				assert.Nil(t, root.Next, "root.Next")
 				assert.Equal(t, "n", root.Letter, "root.Letter")
-				assert.Equal(t, "no", root.Word, "root.Sub")
-				assert.Equal(t, false, root.FullWord, "root.FullWord")
+				assert.Equal(t, 1, len(root.Words), "len root.Words")
+				assert.Equal(t, "no", root.Words[0], "root.Sub")
 
 				assert.Nil(t, root.More.Less, "root.More.Less")
 				assert.Nil(t, root.More.More, "root.More.More")
 				assert.Nil(t, root.More.Next, "root.More.Next")
 				assert.Equal(t, "p", root.More.Letter, "root.More.Letter")
-				assert.Equal(t, "pa", root.More.Word, "root.More.Word")
-				assert.Equal(t, false, root.More.FullWord, "root.Less.FullWord")
+				assert.Equal(t, 1, len(root.More.Words), "len root.Words")
+				assert.Equal(t, "pa", root.More.Words[0], "root.More.Words[0]")
 			},
 		},
 		{
@@ -86,7 +86,7 @@ func TestAddLetter(t *testing.T) {
 			word:   "my",
 			root: &node{
 				Letter: "m",
-				Word:   "ma",
+				Words:  []string{"ma"},
 			},
 			assert: func(root *node) {
 				assert.NotNil(t, root, "root")
@@ -94,8 +94,9 @@ func TestAddLetter(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.Nil(t, root.Next, "root.Next")
 				assert.Equal(t, "m", root.Letter, "root.Letter")
-				assert.Equal(t, "", root.Word, "root.Word")
-				assert.Equal(t, false, root.FullWord, "root.FullWord")
+				assert.Equal(t, 2, len(root.Words), "len root.Words")
+				assert.Equal(t, "ma", root.Words[0], "root.Words[0]")
+				assert.Equal(t, "my", root.Words[1], "root.Words[1]")
 			},
 		},
 		{
@@ -109,8 +110,8 @@ func TestAddLetter(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.Nil(t, root.Next, "root.Next")
 				assert.Equal(t, "i", root.Letter, "root.Letter")
-				assert.Equal(t, "i", root.Word, "root.Word")
-				assert.Equal(t, true, root.FullWord, "root.FullWord")
+				assert.Equal(t, 1, len(root.Words), "len root.Words")
+				assert.Equal(t, "i", root.Words[0], "root.Words[0]")
 			},
 		},
 		{
@@ -119,9 +120,8 @@ func TestAddLetter(t *testing.T) {
 			word:   "it",
 			final:  false,
 			root: &node{
-				Letter:   "i",
-				Word:     "i",
-				FullWord: true,
+				Letter: "i",
+				Words:  []string{"i"},
 			},
 			assert: func(root *node) {
 				assert.NotNil(t, root, "root")
@@ -129,8 +129,9 @@ func TestAddLetter(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.Nil(t, root.Next, "root.Next")
 				assert.Equal(t, "i", root.Letter, "root.Letter")
-				assert.Equal(t, "i", root.Word, "root.Word")
-				assert.Equal(t, true, root.FullWord, "root.FullWord")
+				assert.Equal(t, 2, len(root.Words), "len root.Words")
+				assert.Equal(t, "i", root.Words[0], "root.Words[0]")
+				assert.Equal(t, "it", root.Words[1], "root.Words[1]")
 			},
 		},
 		{
@@ -139,9 +140,8 @@ func TestAddLetter(t *testing.T) {
 			word:   "i",
 			final:  true,
 			root: &node{
-				Letter:   "i",
-				Word:     "it",
-				FullWord: false,
+				Letter: "i",
+				Words:  []string{"it"},
 			},
 			assert: func(root *node) {
 				assert.NotNil(t, root, "root")
@@ -149,8 +149,9 @@ func TestAddLetter(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.Nil(t, root.Next, "root.Next")
 				assert.Equal(t, "i", root.Letter, "root.Letter")
-				assert.Equal(t, "i", root.Word, "root.Word")
-				assert.Equal(t, true, root.FullWord, "root.FullWord")
+				assert.Equal(t, 2, len(root.Words), "len root.Words")
+				assert.Equal(t, "it", root.Words[0], "root.Words[0]")
+				assert.Equal(t, "i", root.Words[1], "root.Words[1]")
 			},
 		},
 	}
@@ -161,7 +162,7 @@ func TestAddLetter(t *testing.T) {
 			var root = testCase.root
 
 			// act
-			addLetter(testCase.letter, testCase.word, testCase.final, root, &root)
+			addLetter(testCase.letter, testCase.word, root, &root)
 
 			// assert
 			testCase.assert(root)
@@ -187,22 +188,22 @@ func TestAddWord(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.NotNil(t, root.Next, "root.Next")
 				assert.Equal(t, "y", root.Letter, "root.Letter")
-				assert.Equal(t, "yes", root.Word, "root.Word")
-				assert.Equal(t, false, root.FullWord, "root.FullWord")
+				assert.Equal(t, 1, len(root.Words), "len root.Words")
+				assert.Equal(t, "yes", root.Words[0], "root.Words[0]")
 
 				assert.Nil(t, root.Next.Less, "root.Next.Less")
 				assert.Nil(t, root.Next.More, "root.Next.More")
 				assert.NotNil(t, root.Next.Next, "root.Next.Next")
 				assert.Equal(t, "e", root.Next.Letter, "root.Next.Letter")
-				assert.Equal(t, "yes", root.Next.Word, "root.Next.Word")
-				assert.Equal(t, false, root.Next.FullWord, "root.Next.FullWord")
+				assert.Equal(t, 1, len(root.Next.Words), "len root.Words")
+				assert.Equal(t, "yes", root.Next.Words[0], "root.Next.Words[0]")
 
 				assert.Nil(t, root.Next.Next.Less, "root.Next.Next.Less")
 				assert.Nil(t, root.Next.Next.More, "root.Next.Next.More")
 				assert.Nil(t, root.Next.Next.Next, "root.Next.Next.Next")
 				assert.Equal(t, "s", root.Next.Next.Letter, "root.Next.Next.Letter")
-				assert.Equal(t, "yes", root.Next.Next.Word, "root.Next.Next.Word")
-				assert.Equal(t, true, root.Next.Next.FullWord, "root.Next.Next.FullWord")
+				assert.Equal(t, 1, len(root.Next.Next.Words), "len root.Words")
+				assert.Equal(t, "yes", root.Next.Next.Words[0], "root.Next.Next.Words[0]")
 			},
 		},
 		{
@@ -210,11 +211,10 @@ func TestAddWord(t *testing.T) {
 			word: "yes",
 			root: &node{
 				Letter: "y",
-				Word:   "ya",
+				Words:  []string{"ya"},
 				Next: &node{
-					Letter:   "a",
-					Word:     "ya",
-					FullWord: true,
+					Letter: "a",
+					Words:  []string{"ya"},
 				},
 			},
 			assert: func(root *node) {
@@ -223,29 +223,30 @@ func TestAddWord(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.NotNil(t, root.Next, "root.Next")
 				assert.Equal(t, "y", root.Letter, "root.Letter")
-				assert.Equal(t, "", root.Word, "root.Word")
-				assert.Equal(t, false, root.FullWord, "root.FullWord")
+				assert.Equal(t, 2, len(root.Words), "len root.Words")
+				assert.Equal(t, "ya", root.Words[0], "root.Words[0]")
+				assert.Equal(t, "yes", root.Words[1], "root.Words[1]")
 
 				assert.Nil(t, root.Next.Less, "root.Next.Less")
 				assert.NotNil(t, root.Next.More, "root.Next.More")
 				assert.Nil(t, root.Next.Next, "root.Next.Next")
 				assert.Equal(t, "a", root.Next.Letter, "root.Next.Letter")
-				assert.Equal(t, "ya", root.Next.Word, "root.Next.Word")
-				assert.Equal(t, true, root.Next.FullWord, "root.Next.FullWord")
+				assert.Equal(t, 1, len(root.Next.Words), "len root.Words")
+				assert.Equal(t, "ya", root.Next.Words[0], "root.Next.Words[0]")
 
 				assert.Nil(t, root.Next.More.Less, "root.Next.More.Less")
 				assert.Nil(t, root.Next.More.More, "root.Next.More.More")
 				assert.NotNil(t, root.Next.More.Next, "root.Next.More.Next")
 				assert.Equal(t, "e", root.Next.More.Letter, "root.Next.More.Letter")
-				assert.Equal(t, "yes", root.Next.More.Word, "root.Next.More.Word")
-				assert.Equal(t, false, root.Next.More.FullWord, "root.Next.More.FullWord")
+				assert.Equal(t, 1, len(root.Next.More.Words), "len root.Words")
+				assert.Equal(t, "yes", root.Next.More.Words[0], "root.Next.More.Words[0]")
 
 				assert.Nil(t, root.Next.More.Next.Less, "root.Next.More.Next.Less")
 				assert.Nil(t, root.Next.More.Next.More, "root.Next.More.Next.More")
 				assert.Nil(t, root.Next.More.Next.Next, "root.Next.More.Next.Next")
 				assert.Equal(t, "s", root.Next.More.Next.Letter, "root.Next.More.Next.Letter")
-				assert.Equal(t, "yes", root.Next.More.Next.Word, "root.Next.More.Next.Word")
-				assert.Equal(t, true, root.Next.More.Next.FullWord, "root.Next.More.Next.FullWord")
+				assert.Equal(t, 1, len(root.Next.More.Next.Words), "len root.Words")
+				assert.Equal(t, "yes", root.Next.More.Next.Words[0], "root.Next.More.Next.Words[0]")
 			},
 		},
 		{
@@ -253,15 +254,13 @@ func TestAddWord(t *testing.T) {
 			word: "ya",
 			root: &node{
 				Letter: "y",
-				Word:   "yes",
+				Words:  []string{"yes"},
 				Next: &node{
-					Letter:   "e",
-					Word:     "yes",
-					FullWord: false,
+					Letter: "e",
+					Words:  []string{"yes"},
 					Next: &node{
-						Letter:   "s",
-						Word:     "yes",
-						FullWord: true,
+						Letter: "s",
+						Words:  []string{"yes"},
 					},
 				},
 			},
@@ -271,29 +270,30 @@ func TestAddWord(t *testing.T) {
 				assert.Nil(t, root.More, "root.More")
 				assert.NotNil(t, root.Next, "root.Next")
 				assert.Equal(t, "y", root.Letter, "root.Letter")
-				assert.Equal(t, "", root.Word, "root.Word")
-				assert.Equal(t, false, root.FullWord, "root.FullWord")
+				assert.Equal(t, 2, len(root.Words), "len root.Words")
+				assert.Equal(t, "yes", root.Words[0], "root.Words[0]")
+				assert.Equal(t, "ya", root.Words[1], "root.Words[1]")
 
 				assert.NotNil(t, root.Next.Less, "root.Next.Less")
 				assert.Nil(t, root.Next.More, "root.Next.More")
 				assert.NotNil(t, root.Next.Next, "root.Next.Next")
 				assert.Equal(t, "e", root.Next.Letter, "root.Next.Letter")
-				assert.Equal(t, "yes", root.Next.Word, "root.Next.Word")
-				assert.Equal(t, false, root.Next.FullWord, "root.Next.FullWord")
+				assert.Equal(t, 1, len(root.Next.Words), "len root.Words")
+				assert.Equal(t, "yes", root.Next.Words[0], "root.Next.Words[0]")
 
 				assert.Nil(t, root.Next.Next.Less, "root.Next.Next.Less")
 				assert.Nil(t, root.Next.Next.More, "root.Next.Next.More")
 				assert.Nil(t, root.Next.Next.Next, "root.Next.Next.Next")
 				assert.Equal(t, "s", root.Next.Next.Letter, "root.Next.Next.Letter")
-				assert.Equal(t, "yes", root.Next.Next.Word, "root.Next.Next.Word")
-				assert.Equal(t, true, root.Next.Next.FullWord, "root.Next.Next.FullWord")
+				assert.Equal(t, 1, len(root.Next.Next.Words), "len root.Words")
+				assert.Equal(t, "yes", root.Next.Next.Words[0], "root.Next.Next.Words[0]")
 
 				assert.Nil(t, root.Next.Less.Less, "root.Next.Less.Less")
 				assert.Nil(t, root.Next.Less.More, "root.Next.Less.More")
 				assert.Nil(t, root.Next.Less.Next, "root.Next.Less.Next")
 				assert.Equal(t, "a", root.Next.Less.Letter, "root.Next.Less.Letter")
-				assert.Equal(t, "ya", root.Next.Less.Word, "root.Next.Less.Word")
-				assert.Equal(t, true, root.Next.Less.FullWord, "root.Next.More.FullWord")
+				assert.Equal(t, 1, len(root.Next.Less.Words), "len root.Words")
+				assert.Equal(t, "ya", root.Next.Less.Words[0], "root.Next.Less.Words[0]")
 			},
 		},
 	}
@@ -410,64 +410,63 @@ func TestFindWord(t *testing.T) {
 		name    string
 		nilRoot bool
 		word    string
-		match   string
-		assert  func(string, string)
+		assert  func([]string)
 	}{
 		{
 			name:    "fails gracefully on nil root",
 			nilRoot: true,
 			word:    "top",
-			match:   "",
-			assert: func(expected string, actual string) {
-				assert.Equal(t, expected, actual)
+			assert: func(actual []string) {
+				assert.Equal(t, []string{}, actual)
 			},
 		},
 		{
-			name:  "fails when short word is not in tree",
-			word:  "i",
-			match: "",
-			assert: func(expected string, actual string) {
-				assert.Equal(t, expected, actual)
+			name: "fails when short word is not in tree",
+			word: "i",
+			assert: func(actual []string) {
+				assert.Equal(t, []string{}, actual)
 			},
 		},
 		{
-			name:  "fails when long word is not in tree",
-			word:  "spider",
-			match: "",
-			assert: func(expected string, actual string) {
-				assert.Equal(t, expected, actual)
+			name: "fails when long word is not in tree",
+			word: "spider",
+			assert: func(actual []string) {
+				assert.Equal(t, []string{}, actual)
 			},
 		},
 		{
-			name:  "fails on found but ambiguous word",
-			word:  "t",
-			match: "",
-			assert: func(expected string, actual string) {
-				assert.Equal(t, expected, actual)
+			name: "fails on found but ambiguous word",
+			word: "t",
+			assert: func(actual []string) {
+				assert.Equal(t, 3, len(actual))
+				assert.Equal(t, "to", actual[0])
+				assert.Equal(t, "top", actual[1])
+				assert.Equal(t, "tap", actual[2])
 			},
 		},
 		{
-			name:  "finds word with partial",
-			word:  "ta",
-			match: "tap",
-			assert: func(expected string, actual string) {
-				assert.Equal(t, expected, actual)
+			name: "finds word with partial",
+			word: "ta",
+			assert: func(actual []string) {
+				assert.Equal(t, 1, len(actual))
+				assert.Equal(t, "tap", actual[0])
 			},
 		},
 		{
-			name:  "finds sub word",
-			word:  "to",
-			match: "to",
-			assert: func(expected string, actual string) {
-				assert.Equal(t, expected, actual)
+			name: "finds sub word",
+			word: "to",
+			assert: func(actual []string) {
+				assert.Equal(t, 2, len(actual))
+				assert.Equal(t, "to", actual[0])
+				assert.Equal(t, "top", actual[1])
 			},
 		},
 		{
-			name:  "finds super word",
-			word:  "top",
-			match: "top",
-			assert: func(expected string, actual string) {
-				assert.Equal(t, expected, actual)
+			name: "finds super word",
+			word: "top",
+			assert: func(actual []string) {
+				assert.Equal(t, 1, len(actual))
+				assert.Equal(t, "top", actual[0])
 			},
 		},
 	}
@@ -478,37 +477,32 @@ func TestFindWord(t *testing.T) {
 			var root *node
 			if !testCase.nilRoot {
 				root = &node{
-					Letter:   "t",
-					Word:     "",
-					FullWord: false,
+					Letter: "t",
+					Words:  []string{"to", "top", "tap"},
 					Next: &node{
-						Letter:   "o",
-						Word:     "to",
-						FullWord: true,
+						Letter: "o",
+						Words:  []string{"to", "top"},
 						Less: &node{
-							Letter:   "a",
-							Word:     "tap",
-							FullWord: false,
+							Letter: "a",
+							Words:  []string{"tap"},
 							Next: &node{
-								Letter:   "p",
-								Word:     "tap",
-								FullWord: true,
+								Letter: "p",
+								Words:  []string{"tap"},
 							},
 						},
 						Next: &node{
-							Letter:   "p",
-							Word:     "top",
-							FullWord: true,
+							Letter: "p",
+							Words:  []string{"top"},
 						},
 					},
 				}
 			}
 
 			// act
-			foundWord := findWord(testCase.word, root)
+			foundWords := findWord(testCase.word, root)
 
 			// assert
-			testCase.assert(testCase.match, foundWord)
+			testCase.assert(foundWords)
 
 		})
 	}

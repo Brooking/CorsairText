@@ -20,11 +20,7 @@ func printTreeWorker(root *node, name string, depth int) {
 }
 
 func printTreeNode(node *node, name string, depth int) {
-	var end string
-	if node.Next == nil {
-		end = node.Word
-	}
-	text := strings.Join([]string{node.Letter, end}, " ")
+	text := strings.Join([]string{node.Letter}, " ")
 	println(text, depth)
 
 	if node.Next != nil {

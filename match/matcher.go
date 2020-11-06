@@ -11,7 +11,7 @@ import (
 type Matcher interface {
 	Add(word string)
 	Ingest(wordList []string)
-	Match(target string) string
+	Match(target string) []string
 
 	PrintOrdered()
 	PrintTree()
@@ -48,8 +48,8 @@ func (m *matcher) Ingest(wordList []string) {
 	}
 }
 
-// Match finds the stored word that the given word uniquely identifies
-func (m *matcher) Match(word string) string {
+// Match finds the stored words that the given word uniquely identifies
+func (m *matcher) Match(word string) []string {
 	if !m.matchCase {
 		word = strings.ToLower(word)
 	}

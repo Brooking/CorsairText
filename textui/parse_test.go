@@ -130,8 +130,8 @@ func TestParseAction(t *testing.T) {
 			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
-				DoAndReturn(func(s string) string {
-					return s
+				DoAndReturn(func(s string) []string {
+					return []string{s}
 				}).
 				AnyTimes()
 			textui := &textUI{

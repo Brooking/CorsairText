@@ -57,10 +57,10 @@ func (mr *MockMatcherMockRecorder) Ingest(wordList interface{}) *gomock.Call {
 }
 
 // Match mocks base method
-func (m *MockMatcher) Match(target string) string {
+func (m *MockMatcher) Match(target string) []string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Match", target)
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].([]string)
 	return ret0
 }
 
