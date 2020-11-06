@@ -42,22 +42,22 @@ func (t *textUI) parse(input string) (Request, error) {
 // parseCommand matches a command to an action
 func (t *textUI) parseCommand(rawCommand string) (*actionDescription, error) {
 	commands := t.commandMatcher.Match(rawCommand)
-	if len(commands) != 1 {
+	switch {
+	case len(commands) == 0:
 		return nil, e.NewUnknownCommandError(rawCommand)
-	}
-	command := commands[0]
-	for _, description := range actionDescriptionTable {
-		regexQuery := `\b` + description.NameRegex + `\b`
-		match, err := regexp.MatchString(regexQuery, command)
-		if err != nil {
-			return nil, errors.Wrapf(err, "internal: bad match string, regex:%v command:%v", regexQuery, command)
+	case len(commands) > 1:
+		return nil, e.NewAmbiguousCommandError(rawCommand, commands)
+	default:
+		command := commands[0]
+		for _, description := range actionDescriptionTable {
+			// TODO move this into a map for fast lookup
+			if command != description.Name {
+				continue
+			}
+			return &description, nil
 		}
-		if !match {
-			continue
-		}
-		return &description, nil
+		return nil, e.NewUnknownCommandError(command)
 	}
-	return nil, e.NewUnknownCommandError(command)
 }
 
 // parseParameters loops through the parameters an parses them out

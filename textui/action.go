@@ -1,13 +1,16 @@
 package textui
 
-import "corsairtext/action"
+import (
+	"corsairtext/action"
+	"corsairtext/match"
+)
 
 // actionDescription gives human readable information about an action
 type actionDescription struct {
 	Type       action.Type
 	ShortUsage string
 	Usage      string
-	NameRegex  string
+	Name       string
 	Parameters []parameterType
 }
 
@@ -15,45 +18,45 @@ type actionDescription struct {
 var actionDescriptionTable = []actionDescription{
 	{
 		Type:       action.TypeHelp,
-		ShortUsage: "(H)elp - List commands",
-		Usage:      "(H)elp <command> - List command(s)",
-		NameRegex:  "h(elp)?",
+		ShortUsage: "Help - List commands",
+		Usage:      "Help <command> - List command(s)",
+		Name:       "help",
 		Parameters: []parameterType{parameterTypeOptAny},
 	},
 	{
-		Type:      action.TypeQuit,
-		Usage:     "(Q)uit - Leave the game",
-		NameRegex: "q(uit)?",
+		Type:  action.TypeQuit,
+		Usage: "Quit - Leave the game",
+		Name:  "quit",
 	},
 	{
-		Type:      action.TypeLook,
-		Usage:     "(L)ook - Look around",
-		NameRegex: "l(ook)?",
+		Type:  action.TypeLook,
+		Usage: "Look - Look around",
+		Name:  "look",
 	},
 	{
 		Type:       action.TypeGo,
-		ShortUsage: "(G)o - Travel",
-		Usage:      "(G)o <destination> - Travel to destination",
-		NameRegex:  "g(o)?",
+		ShortUsage: "Go   - Travel",
+		Usage:      "Go <destination> - Travel to destination",
+		Name:       "go",
 		Parameters: []parameterType{parameterTypeOptAny},
 	},
 	{
-		Type:      action.TypeDig,
-		Usage:     "(D)ig - Mine for ore",
-		NameRegex: "d(ig)?",
+		Type:  action.TypeDig,
+		Usage: "Dig  - Mine for ore",
+		Name:  "dig",
 	},
 	{
 		Type:       action.TypeBuy,
-		ShortUsage: "(B)uy - Purchase items",
-		Usage:      "(B)uy <amount> <item> - Purchase specified amount of items",
-		NameRegex:  "b(uy)?",
+		ShortUsage: "Buy  - Purchase items",
+		Usage:      "Buy <amount> <item> - Purchase specified amount of items",
+		Name:       "buy",
 		Parameters: []parameterType{parameterTypeNumber, parameterTypeAny},
 	},
 	{
 		Type:       action.TypeSell,
-		ShortUsage: "(S)ell - Sell items",
-		Usage:      "(S)ell <amount> <item> - Sell specified amount of items",
-		NameRegex:  "s(ell)?",
+		ShortUsage: "Sell - Sell items",
+		Usage:      "Sell <amount> <item> - Sell specified amount of items",
+		Name:       "sell",
 		Parameters: []parameterType{parameterTypeNumber, parameterTypeAny},
 	},
 }
@@ -83,4 +86,12 @@ const (
 // String returns a textual represention of a parameterType
 func (p parameterType) String() string {
 	return string(p)
+}
+
+func MakeCommandMatcher() match.Matcher {
+	var commands []string
+	for _, description := range actionDescriptionTable {
+		commands = append(commands, description.Name)
+	}
+	return match.NewMatcher(commands, false)
 }

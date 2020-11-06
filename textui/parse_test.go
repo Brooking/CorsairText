@@ -2,7 +2,6 @@ package textui
 
 import (
 	"corsairtext/action"
-	"corsairtext/match/mockmatch"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -34,8 +33,17 @@ func TestParseAction(t *testing.T) {
 			},
 		},
 		{
-			name:  "fails he",
-			input: "he",
+			name:  "matches hel",
+			input: "hel",
+			assert: func(request Request, err error) {
+				assert.NoError(t, err)
+				assert.Equal(t, action.TypeHelp, request.Type, "action type")
+				assert.Equal(t, 0, len(request.Parameters), "# parameters")
+			},
+		},
+		{
+			name:  "fails helps",
+			input: "helps",
 			assert: func(request Request, err error) {
 				assert.Error(t, err)
 				assert.Equal(t, action.TypeNone, request.Type, "action type")
@@ -126,16 +134,8 @@ func TestParseAction(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
-			matcherMock.EXPECT().
-				Match(gomock.Any()).
-				DoAndReturn(func(s string) []string {
-					return []string{s}
-				}).
-				AnyTimes()
 			textui := &textUI{
-				commandMatcher: matcherMock,
+				commandMatcher: MakeCommandMatcher(),
 			}
 
 			// act

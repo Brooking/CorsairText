@@ -22,17 +22,9 @@ type TextUI interface {
 // NewTextUI create a new text ui
 func NewTextUI(s support.Support, u universe.Action) TextUI {
 	return &textUI{
-		s: s,
-		u: u,
-		commandMatcher: match.NewMatcher([]string{
-			string(action.TypeQuit),
-			string(action.TypeHelp),
-			string(action.TypeLook),
-			string(action.TypeGo),
-			string(action.TypeDig),
-			string(action.TypeBuy),
-			string(action.TypeSell),
-		}, false),
+		s:              s,
+		u:              u,
+		commandMatcher: MakeCommandMatcher(),
 	}
 }
 
