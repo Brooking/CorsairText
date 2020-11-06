@@ -2,8 +2,10 @@ package textui
 
 import (
 	"corsairtext/action"
+	"corsairtext/match/mockmatch"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -121,7 +123,20 @@ func TestParseAction(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			// arrange
-			textui := &textUI{}
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			matcherMock := mockmatch.NewMockMatcher(ctrl)
+			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
+			matcherMock.EXPECT().
+				Match(gomock.Any()).
+				DoAndReturn(func(s string) string {
+					return s
+				}).
+				AnyTimes()
+			textui := &textUI{
+				commandMatcher: matcherMock,
+			}
 
 			// act
 			request, err := textui.parse(testCase.input)

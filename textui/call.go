@@ -101,7 +101,7 @@ func (t *textUI) help(arg []interface{}) (bool, error) {
 			return false, errors.Errorf("internal: help passed non-string %v", arg[0])
 		}
 		command = strings.ToLower(command)
-		description, err := parseCommand(command)
+		description, err := t.parseCommand(command)
 		if err != nil {
 			return false, e.NewUnknownCommandError(command)
 		}

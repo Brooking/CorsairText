@@ -28,7 +28,7 @@ func (t *textUI) parse(input string) (Request, error) {
 	)
 
 	// find the command
-	targetDescription, err := parseCommand(rawCommand)
+	targetDescription, err := t.parseCommand(rawCommand)
 	if err != nil {
 		return request, err
 	}
@@ -40,7 +40,8 @@ func (t *textUI) parse(input string) (Request, error) {
 }
 
 // parseCommand matches a command to an action
-func parseCommand(command string) (*actionDescription, error) {
+func (t *textUI) parseCommand(rawCommand string) (*actionDescription, error) {
+	command := t.commandMatcher.Match(rawCommand)
 	for _, description := range actionDescriptionTable {
 		regexQuery := `\b` + description.NameRegex + `\b`
 		match, err := regexp.MatchString(regexQuery, command)

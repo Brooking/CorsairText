@@ -3,6 +3,7 @@ package textui
 import (
 	"corsairtext/action"
 	"corsairtext/e"
+	"corsairtext/match"
 	"corsairtext/support"
 	"corsairtext/universe"
 
@@ -23,13 +24,23 @@ func NewTextUI(s support.Support, u universe.Action) TextUI {
 	return &textUI{
 		s: s,
 		u: u,
+		commandMatcher: match.NewMatcher([]string{
+			string(action.TypeQuit),
+			string(action.TypeHelp),
+			string(action.TypeLook),
+			string(action.TypeGo),
+			string(action.TypeDig),
+			string(action.TypeBuy),
+			string(action.TypeSell),
+		}, false),
 	}
 }
 
 // textUI is the concrete implementation of TextUI
 type textUI struct {
-	s support.Support
-	u universe.Action
+	s              support.Support
+	u              universe.Action
+	commandMatcher match.Matcher
 }
 
 // Run is the main text ui entry point

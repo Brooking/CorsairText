@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"corsairtext/action"
+	"corsairtext/match/mockmatch"
 	"corsairtext/support"
 	"corsairtext/support/screenprinter/mockscreenprinter"
 	"corsairtext/universe"
@@ -141,8 +142,17 @@ func TestCallBuy(t *testing.T) {
 				Buy(testCase.buyAmount, testCase.buyItem).
 				Return(testCase.buyReturn).
 				Times(testCase.buyCalls)
+			matcherMock := mockmatch.NewMockMatcher(ctrl)
+			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
+			matcherMock.EXPECT().
+				Match(gomock.Any()).
+				DoAndReturn(func(s string) string {
+					return s
+				}).
+				AnyTimes()
 			textui := &textUI{
-				u: universeMock,
+				u:              universeMock,
+				commandMatcher: matcherMock,
 			}
 
 			// act
@@ -283,9 +293,18 @@ func TestCallGoList(t *testing.T) {
 			support := support.Support{
 				Out: outMock,
 			}
+			matcherMock := mockmatch.NewMockMatcher(ctrl)
+			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
+			matcherMock.EXPECT().
+				Match(gomock.Any()).
+				DoAndReturn(func(s string) string {
+					return s
+				}).
+				AnyTimes()
 			textui := &textUI{
-				s: support,
-				u: universeMock,
+				s:              support,
+				u:              universeMock,
+				commandMatcher: matcherMock,
 			}
 
 			// act
@@ -418,9 +437,18 @@ func TestCallHelp(t *testing.T) {
 			support := support.Support{
 				Out: outMock,
 			}
+			matcherMock := mockmatch.NewMockMatcher(ctrl)
+			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
+			matcherMock.EXPECT().
+				Match(gomock.Any()).
+				DoAndReturn(func(s string) string {
+					return s
+				}).
+				AnyTimes()
 			textui := &textUI{
-				s: support,
-				u: universeMock,
+				s:              support,
+				u:              universeMock,
+				commandMatcher: matcherMock,
 			}
 
 			// act
@@ -496,9 +524,18 @@ func TestCallLook(t *testing.T) {
 			support := support.Support{
 				Out: outMock,
 			}
+			matcherMock := mockmatch.NewMockMatcher(ctrl)
+			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
+			matcherMock.EXPECT().
+				Match(gomock.Any()).
+				DoAndReturn(func(s string) string {
+					return s
+				}).
+				AnyTimes()
 			textui := &textUI{
-				s: support,
-				u: universeMock,
+				s:              support,
+				u:              universeMock,
+				commandMatcher: matcherMock,
 			}
 
 			// act
@@ -595,8 +632,17 @@ func TestCallSell(t *testing.T) {
 				Sell(testCase.sellAmount, testCase.sellItem).
 				Return(testCase.sellReturn).
 				Times(testCase.sellCalls)
+			matcherMock := mockmatch.NewMockMatcher(ctrl)
+			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
+			matcherMock.EXPECT().
+				Match(gomock.Any()).
+				DoAndReturn(func(s string) string {
+					return s
+				}).
+				AnyTimes()
 			textui := &textUI{
-				u: universeMock,
+				u:              universeMock,
+				commandMatcher: matcherMock,
 			}
 
 			// act

@@ -77,10 +77,10 @@ func (mr *MockSpotMockRecorder) Name() *gomock.Call {
 }
 
 // Path mocks base method
-func (m *MockSpot) Path() string {
+func (m *MockSpot) Path() []string {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Path")
-	ret0, _ := ret[0].(string)
+	ret0, _ := ret[0].([]string)
 	return ret0
 }
 
