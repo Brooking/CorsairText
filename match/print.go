@@ -7,14 +7,14 @@ import (
 
 const indentBase = " "
 
-func (m *matcher) PrintOrdered() {
+func (m *treematcher) PrintOrdered() {
 	fmt.Println("Ordered:")
 	printOrdered(m.root, 0)
 }
 
 var trees []layer
 
-func (m *matcher) PrintTree() {
+func (m *treematcher) PrintTree() {
 	fmt.Println("root:")
 	trees = append(trees, layer{root: m.root})
 	for {

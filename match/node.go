@@ -1,10 +1,14 @@
 package match
 
+import "sort"
+
 // newnode creates a new node structure
 func newnode(letter string, word string) *node {
+	words := make(map[string]interface{}, 0)
+	words[word] = nil
 	return &node{
 		Letter: letter,
-		Words:  []string{word},
+		Words:  words,
 	}
 }
 
@@ -23,7 +27,20 @@ type node struct {
 	Letter string
 
 	// Words is the array of original words that this letter uniquely leads to
-	Words []string
+	Words map[string]interface{}
+}
+
+// GetWords returns an alphabetical list of words in this node
+func (n *node) GetWords() []string {
+	if len(n.Words) == 0 {
+		return nil
+	}
+	var result sort.StringSlice
+	for key := range n.Words {
+		result = append(result, key)
+	}
+	result.Sort()
+	return result
 }
 
 // addLetter finds the spot for and adds a letter (and returns that new node)
@@ -42,7 +59,12 @@ func addLetter(letter string, word string, root *node, trailer **node) *node {
 
 	switch {
 	case letter == root.Letter:
-		root.Words = append(root.Words, word)
+		// Todo what to do about duplicates with instance data?
+		_, exists := root.Words[word]
+		if exists {
+			return root
+		}
+		root.Words[word] = nil
 		return root
 	case letter < root.Letter:
 		return addLetter(letter, word, root.Less, &root.Less)
@@ -87,16 +109,16 @@ func findWord(word string, root *node) []string {
 	node := &node{}
 	for i := 0; i < len(word); i++ {
 		if root == nil {
-			return []string{}
+			return nil
 		}
 		letter := word[i : i+1]
 		node = findLetter(letter, root)
 		if node == nil {
 			// did not find the letter at this level
-			return []string{}
+			return nil
 		}
 		root = node.Next
 	}
 
-	return node.Words
+	return node.GetWords()
 }

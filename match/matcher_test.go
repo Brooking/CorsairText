@@ -1,6 +1,7 @@
 package match
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -74,7 +75,7 @@ func TestMatcher(t *testing.T) {
 			},
 		},
 		{
-			name:      "fail on ambiguous",
+			name:      "success on ambiguous",
 			wordList:  []string{"at", "atom"},
 			inputWord: "a",
 			assert: func(actual []string) {
@@ -90,6 +91,17 @@ func TestMatcher(t *testing.T) {
 			assert: func(actual []string) {
 				assert.Equal(t, 2, len(actual))
 				assert.Equal(t, "at", actual[0])
+				assert.Equal(t, "atom", actual[1])
+			},
+		},
+		{
+			name:      "success with duplicates in dict, only returns one",
+			wordList:  []string{"same", "same"},
+			inputWord: "same",
+			assert: func(actual []string) {
+				fmt.Println(actual)
+				assert.Equal(t, 1, len(actual))
+				assert.Equal(t, "same", actual[0])
 			},
 		},
 	}
@@ -97,7 +109,7 @@ func TestMatcher(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			// arrange
-			m := NewMatcher(testCase.wordList, testCase.matchCase)
+			m := NewRegexMatcher(testCase.wordList, testCase.matchCase)
 
 			// act
 			returnedWords := m.Match(testCase.inputWord)
