@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"corsairtext/action"
+	"corsairtext/e"
 	"corsairtext/match/mockmatch"
 	"corsairtext/support"
 	"corsairtext/support/screenprinter/mockscreenprinter"
@@ -18,24 +19,28 @@ import (
 func TestCall(t *testing.T) {
 	testCases := []struct {
 		name    string
-		request Request
+		request interface{}
 		assert  func(bool, error)
 	}{
 		{
-			name: "success quit",
-			request: Request{
-				Type: action.TypeQuit,
-			},
+			name:    "success quit",
+			request: &quitRequest{},
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, true, quit)
 			},
 		},
 		{
-			name: "fail bad type",
-			request: Request{
-				Type: "1000",
+			name:    "fail bad struct",
+			request: e.AmbiguousCommandError{},
+			assert: func(quit bool, err error) {
+				assert.Error(t, err)
+				assert.Equal(t, false, quit)
 			},
+		},
+		{
+			name:    "fail nil struct",
+			request: nil,
 			assert: func(quit bool, err error) {
 				assert.Error(t, err)
 				assert.Equal(t, false, quit)
@@ -60,7 +65,7 @@ func TestCall(t *testing.T) {
 func TestCallBuy(t *testing.T) {
 	testCases := []struct {
 		name      string
-		request   Request
+		request   interface{}
 		buyAmount int
 		buyItem   string
 		buyReturn error
@@ -69,9 +74,9 @@ func TestCallBuy(t *testing.T) {
 	}{
 		{
 			name: "buy success",
-			request: Request{
-				Type:       action.TypeBuy,
-				Parameters: []interface{}{3, "computers"},
+			request: &buyRequest{
+				Amount: 3,
+				Item:   "computers",
 			},
 			buyAmount: 3,
 			buyItem:   "computers",
@@ -82,43 +87,10 @@ func TestCallBuy(t *testing.T) {
 			},
 		},
 		{
-			name: "buy failed missing params",
-			request: Request{
-				Type:       action.TypeBuy,
-				Parameters: []interface{}{3},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
-			name: "buy failed bad first param",
-			request: Request{
-				Type:       action.TypeBuy,
-				Parameters: []interface{}{"three", "computers"},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
-			name: "buy failed bad second param",
-			request: Request{
-				Type:       action.TypeBuy,
-				Parameters: []interface{}{3, nil},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
 			name: "buy call fail",
-			request: Request{
-				Type:       action.TypeBuy,
-				Parameters: []interface{}{3, "computers"},
+			request: &buyRequest{
+				Amount: 3,
+				Item:   "computers",
 			},
 			buyAmount: 3,
 			buyItem:   "computers",
@@ -167,7 +139,7 @@ func TestCallBuy(t *testing.T) {
 func TestCallGo(t *testing.T) {
 	testCases := []struct {
 		name          string
-		request       Request
+		request       interface{}
 		goDestination string
 		goReturn      error
 		goCalls       int
@@ -176,9 +148,8 @@ func TestCallGo(t *testing.T) {
 	}{
 		{
 			name: "go success with dest",
-			request: Request{
-				Type:       action.TypeGo,
-				Parameters: []interface{}{"mars"},
+			request: &goRequest{
+				Destination: "mars",
 			},
 			goDestination: "mars",
 			goCalls:       1,
@@ -188,23 +159,10 @@ func TestCallGo(t *testing.T) {
 				assert.Equal(t, false, quit)
 			},
 		},
-		// for "success no params", see TestCallGoList()
-		{
-			name: "go failed bad param",
-			request: Request{
-				Type:       action.TypeGo,
-				Parameters: []interface{}{nil},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
 		{
 			name: "go call fail",
-			request: Request{
-				Type:       action.TypeGo,
-				Parameters: []interface{}{"mars"},
+			request: &goRequest{
+				Destination: "mars",
 			},
 			goDestination: "mars",
 			goReturn:      errors.New("some go error"),
@@ -317,7 +275,7 @@ func TestCallGoList(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(Request{Type: action.TypeGo})
+			quit, err := textui.call(&goRequest{})
 
 			// assert
 			testCase.assert(quit, err)
@@ -328,7 +286,7 @@ func TestCallGoList(t *testing.T) {
 func TestCallHelp(t *testing.T) {
 	testCases := []struct {
 		name       string
-		request    Request
+		request    interface{}
 		helpReturn []action.Type
 		helpError  error
 		helpCalls  int
@@ -337,10 +295,8 @@ func TestCallHelp(t *testing.T) {
 		assert     func(bool, error)
 	}{
 		{
-			name: "success 0 params (Go)",
-			request: Request{
-				Type: action.TypeHelp,
-			},
+			name:    "success 0 params (returning Go)",
+			request: &helpRequest{},
 			helpReturn: []action.Type{
 				action.TypeGo,
 			},
@@ -353,10 +309,8 @@ func TestCallHelp(t *testing.T) {
 			},
 		},
 		{
-			name: "success 0 params (Look)",
-			request: Request{
-				Type: action.TypeHelp,
-			},
+			name:    "success 0 params (returning Look)",
+			request: &helpRequest{},
 			helpReturn: []action.Type{
 				action.TypeLook,
 			},
@@ -369,10 +323,8 @@ func TestCallHelp(t *testing.T) {
 			},
 		},
 		{
-			name: "help call fail",
-			request: Request{
-				Type: action.TypeHelp,
-			},
+			name:      "help call fail",
+			request:   &helpRequest{},
 			helpError: errors.New("some go error"),
 			helpCalls: 1,
 			assert: func(quit bool, err error) {
@@ -382,9 +334,8 @@ func TestCallHelp(t *testing.T) {
 		},
 		{
 			name: "success 1 param",
-			request: Request{
-				Type:       action.TypeHelp,
-				Parameters: []interface{}{"Go"},
+			request: &helpRequest{
+				Command: "go",
 			},
 			outInput: "Go <destination> - Travel to destination",
 			outCalls: 1,
@@ -394,32 +345,9 @@ func TestCallHelp(t *testing.T) {
 			},
 		},
 		{
-			name: "fail 1 nil param",
-			request: Request{
-				Type:       action.TypeHelp,
-				Parameters: []interface{}{nil},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
 			name: "fail 1 unknown param",
-			request: Request{
-				Type:       action.TypeHelp,
-				Parameters: []interface{}{"DoAFlip"},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
-			name: "fail 2 params",
-			request: Request{
-				Type:       action.TypeHelp,
-				Parameters: []interface{}{"Go", "Travel"},
+			request: &helpRequest{
+				Command: "DoAFlip",
 			},
 			assert: func(quit bool, err error) {
 				assert.Error(t, err)
@@ -472,7 +400,7 @@ func TestCallHelp(t *testing.T) {
 func TestCallLook(t *testing.T) {
 	testCases := []struct {
 		name         string
-		request      Request
+		request      interface{}
 		lookReturn   *universe.View
 		lookError    error
 		out1Expected string
@@ -481,10 +409,8 @@ func TestCallLook(t *testing.T) {
 		assert       func(bool, error)
 	}{
 		{
-			name: "success",
-			request: Request{
-				Type: action.TypeLook,
-			},
+			name:    "success",
+			request: &lookRequest{},
 			lookReturn: &universe.View{
 				Name:        "Mars",
 				Description: "a red planet",
@@ -499,10 +425,8 @@ func TestCallLook(t *testing.T) {
 			},
 		},
 		{
-			name: "call failed",
-			request: Request{
-				Type: action.TypeLook,
-			},
+			name:      "call failed",
+			request:   &lookRequest{},
 			lookError: errors.New("some look error"),
 			assert: func(quit bool, err error) {
 				assert.Error(t, err)
@@ -559,7 +483,7 @@ func TestCallLook(t *testing.T) {
 func TestCallSell(t *testing.T) {
 	testCases := []struct {
 		name       string
-		request    Request
+		request    interface{}
 		sellAmount int
 		sellItem   string
 		sellReturn error
@@ -568,9 +492,9 @@ func TestCallSell(t *testing.T) {
 	}{
 		{
 			name: "sell success",
-			request: Request{
-				Type:       action.TypeSell,
-				Parameters: []interface{}{3, "computers"},
+			request: &sellRequest{
+				Amount: 3,
+				Item:   "computers",
 			},
 			sellAmount: 3,
 			sellItem:   "computers",
@@ -581,43 +505,10 @@ func TestCallSell(t *testing.T) {
 			},
 		},
 		{
-			name: "sell failed missing params",
-			request: Request{
-				Type:       action.TypeSell,
-				Parameters: []interface{}{3},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
-			name: "sell failed bad first param",
-			request: Request{
-				Type:       action.TypeSell,
-				Parameters: []interface{}{"three", "computers"},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
-			name: "sell failed bad second param",
-			request: Request{
-				Type:       action.TypeSell,
-				Parameters: []interface{}{3, nil},
-			},
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
 			name: "sell call fail",
-			request: Request{
-				Type:       action.TypeSell,
-				Parameters: []interface{}{3, "computers"},
+			request: &sellRequest{
+				Amount: 3,
+				Item:   "computers",
 			},
 			sellAmount: 3,
 			sellItem:   "computers",

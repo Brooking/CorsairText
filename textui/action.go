@@ -2,69 +2,153 @@ package textui
 
 import (
 	"corsairtext/action"
+	"corsairtext/e"
 	"corsairtext/match"
+
+	"github.com/pkg/errors"
 )
 
-// actionDescription gives human readable information about an action
+// MakeCommandMatcher creates a text matcher seeded with commands
+func MakeCommandMatcher() match.Matcher {
+	var commands []string
+	for _, description := range actionDescriptionTable {
+		commands = append(commands, description.Name)
+	}
+	return match.NewMatcher(commands, false)
+}
+
+// actionDescription gives information about an action
 type actionDescription struct {
-	Type       action.Type
-	ShortUsage string
-	Usage      string
-	Name       string
-	Parameters []parameterType
+	actionType      action.Type
+	ShortUsage      string
+	Usage           string
+	Name            string
+	Parameters      []parameterType
+	RequestExemplar interface{}
+	ParseParameters func(*textUI, []string) (interface{}, error)
 }
 
 // actionDescriptionTable is the complete list of action descriptions
 var actionDescriptionTable = []actionDescription{
 	{
-		Type:       action.TypeHelp,
-		ShortUsage: "Help - List commands",
-		Usage:      "Help <command> - List command(s)",
-		Name:       "help",
-		Parameters: []parameterType{parameterTypeOptAny},
+		actionType:      action.TypeHelp,
+		ShortUsage:      "Help - List commands",
+		Usage:           "Help <command> - List command(s)",
+		Name:            "help",
+		Parameters:      []parameterType{parameterTypeOptAny},
+		RequestExemplar: helpRequest{},
+		ParseParameters: nil, /// replaced later to avoid initialization loop
 	},
 	{
-		Type:  action.TypeQuit,
-		Usage: "Quit - Leave the game",
-		Name:  "quit",
+		actionType:      action.TypeQuit,
+		Usage:           "Quit - Leave the game",
+		Name:            "quit",
+		RequestExemplar: quitRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &quitRequest{}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeQuit, 0, len(arg))
+			}
+		},
 	},
 	{
-		Type:  action.TypeLook,
-		Usage: "Look - Look around",
-		Name:  "look",
+		actionType:      action.TypeLook,
+		Usage:           "Look - Look around",
+		Name:            "look",
+		RequestExemplar: lookRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &lookRequest{}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeLook, 0, len(arg))
+			}
+		},
 	},
 	{
-		Type:       action.TypeGo,
-		ShortUsage: "Go   - Travel",
-		Usage:      "Go <destination> - Travel to destination",
-		Name:       "go",
-		Parameters: []parameterType{parameterTypeOptAny},
+		actionType:      action.TypeGo,
+		ShortUsage:      "Go   - Travel",
+		Usage:           "Go <destination> - Travel to destination",
+		Name:            "go",
+		Parameters:      []parameterType{parameterTypeOptAny},
+		RequestExemplar: goRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &goRequest{}, nil
+			case 1:
+				return &goRequest{Destination: arg[0]}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeGo, 1, len(arg))
+			}
+		},
 	},
 	{
-		Type:  action.TypeDig,
-		Usage: "Dig  - Mine for ore",
-		Name:  "dig",
+		actionType:      action.TypeDig,
+		Usage:           "Dig  - Mine for ore",
+		Name:            "dig",
+		RequestExemplar: digRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &digRequest{}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeDig, 0, len(arg))
+			}
+		},
 	},
 	{
-		Type:       action.TypeBuy,
-		ShortUsage: "Buy  - Purchase items",
-		Usage:      "Buy <amount> <item> - Purchase specified amount of items",
-		Name:       "buy",
-		Parameters: []parameterType{parameterTypeNumber, parameterTypeAny},
+		actionType:      action.TypeBuy,
+		ShortUsage:      "Buy  - Purchase items",
+		Usage:           "Buy <amount> <item> - Purchase specified amount of items",
+		Name:            "buy",
+		Parameters:      []parameterType{parameterTypeNumber, parameterTypeAny},
+		RequestExemplar: buyRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0, 1:
+				return nil, e.NewMissingParameterError(action.TypeSell, 2, len(arg))
+			case 2:
+				amount, ok := t.parseNumber(arg[0])
+				if !ok {
+					return nil, errors.Errorf("internal: malformed parameter #1 (%v) of type %v", arg[0], action.TypeBuy)
+				}
+				return &buyRequest{Amount: amount, Item: arg[1]}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeBuy, 2, len(arg))
+			}
+		},
 	},
 	{
-		Type:       action.TypeSell,
-		ShortUsage: "Sell - Sell items",
-		Usage:      "Sell <amount> <item> - Sell specified amount of items",
-		Name:       "sell",
-		Parameters: []parameterType{parameterTypeNumber, parameterTypeAny},
+		actionType:      action.TypeSell,
+		ShortUsage:      "Sell - Sell items",
+		Usage:           "Sell <amount> <item> - Sell specified amount of items",
+		Name:            "sell",
+		Parameters:      []parameterType{parameterTypeNumber, parameterTypeAny},
+		RequestExemplar: sellRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0, 1:
+				return nil, e.NewMissingParameterError(action.TypeSell, 2, len(arg))
+			case 2:
+				amount, ok := t.parseNumber(arg[0])
+				if !ok {
+					return nil, errors.Errorf("internal: malformed parameter #1 (%v) of type %v", arg[0], action.TypeSell)
+				}
+				return &sellRequest{Amount: amount, Item: arg[1]}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeSell, 2, len(arg))
+			}
+		},
 	},
 }
 
 // describe returns a complete description of a Type
 func describe(actionType action.Type) actionDescription {
 	for _, description := range actionDescriptionTable {
-		if description.Type != actionType {
+		if description.actionType != actionType {
 			continue
 		}
 		return description
@@ -88,10 +172,26 @@ func (p parameterType) String() string {
 	return string(p)
 }
 
-func MakeCommandMatcher() match.Matcher {
-	var commands []string
-	for _, description := range actionDescriptionTable {
-		commands = append(commands, description.Name)
+// parameterRegex provides the proper regex for parameter types
+var parameterRegex = map[parameterType]string{
+	parameterTypeNone:      `\b`,
+	parameterTypeNumber:    `\b\d+\b`,
+	parameterTypeAny:       `\b.+\b`,
+	parameterTypeOptNumber: `\b\d+\b`,
+	parameterTypeOptAny:    `\b.+\b`,
+}
+
+func parseHelp(t *textUI, arg []string) (interface{}, error) {
+	switch len(arg) {
+	case 0:
+		return &helpRequest{}, nil
+	case 1:
+		c, err := t.parseCommand(arg[0])
+		if err != nil {
+			return nil, err
+		}
+		return &helpRequest{Command: c.Name}, nil
+	default:
+		return nil, e.NewExtraParameterError(action.TypeHelp, 1, len(arg))
 	}
-	return match.NewMatcher(commands, false)
 }
