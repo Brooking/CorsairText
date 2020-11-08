@@ -3,12 +3,13 @@ package match
 import (
 	"regexp"
 	"sort"
+	"strings"
 
 	"github.com/pkg/errors"
 )
 
 // NewRegexMatcher is a temporary constructor for a regex based matcher
-func NewRegexMatcher(wordList []string, matchCase bool) Matcher {
+func NewRegexMatcher(wordList []MatchEntry, matchCase bool) Matcher {
 	matcher := &regexmatcher{
 		MatchCase: matchCase,
 		list:      make(map[string]interface{}),
@@ -20,26 +21,25 @@ func NewRegexMatcher(wordList []string, matchCase bool) Matcher {
 // regexmatcher is a concrete matcher based on regex
 type regexmatcher struct {
 	MatchCase bool
-	//todo make into map to avoid duplicates
-	list map[string]interface{}
+	list      map[string]interface{}
 }
 
-func (m *regexmatcher) Add(word string) {
-	_, exists := m.list[word]
+func (m *regexmatcher) Add(entry MatchEntry) {
+	_, exists := m.list[entry.Word]
 	if exists {
-		// todo what about duplicates with instance data
+		// todo what about duplicates with contexts
 		return
 	}
-	m.list[word] = nil
+	m.list[entry.Word] = entry.Context
 }
 
-func (m *regexmatcher) Match(target string) []string {
+func (m *regexmatcher) Match(target string) []MatchEntry {
 	if target == "" {
-		return []string{}
+		return nil
 	}
 
 	var (
-		result sort.StringSlice
+		result []MatchEntry
 		regex  string
 	)
 
@@ -56,11 +56,17 @@ func (m *regexmatcher) Match(target string) []string {
 			panic(errors.Wrapf(err, "regexmatcher failed on MatchString with %v", target))
 		}
 		if matched {
-			result = append(result, word)
+
+			result = append(result, MatchEntry{
+				Word:    word,
+				Context: m.list[word],
+			})
 		}
 	}
 
-	result.Sort()
+	sort.Slice(result, func(i, j int) bool {
+		return strings.Compare(result[i].Word, result[j].Word) < 0
+	})
 	return result
 }
 

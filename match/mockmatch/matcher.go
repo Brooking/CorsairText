@@ -5,6 +5,7 @@
 package mockmatch
 
 import (
+	match "corsairtext/match"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -33,34 +34,22 @@ func (m *MockMatcher) EXPECT() *MockMatcherMockRecorder {
 }
 
 // Add mocks base method
-func (m *MockMatcher) Add(word string) {
+func (m *MockMatcher) Add(arg0 match.MatchEntry) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Add", word)
+	m.ctrl.Call(m, "Add", arg0)
 }
 
 // Add indicates an expected call of Add
-func (mr *MockMatcherMockRecorder) Add(word interface{}) *gomock.Call {
+func (mr *MockMatcherMockRecorder) Add(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockMatcher)(nil).Add), word)
-}
-
-// Ingest mocks base method
-func (m *MockMatcher) Ingest(wordList []string) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Ingest", wordList)
-}
-
-// Ingest indicates an expected call of Ingest
-func (mr *MockMatcherMockRecorder) Ingest(wordList interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ingest", reflect.TypeOf((*MockMatcher)(nil).Ingest), wordList)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockMatcher)(nil).Add), arg0)
 }
 
 // Match mocks base method
-func (m *MockMatcher) Match(target string) []string {
+func (m *MockMatcher) Match(target string) []match.MatchEntry {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Match", target)
-	ret0, _ := ret[0].([]string)
+	ret0, _ := ret[0].([]match.MatchEntry)
 	return ret0
 }
 

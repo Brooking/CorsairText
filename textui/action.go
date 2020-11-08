@@ -10,9 +10,12 @@ import (
 
 // MakeCommandMatcher creates a text matcher seeded with commands
 func MakeCommandMatcher() match.Matcher {
-	var commands []string
+	var commands []match.MatchEntry
 	for _, description := range actionDescriptionTable {
-		commands = append(commands, description.Name)
+		commands = append(commands, match.MatchEntry{
+			Word:    description.Name,
+			Context: description,
+		})
 	}
 	return match.NewMatcher(commands, false)
 }
@@ -25,11 +28,11 @@ type actionDescription struct {
 	Name            string
 	Parameters      []parameterType
 	RequestExemplar interface{}
-	ParseParameters func(*textUI, []string) (interface{}, error)
+	ParseParameters func([]string) (interface{}, error)
 }
 
 // actionDescriptionTable is the complete list of action descriptions
-var actionDescriptionTable = []actionDescription{
+var actionDescriptionTable = []*actionDescription{
 	{
 		actionType:      action.TypeHelp,
 		ShortUsage:      "Help - List commands",
@@ -37,14 +40,23 @@ var actionDescriptionTable = []actionDescription{
 		Name:            "help",
 		Parameters:      []parameterType{parameterTypeOptAny},
 		RequestExemplar: helpRequest{},
-		ParseParameters: nil, /// replaced later to avoid initialization loop
+		ParseParameters: func(arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &helpRequest{}, nil
+			case 1:
+				return &helpRequest{Command: arg[0]}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeHelp, 1, len(arg))
+			}
+		},
 	},
 	{
 		actionType:      action.TypeQuit,
 		Usage:           "Quit - Leave the game",
 		Name:            "quit",
 		RequestExemplar: quitRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
 				return &quitRequest{}, nil
@@ -58,7 +70,7 @@ var actionDescriptionTable = []actionDescription{
 		Usage:           "Look - Look around",
 		Name:            "look",
 		RequestExemplar: lookRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
 				return &lookRequest{}, nil
@@ -74,7 +86,7 @@ var actionDescriptionTable = []actionDescription{
 		Name:            "go",
 		Parameters:      []parameterType{parameterTypeOptAny},
 		RequestExemplar: goRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
 				return &goRequest{}, nil
@@ -90,7 +102,7 @@ var actionDescriptionTable = []actionDescription{
 		Usage:           "Dig  - Mine for ore",
 		Name:            "dig",
 		RequestExemplar: digRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
 				return &digRequest{}, nil
@@ -106,12 +118,12 @@ var actionDescriptionTable = []actionDescription{
 		Name:            "buy",
 		Parameters:      []parameterType{parameterTypeNumber, parameterTypeAny},
 		RequestExemplar: buyRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0, 1:
 				return nil, e.NewMissingParameterError(action.TypeSell, 2, len(arg))
 			case 2:
-				amount, ok := t.parseNumber(arg[0])
+				amount, ok := parseNumber(arg[0])
 				if !ok {
 					return nil, errors.Errorf("internal: malformed parameter #1 (%v) of type %v", arg[0], action.TypeBuy)
 				}
@@ -128,12 +140,12 @@ var actionDescriptionTable = []actionDescription{
 		Name:            "sell",
 		Parameters:      []parameterType{parameterTypeNumber, parameterTypeAny},
 		RequestExemplar: sellRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0, 1:
 				return nil, e.NewMissingParameterError(action.TypeSell, 2, len(arg))
 			case 2:
-				amount, ok := t.parseNumber(arg[0])
+				amount, ok := parseNumber(arg[0])
 				if !ok {
 					return nil, errors.Errorf("internal: malformed parameter #1 (%v) of type %v", arg[0], action.TypeSell)
 				}
@@ -146,14 +158,14 @@ var actionDescriptionTable = []actionDescription{
 }
 
 // describe returns a complete description of a Type
-func describe(actionType action.Type) actionDescription {
+func describe(actionType action.Type) *actionDescription {
 	for _, description := range actionDescriptionTable {
 		if description.actionType != actionType {
 			continue
 		}
 		return description
 	}
-	return actionDescription{}
+	return nil
 }
 
 // parameterType enum describes a parameter
@@ -179,19 +191,4 @@ var parameterRegex = map[parameterType]string{
 	parameterTypeAny:       `\b.+\b`,
 	parameterTypeOptNumber: `\b\d+\b`,
 	parameterTypeOptAny:    `\b.+\b`,
-}
-
-func parseHelp(t *textUI, arg []string) (interface{}, error) {
-	switch len(arg) {
-	case 0:
-		return &helpRequest{}, nil
-	case 1:
-		c, err := t.parseCommand(arg[0])
-		if err != nil {
-			return nil, err
-		}
-		return &helpRequest{Command: c.Name}, nil
-	default:
-		return nil, e.NewExtraParameterError(action.TypeHelp, 1, len(arg))
-	}
 }

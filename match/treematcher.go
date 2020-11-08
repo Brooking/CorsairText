@@ -5,7 +5,7 @@ import (
 )
 
 // NewTreeMatcher creates a new tree based Matcher
-func NewTreeMatcher(wordList []string, matchCase bool) Matcher {
+func NewTreeMatcher(wordList []MatchEntry, matchCase bool) Matcher {
 	matcher := &treematcher{
 		matchCase: matchCase,
 	}
@@ -20,16 +20,16 @@ type treematcher struct {
 }
 
 // Add adds a word to the matcher's dictionary
-func (m *treematcher) Add(originalWord string) {
-	comparisonWord := originalWord
+func (m *treematcher) Add(original MatchEntry) {
+	comparisonWord := original.Word
 	if !m.matchCase {
-		comparisonWord = strings.ToLower(originalWord)
+		comparisonWord = strings.ToLower(original.Word)
 	}
-	addWord(originalWord, comparisonWord, 0, m.root, &m.root)
+	addWord(original, comparisonWord, 0, m.root, &m.root)
 }
 
 // Match finds the stored words that the given word uniquely identifies
-func (m *treematcher) Match(word string) []string {
+func (m *treematcher) Match(word string) []MatchEntry {
 	if !m.matchCase {
 		word = strings.ToLower(word)
 	}

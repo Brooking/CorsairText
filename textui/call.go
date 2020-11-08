@@ -88,12 +88,19 @@ func (t *textUI) help(request *helpRequest) (bool, error) {
 			t.s.Out.Println(usage)
 		}
 	default:
-		command := strings.ToLower(request.Command)
-		description, err := t.parseCommand(command)
-		if err != nil {
-			return false, e.NewUnknownCommandError(command)
+		commands := t.commandMatcher.Match(request.Command)
+		switch len(commands) {
+		case 0:
+			return false, e.NewUnknownCommandError(request.Command)
+		case 1:
+			description, ok := commands[0].Context.(*actionDescription)
+			if !ok {
+				return false, errors.Errorf("internal: bad description type %T", commands[0].Context)
+			}
+			t.s.Out.Println(description.Usage)
+		default:
+			return false, e.NewUnknownCommandError(request.Command)
 		}
-		t.s.Out.Println(description.Usage)
 	}
 	return false, nil
 }

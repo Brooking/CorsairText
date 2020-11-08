@@ -1,11 +1,14 @@
 package match
 
-import "sort"
+import (
+	"sort"
+	"strings"
+)
 
 // newnode creates a new node structure
-func newnode(letter string, word string) *node {
+func newnode(letter string, original MatchEntry) *node {
 	words := make(map[string]interface{}, 0)
-	words[word] = nil
+	words[original.Word] = original.Context
 	return &node{
 		Letter: letter,
 		Words:  words,
@@ -31,21 +34,27 @@ type node struct {
 }
 
 // GetWords returns an alphabetical list of words in this node
-func (n *node) GetWords() []string {
+func (n *node) GetWords() []MatchEntry {
 	if len(n.Words) == 0 {
 		return nil
 	}
-	var result sort.StringSlice
-	for key := range n.Words {
-		result = append(result, key)
+	var result []MatchEntry
+	for key, value := range n.Words {
+		result = append(result, MatchEntry{
+			Word:    key,
+			Context: value,
+		})
 	}
-	result.Sort()
+
+	sort.Slice(result, func(i, j int) bool {
+		return strings.Compare(result[i].Word, result[j].Word) < 0
+	})
 	return result
 }
 
 // addLetter finds the spot for and adds a letter (and returns that new node)
 // if the letter already existed, then it just returns that node
-func addLetter(letter string, word string, root *node, trailer **node) *node {
+func addLetter(letter string, original MatchEntry, root *node, trailer **node) *node {
 	if len(letter) > 1 {
 		panic("addLetter passed multiple letters")
 	}
@@ -53,35 +62,35 @@ func addLetter(letter string, word string, root *node, trailer **node) *node {
 		if trailer == nil {
 			panic("addLetter passed a nil trailer")
 		}
-		*trailer = newnode(letter, word)
+		*trailer = newnode(letter, original)
 		return *trailer
 	}
 
 	switch {
 	case letter == root.Letter:
-		// Todo what to do about duplicates with instance data?
-		_, exists := root.Words[word]
+		// Todo what to do about duplicates with contexts?
+		_, exists := root.Words[original.Word]
 		if exists {
 			return root
 		}
-		root.Words[word] = nil
+		root.Words[original.Word] = original.Context
 		return root
 	case letter < root.Letter:
-		return addLetter(letter, word, root.Less, &root.Less)
+		return addLetter(letter, original, root.Less, &root.Less)
 	case letter > root.Letter:
-		return addLetter(letter, word, root.More, &root.More)
+		return addLetter(letter, original, root.More, &root.More)
 	}
 	panic("addLetter letter comparison failed")
 }
 
 // addWord distributes the letters of the word into the search tree
-func addWord(originalWord string, comparisonWord string, index int, root *node, trailer **node) error {
+func addWord(original MatchEntry, comparisonWord string, index int, root *node, trailer **node) error {
 	if index == len(comparisonWord) {
 		return nil
 	}
 	letter := comparisonWord[index : index+1]
-	this := addLetter(letter, originalWord, root, trailer)
-	addWord(originalWord, comparisonWord, index+1, this.Next, &this.Next)
+	this := addLetter(letter, original, root, trailer)
+	addWord(original, comparisonWord, index+1, this.Next, &this.Next)
 	return nil
 }
 
@@ -105,7 +114,7 @@ func findLetter(letter string, root *node) *node {
 }
 
 // findWord walks the tree and finds out what stored words the given word uniquely leads to
-func findWord(word string, root *node) []string {
+func findWord(word string, root *node) []MatchEntry {
 	node := &node{}
 	for i := 0; i < len(word); i++ {
 		if root == nil {

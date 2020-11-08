@@ -58,7 +58,7 @@ func TestParseAction(t *testing.T) {
 				assert.NoError(t, err)
 				assert.IsType(t, &helpRequest{}, request)
 				r := request.(*helpRequest)
-				assert.Equal(t, "buy", r.Command)
+				assert.Equal(t, "Buy", r.Command)
 			},
 		},
 		{
@@ -121,7 +121,6 @@ func TestParseAction(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			actionDescriptionTable[0].ParseParameters = parseHelp
 			textui := &textUI{
 				commandMatcher: MakeCommandMatcher(),
 			}

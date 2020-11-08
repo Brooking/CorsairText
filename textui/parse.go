@@ -5,6 +5,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // Request is a parsed command
@@ -25,7 +27,7 @@ func (t *textUI) parse(input string) (interface{}, error) {
 	}
 
 	// validate the parameters
-	return targetDescription.ParseParameters(t, rawParameters)
+	return targetDescription.ParseParameters(rawParameters)
 }
 
 // parseCommand matches a command to an action
@@ -35,21 +37,21 @@ func (t *textUI) parseCommand(rawCommand string) (*actionDescription, error) {
 	case 0:
 		return nil, e.NewUnknownCommandError(rawCommand)
 	case 1:
-		command := commands[0]
-		for _, description := range actionDescriptionTable {
-			// TODO move this into a map for fast lookup
-			if command != description.Name {
-				continue
-			}
-			return &description, nil
+		command, ok := commands[0].Context.(*actionDescription)
+		if !ok {
+			return nil, errors.Errorf("something other than a command decision came back from command matcher %T", commands[0].Context)
 		}
-		return nil, e.NewUnknownCommandError(command)
+		return command, nil
 	default:
-		return nil, e.NewAmbiguousCommandError(rawCommand, commands)
+		var commandList []string
+		for _, entry := range commands {
+			commandList = append(commandList, entry.Word)
+		}
+		return nil, e.NewAmbiguousCommandError(rawCommand, commandList)
 	}
 }
 
-func (t *textUI) parseNumber(text string) (int, bool) {
+func parseNumber(text string) (int, bool) {
 	match, err := regexp.MatchString(`\b\d+\b`, text)
 	if err != nil {
 		return 0, false

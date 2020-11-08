@@ -1,107 +1,133 @@
 package match
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
+type testContext struct {
+	Token string
+}
+
 func TestMatcher(t *testing.T) {
 	testCases := []struct {
 		name      string
 		matchCase bool
-		wordList  []string
+		wordList  []MatchEntry
 		inputWord string
-		assert    func([]string)
+		assert    func([]MatchEntry)
 	}{
 		{
 			name:      "simple success",
-			wordList:  []string{"a"},
+			wordList:  []MatchEntry{{Word: "a", Context: &testContext{Token: "token"}}},
 			inputWord: "a",
-			assert: func(actual []string) {
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 1, len(actual))
-				assert.Equal(t, "a", actual[0])
+				assert.Equal(t, "a", actual[0].Word)
+				assert.IsType(t, &testContext{}, actual[0].Context)
+				context, _ := actual[0].Context.(*testContext)
+				assert.Equal(t, "token", context.Token)
 			},
 		},
 		{
 			name:      "fail on case",
 			matchCase: true,
-			wordList:  []string{"a"},
+			wordList:  []MatchEntry{{Word: "a"}},
 			inputWord: "A",
-			assert: func(actual []string) {
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 0, len(actual))
 			},
 		},
 		{
 			name:      "simple insensitive success, stored capital",
-			wordList:  []string{"A"},
+			wordList:  []MatchEntry{{Word: "A"}},
 			inputWord: "a",
-			assert: func(actual []string) {
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 1, len(actual))
-				assert.Equal(t, "A", actual[0])
+				assert.Equal(t, "A", actual[0].Word)
 			},
 		},
 		{
 			name:      "simple insensitive success, stored lower",
-			wordList:  []string{"a"},
+			wordList:  []MatchEntry{{Word: "a"}},
 			inputWord: "A",
-			assert: func(actual []string) {
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 1, len(actual))
-				assert.Equal(t, "a", actual[0])
+				assert.Equal(t, "a", actual[0].Word)
 			},
 		},
 		{
 			name:      "fails gracefully with no word list",
 			inputWord: "a",
-			assert: func(actual []string) {
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 0, len(actual))
 			},
 		},
 		{
 			name:     "fails gracefully with empty input word",
-			wordList: []string{"a"},
-			assert: func(actual []string) {
+			wordList: []MatchEntry{{Word: "a"}},
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 0, len(actual))
 			},
 		},
 		{
 			name:      "success on partial",
-			wordList:  []string{"specify"},
+			wordList:  []MatchEntry{{Word: "specify"}},
 			inputWord: "Spec",
-			assert: func(actual []string) {
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 1, len(actual))
-				assert.Equal(t, "specify", actual[0])
+				assert.Equal(t, "specify", actual[0].Word)
 			},
 		},
 		{
 			name:      "success on ambiguous",
-			wordList:  []string{"at", "atom"},
+			wordList:  []MatchEntry{{Word: "at"}, {Word: "atom"}},
 			inputWord: "a",
-			assert: func(actual []string) {
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 2, len(actual))
-				assert.Equal(t, "at", actual[0])
-				assert.Equal(t, "atom", actual[1])
+				assert.Equal(t, "at", actual[0].Word)
+				assert.Equal(t, "atom", actual[1].Word)
 			},
 		},
 		{
-			name:      "success on ambiguous, but complete word",
-			wordList:  []string{"at", "atom"},
+			name: "success on ambiguous, but complete word",
+			wordList: []MatchEntry{
+				{
+					Word: "at",
+					Context: &testContext{
+						Token: "at token",
+					},
+				},
+				{
+					Word: "atom",
+					Context: &testContext{
+						Token: "atom token",
+					},
+				},
+			},
 			inputWord: "at",
-			assert: func(actual []string) {
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 2, len(actual))
-				assert.Equal(t, "at", actual[0])
-				assert.Equal(t, "atom", actual[1])
+
+				assert.Equal(t, "at", actual[0].Word)
+				assert.IsType(t, &testContext{}, actual[0].Context)
+				context := actual[0].Context.(*testContext)
+				assert.Equal(t, "at token", context.Token)
+
+				assert.Equal(t, "atom", actual[1].Word)
+				assert.IsType(t, &testContext{}, actual[1].Context)
+				context = actual[1].Context.(*testContext)
+				assert.Equal(t, "atom token", context.Token)
 			},
 		},
 		{
 			name:      "success with duplicates in dict, only returns one",
-			wordList:  []string{"same", "same"},
+			wordList:  []MatchEntry{{Word: "same"}, {Word: "same"}},
 			inputWord: "same",
-			assert: func(actual []string) {
-				fmt.Println(actual)
+			assert: func(actual []MatchEntry) {
 				assert.Equal(t, 1, len(actual))
-				assert.Equal(t, "same", actual[0])
+				assert.Equal(t, "same", actual[0].Word)
 			},
 		},
 	}
@@ -109,7 +135,7 @@ func TestMatcher(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			// arrange
-			m := NewRegexMatcher(testCase.wordList, testCase.matchCase)
+			m := NewTreeMatcher(testCase.wordList, testCase.matchCase)
 
 			// act
 			returnedWords := m.Match(testCase.inputWord)

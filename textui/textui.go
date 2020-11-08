@@ -20,8 +20,6 @@ type TextUI interface {
 
 // NewTextUI create a new text ui
 func NewTextUI(s support.Support, u universe.Action) TextUI {
-	// todo componentize this so we can do this upon construction
-	actionDescriptionTable[0].ParseParameters = parseHelp
 	return &textUI{
 		s:              s,
 		u:              u,
