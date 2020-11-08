@@ -26,20 +26,16 @@ type actionDescription struct {
 	ShortUsage      string
 	Usage           string
 	Name            string
-	Parameters      []parameterType
-	RequestExemplar interface{}
 	ParseParameters func([]string) (interface{}, error)
 }
 
 // actionDescriptionTable is the complete list of action descriptions
 var actionDescriptionTable = []*actionDescription{
 	{
-		actionType:      action.TypeHelp,
-		ShortUsage:      "Help - List commands",
-		Usage:           "Help <command> - List command(s)",
-		Name:            "help",
-		Parameters:      []parameterType{parameterTypeOptAny},
-		RequestExemplar: helpRequest{},
+		actionType: action.TypeHelp,
+		ShortUsage: "Help - List commands",
+		Usage:      "Help <command> - List command(s)",
+		Name:       "help",
 		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
@@ -52,10 +48,9 @@ var actionDescriptionTable = []*actionDescription{
 		},
 	},
 	{
-		actionType:      action.TypeQuit,
-		Usage:           "Quit - Leave the game",
-		Name:            "quit",
-		RequestExemplar: quitRequest{},
+		actionType: action.TypeQuit,
+		Usage:      "Quit - Leave the game",
+		Name:       "quit",
 		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
@@ -66,10 +61,9 @@ var actionDescriptionTable = []*actionDescription{
 		},
 	},
 	{
-		actionType:      action.TypeLook,
-		Usage:           "Look - Look around",
-		Name:            "look",
-		RequestExemplar: lookRequest{},
+		actionType: action.TypeLook,
+		Usage:      "Look - Look around",
+		Name:       "look",
 		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
@@ -80,12 +74,10 @@ var actionDescriptionTable = []*actionDescription{
 		},
 	},
 	{
-		actionType:      action.TypeGo,
-		ShortUsage:      "Go   - Travel",
-		Usage:           "Go <destination> - Travel to destination",
-		Name:            "go",
-		Parameters:      []parameterType{parameterTypeOptAny},
-		RequestExemplar: goRequest{},
+		actionType: action.TypeGo,
+		ShortUsage: "Go   - Travel",
+		Usage:      "Go <destination> - Travel to destination",
+		Name:       "go",
 		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
@@ -98,10 +90,9 @@ var actionDescriptionTable = []*actionDescription{
 		},
 	},
 	{
-		actionType:      action.TypeDig,
-		Usage:           "Dig  - Mine for ore",
-		Name:            "dig",
-		RequestExemplar: digRequest{},
+		actionType: action.TypeDig,
+		Usage:      "Dig  - Mine for ore",
+		Name:       "dig",
 		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0:
@@ -112,12 +103,10 @@ var actionDescriptionTable = []*actionDescription{
 		},
 	},
 	{
-		actionType:      action.TypeBuy,
-		ShortUsage:      "Buy  - Purchase items",
-		Usage:           "Buy <amount> <item> - Purchase specified amount of items",
-		Name:            "buy",
-		Parameters:      []parameterType{parameterTypeNumber, parameterTypeAny},
-		RequestExemplar: buyRequest{},
+		actionType: action.TypeBuy,
+		ShortUsage: "Buy  - Purchase items",
+		Usage:      "Buy <amount> <item> - Purchase specified amount of items",
+		Name:       "buy",
 		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0, 1:
@@ -134,12 +123,10 @@ var actionDescriptionTable = []*actionDescription{
 		},
 	},
 	{
-		actionType:      action.TypeSell,
-		ShortUsage:      "Sell - Sell items",
-		Usage:           "Sell <amount> <item> - Sell specified amount of items",
-		Name:            "sell",
-		Parameters:      []parameterType{parameterTypeNumber, parameterTypeAny},
-		RequestExemplar: sellRequest{},
+		actionType: action.TypeSell,
+		ShortUsage: "Sell - Sell items",
+		Usage:      "Sell <amount> <item> - Sell specified amount of items",
+		Name:       "sell",
 		ParseParameters: func(arg []string) (interface{}, error) {
 			switch len(arg) {
 			case 0, 1:
