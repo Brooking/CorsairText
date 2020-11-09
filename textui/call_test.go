@@ -295,13 +295,13 @@ func TestCallHelp(t *testing.T) {
 		assert     func(bool, error)
 	}{
 		{
-			name:    "success 0 params (returning Go)",
+			name:    "success 0 params (returning go)",
 			request: &helpRequest{},
 			helpReturn: []action.Type{
 				action.TypeGo,
 			},
 			helpCalls: 1,
-			outInput:  "Go   - Travel",
+			outInput:  "go   - Travel",
 			outCalls:  1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
@@ -315,7 +315,7 @@ func TestCallHelp(t *testing.T) {
 				action.TypeLook,
 			},
 			helpCalls: 1,
-			outInput:  "Look - Look around",
+			outInput:  "look - Look around",
 			outCalls:  1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
@@ -337,7 +337,7 @@ func TestCallHelp(t *testing.T) {
 			request: &helpRequest{
 				Command: "go",
 			},
-			outInput: "Go <destination> - Travel to destination",
+			outInput: "go <destination> - Travel to destination",
 			outCalls: 1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)

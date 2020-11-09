@@ -20,8 +20,6 @@ type TextUI interface {
 
 // NewTextUI create a new text ui
 func NewTextUI(s support.Support, u universe.Action) TextUI {
-	// todo componentize this so we can do this upon construction
-	actionDescriptionTable[0].ParseParameters = parseHelp
 	return &textUI{
 		s:              s,
 		u:              u,
@@ -38,7 +36,11 @@ type textUI struct {
 
 // Run is the main text ui entry point
 func (t *textUI) Run() {
-	t.call(lookRequest{})
+	var err error
+	_, err = t.call(&lookRequest{})
+	if err != nil {
+		t.showError(err)
+	}
 	for {
 		t.s.Out.Print("ready> ")
 		text, err := t.s.In.Readln()
@@ -53,25 +55,7 @@ func (t *textUI) Run() {
 		}
 
 		if err != nil {
-			cause := errors.Cause(err)
-
-			switch {
-			case e.IsShowToUserError(cause):
-				t.s.Out.Println(cause.Error())
-			default:
-				t.s.Out.Println(strings.Join([]string{"Error: ", err.Error()}, ""))
-			}
-
-			switch {
-			case e.IsShowAllHelpError(cause):
-				t.call(helpRequest{})
-			case e.IsShowHelpError(cause):
-				t.call(helpRequest{
-					Command: e.GetActionTypeForHelp(cause).String(),
-				})
-			case e.IsShowAdjacencyError(cause):
-				t.call(goRequest{})
-			}
+			t.showError(err)
 		}
 	}
 }
@@ -83,4 +67,25 @@ func (t *textUI) act(command string) (bool, error) {
 		return false, errors.Wrap(err, "parsing action")
 	}
 	return t.call(request)
+}
+
+func (t *textUI) showError(err error) {
+	cause := errors.Cause(err)
+	switch {
+	case e.IsShowToUserError(cause):
+		t.s.Out.Println(cause.Error())
+	default:
+		t.s.Out.Println(strings.Join([]string{"Error: ", err.Error()}, ""))
+	}
+
+	switch {
+	case e.IsShowAllHelpError(cause):
+		t.call(helpRequest{})
+	case e.IsShowHelpError(cause):
+		t.call(helpRequest{
+			Command: e.GetActionTypeForHelp(cause).String(),
+		})
+	case e.IsShowAdjacencyError(cause):
+		t.call(goRequest{})
+	}
 }

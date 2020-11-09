@@ -29,19 +29,28 @@ type actionDescription struct {
 }
 
 // actionDescriptionTable is the complete list of action descriptions
-var actionDescriptionTable = []actionDescription{
+var actionDescriptionTable = []*actionDescription{
 	{
 		actionType:      action.TypeHelp,
-		ShortUsage:      "Help - List commands",
-		Usage:           "Help <command> - List command(s)",
+		ShortUsage:      "help - List commands",
+		Usage:           "help <command> - List command(s)",
 		Name:            "help",
 		Parameters:      []parameterType{parameterTypeOptAny},
 		RequestExemplar: helpRequest{},
-		ParseParameters: nil, /// replaced later to avoid initialization loop
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &helpRequest{}, nil
+			case 1:
+				return &helpRequest{Command: arg[0]}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeHelp, 1, len(arg))
+			}
+		},
 	},
 	{
 		actionType:      action.TypeQuit,
-		Usage:           "Quit - Leave the game",
+		Usage:           "quit - Leave the game",
 		Name:            "quit",
 		RequestExemplar: quitRequest{},
 		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
@@ -55,7 +64,7 @@ var actionDescriptionTable = []actionDescription{
 	},
 	{
 		actionType:      action.TypeLook,
-		Usage:           "Look - Look around",
+		Usage:           "look - Look around",
 		Name:            "look",
 		RequestExemplar: lookRequest{},
 		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
@@ -69,8 +78,8 @@ var actionDescriptionTable = []actionDescription{
 	},
 	{
 		actionType:      action.TypeGo,
-		ShortUsage:      "Go   - Travel",
-		Usage:           "Go <destination> - Travel to destination",
+		ShortUsage:      "go   - Travel",
+		Usage:           "go <destination> - Travel to destination",
 		Name:            "go",
 		Parameters:      []parameterType{parameterTypeOptAny},
 		RequestExemplar: goRequest{},
@@ -87,7 +96,7 @@ var actionDescriptionTable = []actionDescription{
 	},
 	{
 		actionType:      action.TypeDig,
-		Usage:           "Dig  - Mine for ore",
+		Usage:           "dig  - Mine for ore",
 		Name:            "dig",
 		RequestExemplar: digRequest{},
 		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
@@ -101,8 +110,8 @@ var actionDescriptionTable = []actionDescription{
 	},
 	{
 		actionType:      action.TypeBuy,
-		ShortUsage:      "Buy  - Purchase items",
-		Usage:           "Buy <amount> <item> - Purchase specified amount of items",
+		ShortUsage:      "buy  - Purchase items",
+		Usage:           "buy <amount> <item> - Purchase specified amount of items",
 		Name:            "buy",
 		Parameters:      []parameterType{parameterTypeNumber, parameterTypeAny},
 		RequestExemplar: buyRequest{},
@@ -123,8 +132,8 @@ var actionDescriptionTable = []actionDescription{
 	},
 	{
 		actionType:      action.TypeSell,
-		ShortUsage:      "Sell - Sell items",
-		Usage:           "Sell <amount> <item> - Sell specified amount of items",
+		ShortUsage:      "sell - Sell items",
+		Usage:           "sell <amount> <item> - Sell specified amount of items",
 		Name:            "sell",
 		Parameters:      []parameterType{parameterTypeNumber, parameterTypeAny},
 		RequestExemplar: sellRequest{},
@@ -146,14 +155,14 @@ var actionDescriptionTable = []actionDescription{
 }
 
 // describe returns a complete description of a Type
-func describe(actionType action.Type) actionDescription {
+func describe(actionType action.Type) *actionDescription {
 	for _, description := range actionDescriptionTable {
 		if description.actionType != actionType {
 			continue
 		}
 		return description
 	}
-	return actionDescription{}
+	return nil
 }
 
 // parameterType enum describes a parameter
@@ -179,19 +188,4 @@ var parameterRegex = map[parameterType]string{
 	parameterTypeAny:       `\b.+\b`,
 	parameterTypeOptNumber: `\b\d+\b`,
 	parameterTypeOptAny:    `\b.+\b`,
-}
-
-func parseHelp(t *textUI, arg []string) (interface{}, error) {
-	switch len(arg) {
-	case 0:
-		return &helpRequest{}, nil
-	case 1:
-		c, err := t.parseCommand(arg[0])
-		if err != nil {
-			return nil, err
-		}
-		return &helpRequest{Command: c.Name}, nil
-	default:
-		return nil, e.NewExtraParameterError(action.TypeHelp, 1, len(arg))
-	}
 }

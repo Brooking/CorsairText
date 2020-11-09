@@ -88,12 +88,21 @@ func (t *textUI) help(request *helpRequest) (bool, error) {
 			t.s.Out.Println(usage)
 		}
 	default:
-		command := strings.ToLower(request.Command)
-		description, err := t.parseCommand(command)
-		if err != nil {
-			return false, e.NewUnknownCommandError(command)
+		commands := t.commandMatcher.Match(request.Command)
+		switch len(commands) {
+		case 0:
+			return false, e.NewUnknownCommandError(request.Command)
+		case 1:
+			for _, description := range actionDescriptionTable {
+				if commands[0] == description.Name {
+					t.s.Out.Println(description.Usage)
+					return false, nil
+				}
+			}
+			return false, e.NewUnknownCommandError(request.Command)
+		default:
+			return false, e.NewUnknownCommandError(request.Command)
 		}
-		t.s.Out.Println(description.Usage)
 	}
 	return false, nil
 }

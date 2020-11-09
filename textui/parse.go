@@ -41,7 +41,7 @@ func (t *textUI) parseCommand(rawCommand string) (*actionDescription, error) {
 			if command != description.Name {
 				continue
 			}
-			return &description, nil
+			return description, nil
 		}
 		return nil, e.NewUnknownCommandError(command)
 	default:

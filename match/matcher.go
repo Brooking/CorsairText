@@ -14,7 +14,7 @@ type Matcher interface {
 
 // NewMatcher creates a new Matcher
 func NewMatcher(wordList []string, matchCase bool) Matcher {
-	return NewTreeMatcher(wordList, matchCase)
+	return NewRegexMatcher(wordList, matchCase)
 }
 
 // Ingest adds a word list to the matcher's dictionary
