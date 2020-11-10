@@ -284,7 +284,7 @@ func TestCallHelp(t *testing.T) {
 	testCases := []struct {
 		name            string
 		request         interface{}
-		listLocalReturn []string
+		listLocalReturn map[string]interface{}
 		listLocalCalls  int
 		outInput        string
 		outCalls        int
@@ -293,8 +293,8 @@ func TestCallHelp(t *testing.T) {
 		{
 			name:    "success 0 params (returning go)",
 			request: &helpRequest{},
-			listLocalReturn: []string{
-				"go",
+			listLocalReturn: map[string]interface{}{
+				"go": nil,
 			},
 			listLocalCalls: 1,
 			outInput:       "go   - Travel",
@@ -307,8 +307,8 @@ func TestCallHelp(t *testing.T) {
 		{
 			name:    "success 0 params (returning Look)",
 			request: &helpRequest{},
-			listLocalReturn: []string{
-				"look",
+			listLocalReturn: map[string]interface{}{
+				"look": nil,
 			},
 			listLocalCalls: 1,
 			outInput:       "look - Look around",

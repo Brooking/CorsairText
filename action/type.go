@@ -42,6 +42,6 @@ const (
 )
 
 // String returns a string representation of a Type value
-func (t *Type) String() string {
-	return string(*t)
+func (t Type) String() string {
+	return string(t)
 }

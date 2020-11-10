@@ -3,8 +3,7 @@ package universe
 // Information is the interface to the universe's information
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Information interface {
-	ListCommands() []string
-	ListLocalCommands() []string
+	ListLocalCommands() map[string]interface{}
 
 	ListLocations() []string
 	ListAdjacentLocations() []string
@@ -15,15 +14,9 @@ type Information interface {
 	Inventory() []string
 }
 
-// ListCommands returns a list of all possible commands
-func (u *universe) ListCommands() []string {
-	return nil
-}
-
 // ListLocalCommands returns a list of commands valid at the current spot
-func (u *universe) ListLocalCommands() []string {
-	u.current.Actions()
-	return nil
+func (u *universe) ListLocalCommands() map[string]interface{} {
+	return u.current.Actions().Map()
 }
 
 // ListLocations returns a list of all locations

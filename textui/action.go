@@ -19,7 +19,7 @@ func MakeCommandMatcher() match.Matcher {
 
 // actionDescription gives information about an action
 type actionDescription struct {
-	actionType      action.Type
+	ActionType      action.Type
 	ShortUsage      string
 	Usage           string
 	Name            string
@@ -28,88 +28,20 @@ type actionDescription struct {
 	ParseParameters func(*textUI, []string) (interface{}, error)
 }
 
+var actionHelpOrder = []string{
+	"help",
+	"quit",
+	"look",
+	"go",
+	"dig",
+	"buy",
+	"sell",
+}
+
 // actionDescriptionMap is the complete list of action descriptions
 var actionDescriptionMap = map[string]*actionDescription{
-	"help": {
-		actionType:      action.TypeHelp,
-		ShortUsage:      "help - List commands",
-		Usage:           "help <command> - List command(s)",
-		Name:            "help",
-		Parameters:      []parameterType{parameterTypeOptAny},
-		RequestExemplar: helpRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
-			switch len(arg) {
-			case 0:
-				return &helpRequest{}, nil
-			case 1:
-				return &helpRequest{Command: arg[0]}, nil
-			default:
-				return nil, e.NewExtraParameterError(action.TypeHelp, 1, len(arg))
-			}
-		},
-	},
-	"quit": {
-		actionType:      action.TypeQuit,
-		Usage:           "quit - Leave the game",
-		Name:            "quit",
-		RequestExemplar: quitRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
-			switch len(arg) {
-			case 0:
-				return &quitRequest{}, nil
-			default:
-				return nil, e.NewExtraParameterError(action.TypeQuit, 0, len(arg))
-			}
-		},
-	},
-	"look": {
-		actionType:      action.TypeLook,
-		Usage:           "look - Look around",
-		Name:            "look",
-		RequestExemplar: lookRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
-			switch len(arg) {
-			case 0:
-				return &lookRequest{}, nil
-			default:
-				return nil, e.NewExtraParameterError(action.TypeLook, 0, len(arg))
-			}
-		},
-	},
-	"go": {
-		actionType:      action.TypeGo,
-		ShortUsage:      "go   - Travel",
-		Usage:           "go <destination> - Travel to destination",
-		Name:            "go",
-		Parameters:      []parameterType{parameterTypeOptAny},
-		RequestExemplar: goRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
-			switch len(arg) {
-			case 0:
-				return &goRequest{}, nil
-			case 1:
-				return &goRequest{Destination: arg[0]}, nil
-			default:
-				return nil, e.NewExtraParameterError(action.TypeGo, 1, len(arg))
-			}
-		},
-	},
-	"dig": {
-		actionType:      action.TypeDig,
-		Usage:           "dig  - Mine for ore",
-		Name:            "dig",
-		RequestExemplar: digRequest{},
-		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
-			switch len(arg) {
-			case 0:
-				return &digRequest{}, nil
-			default:
-				return nil, e.NewExtraParameterError(action.TypeDig, 0, len(arg))
-			}
-		},
-	},
 	"buy": {
-		actionType:      action.TypeBuy,
+		ActionType:      action.TypeBuy,
 		ShortUsage:      "buy  - Purchase items",
 		Usage:           "buy <amount> <item> - Purchase specified amount of items",
 		Name:            "buy",
@@ -130,8 +62,86 @@ var actionDescriptionMap = map[string]*actionDescription{
 			}
 		},
 	},
+	"dig": {
+		ActionType:      action.TypeDig,
+		Usage:           "dig  - Mine for ore",
+		Name:            "dig",
+		RequestExemplar: digRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &digRequest{}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeDig, 0, len(arg))
+			}
+		},
+	},
+	"go": {
+		ActionType:      action.TypeGo,
+		ShortUsage:      "go   - Travel",
+		Usage:           "go <destination> - Travel to destination",
+		Name:            "go",
+		Parameters:      []parameterType{parameterTypeOptAny},
+		RequestExemplar: goRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &goRequest{}, nil
+			case 1:
+				return &goRequest{Destination: arg[0]}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeGo, 1, len(arg))
+			}
+		},
+	},
+	"help": {
+		ActionType:      action.TypeHelp,
+		ShortUsage:      "help - List commands",
+		Usage:           "help <command> - List command(s)",
+		Name:            "help",
+		Parameters:      []parameterType{parameterTypeOptAny},
+		RequestExemplar: helpRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &helpRequest{}, nil
+			case 1:
+				return &helpRequest{Command: arg[0]}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeHelp, 1, len(arg))
+			}
+		},
+	},
+	"look": {
+		ActionType:      action.TypeLook,
+		Usage:           "look - Look around",
+		Name:            "look",
+		RequestExemplar: lookRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &lookRequest{}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeLook, 0, len(arg))
+			}
+		},
+	},
+	"quit": {
+		ActionType:      action.TypeQuit,
+		Usage:           "quit - Leave the game",
+		Name:            "quit",
+		RequestExemplar: quitRequest{},
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &quitRequest{}, nil
+			default:
+				return nil, e.NewExtraParameterError(action.TypeQuit, 0, len(arg))
+			}
+		},
+	},
 	"sell": {
-		actionType:      action.TypeSell,
+		ActionType:      action.TypeSell,
 		ShortUsage:      "sell - Sell items",
 		Usage:           "sell <amount> <item> - Sell specified amount of items",
 		Name:            "sell",

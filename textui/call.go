@@ -69,7 +69,12 @@ type helpRequest struct {
 func (t *textUI) help(request *helpRequest) (bool, error) {
 	switch {
 	case request.Command == "":
-		for _, command := range t.i.ListLocalCommands() {
+		legalCommands := t.i.ListLocalCommands()
+		for _, command := range actionHelpOrder {
+			_, exist := legalCommands[command]
+			if !exist {
+				continue
+			}
 			description, ok := actionDescriptionMap[command]
 			if !ok {
 				return false, errors.Errorf("internal: unknown command %v", command)

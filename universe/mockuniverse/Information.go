@@ -33,25 +33,11 @@ func (m *MockInformation) EXPECT() *MockInformationMockRecorder {
 	return m.recorder
 }
 
-// ListCommands mocks base method
-func (m *MockInformation) ListCommands() []string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListCommands")
-	ret0, _ := ret[0].([]string)
-	return ret0
-}
-
-// ListCommands indicates an expected call of ListCommands
-func (mr *MockInformationMockRecorder) ListCommands() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommands", reflect.TypeOf((*MockInformation)(nil).ListCommands))
-}
-
 // ListLocalCommands mocks base method
-func (m *MockInformation) ListLocalCommands() []string {
+func (m *MockInformation) ListLocalCommands() map[string]interface{} {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListLocalCommands")
-	ret0, _ := ret[0].([]string)
+	ret0, _ := ret[0].(map[string]interface{})
 	return ret0
 }
 

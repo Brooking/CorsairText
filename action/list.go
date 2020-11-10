@@ -1,5 +1,7 @@
 package action
 
+import "fmt"
+
 // List is a slice of action types
 type List []Type
 
@@ -22,4 +24,18 @@ func (l List) Includes(actionType Type) bool {
 		}
 	}
 	return false
+}
+
+func (l List) Map() map[string]interface{} {
+	result := make(map[string]interface{}, 0)
+	for _, entry := range l {
+		_, exists := result[entry.String()]
+		if exists {
+			fmt.Println("internal: duplicate action", entry)
+			continue
+		}
+		result[entry.String()] = nil
+	}
+
+	return result
 }
