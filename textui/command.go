@@ -7,8 +7,8 @@ import (
 	"github.com/pkg/errors"
 )
 
-// MakeCommandMatcher creates a text matcher seeded with commands
-func MakeCommandMatcher() match.Matcher {
+// NewCommandMatcher creates a text matcher seeded with commands
+func NewCommandMatcher() match.Matcher {
 	var commands []string
 	for name := range commandDescriptionMap {
 		commands = append(commands, name)
@@ -20,12 +20,25 @@ func MakeCommandMatcher() match.Matcher {
 type Command string
 
 var (
-	CommandBuy  = "buy"
-	CommandDig  = "dig"
-	CommandGo   = "go"
+	// CommandBuy the buy command
+	CommandBuy = "buy"
+
+	// CommandDig the dig command
+	CommandDig = "dig"
+
+	// CommandGo the go command
+	CommandGo = "go"
+
+	// CommandHelp the help command
 	CommandHelp = "help"
+
+	// CommandLook the look command
 	CommandLook = "look"
+
+	// CommandQuit the quit command
 	CommandQuit = "quit"
+
+	// CommandSell the sell command
 	CommandSell = "sell"
 )
 

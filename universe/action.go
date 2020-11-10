@@ -34,7 +34,7 @@ func (u *universe) Go(destination string) error {
 
 	_, ok := u.index[strings.ToLower(destination)]
 	if !ok {
-		return e.NewUnknownDestinationError(destination)
+		return e.NewUnknownLocationError(destination)
 	}
 
 	adjacencies := u.current.ListAdjacent()

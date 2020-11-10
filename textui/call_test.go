@@ -188,6 +188,10 @@ func TestCallGo(t *testing.T) {
 				LocalLocation().
 				Return(&universe.View{}).
 				Times(testCase.localLocationCalls)
+			informationMock.EXPECT().
+				ListAdjacentLocations().
+				Return([]string{"mars"}).
+				AnyTimes()
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			outMock.EXPECT().
 				Println(gomock.Any()).
@@ -203,10 +207,11 @@ func TestCallGo(t *testing.T) {
 				}).
 				AnyTimes()
 			textui := &textUI{
-				s:              support,
-				a:              actionMock,
-				i:              informationMock,
-				commandMatcher: matcherMock,
+				s:               support,
+				a:               actionMock,
+				i:               informationMock,
+				commandMatcher:  matcherMock,
+				locationMatcher: matcherMock,
 			}
 
 			// act

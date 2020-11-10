@@ -2,11 +2,14 @@ package textui
 
 import (
 	"corsairtext/e"
+	"corsairtext/match"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
 )
 
+// call is a table for calling command handlers by type
 func (t *textUI) call(command interface{}) (bool, error) {
 	switch r := command.(type) {
 	case *buyCommand:
@@ -46,19 +49,29 @@ type goCommand struct {
 
 // _go handles a go command
 func (t *textUI) _go(command *goCommand) (bool, error) {
+	adjacency := t.i.ListAdjacentLocations()
 	switch {
 	case command.Destination == "":
-		adjacency := t.i.ListAdjacentLocations()
 		for _, neighbor := range adjacency {
 			t.s.Out.Println(neighbor)
 		}
 	default:
-		err := t.a.Go(command.Destination)
-		if err != nil {
-			return false, err
-		}
+		destinations := match.NewMatcher(adjacency, false).Match(command.Destination)
+		fmt.Println(destinations)
+		switch len(destinations) {
+		case 0:
+			// todo: add non-adjacent hints
+			return false, e.NewUnknownLocationError(command.Destination)
+		case 1:
+			err := t.a.Go(destinations[0])
+			if err != nil {
+				return false, err
+			}
 
-		t.look(&lookCommand{})
+			t.look(&lookCommand{})
+		default:
+			return false, e.NewAmbiguousLocationError(command.Destination, destinations)
+		}
 	}
 	return false, nil
 }

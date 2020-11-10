@@ -21,19 +21,21 @@ type TextUI interface {
 // NewTextUI create a new text ui
 func NewTextUI(s support.Support, a universe.Action, i universe.Information) TextUI {
 	return &textUI{
-		s:              s,
-		a:              a,
-		i:              i,
-		commandMatcher: MakeCommandMatcher(),
+		s:               s,
+		a:               a,
+		i:               i,
+		commandMatcher:  NewCommandMatcher(),
+		locationMatcher: match.NewMatcher(i.ListLocations(), false),
 	}
 }
 
 // textUI is the concrete implementation of TextUI
 type textUI struct {
-	s              support.Support
-	a              universe.Action
-	i              universe.Information
-	commandMatcher match.Matcher
+	s               support.Support
+	a               universe.Action
+	i               universe.Information
+	commandMatcher  match.Matcher
+	locationMatcher match.Matcher
 }
 
 // Run is the main text ui entry point

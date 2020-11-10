@@ -122,7 +122,7 @@ func TestParseCommandLine(t *testing.T) {
 			defer ctrl.Finish()
 
 			textui := &textUI{
-				commandMatcher: MakeCommandMatcher(),
+				commandMatcher: NewCommandMatcher(),
 			}
 
 			// act
