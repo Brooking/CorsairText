@@ -7,43 +7,45 @@ import (
 	"github.com/pkg/errors"
 )
 
-func (t *textUI) call(request interface{}) (bool, error) {
-	switch r := request.(type) {
-	case *buyRequest:
+func (t *textUI) call(command interface{}) (bool, error) {
+	switch r := command.(type) {
+	case *buyCommand:
 		return t.buy(r)
-	case *digRequest:
+	case *digCommand:
 		return t.dig(r)
-	case *goRequest:
+	case *goCommand:
 		return t._go(r)
-	case *helpRequest:
+	case *helpCommand:
 		return t.help(r)
-	case *lookRequest:
+	case *lookCommand:
 		return t.look(r)
-	case *quitRequest:
+	case *quitCommand:
 		return t.quit(r)
-	case *sellRequest:
+	case *sellCommand:
 		return t.sell(r)
 	default:
 		return false, errors.Errorf("internal: no call handler for %T", r)
 	}
 }
 
-type buyRequest struct {
+// buy command describes a bus command
+type buyCommand struct {
 	Amount int
 	Item   string
 }
 
-// buy handles a buy action
-func (t *textUI) buy(request *buyRequest) (bool, error) {
+// buy handles a buy command
+func (t *textUI) buy(request *buyCommand) (bool, error) {
 	return false, t.a.Buy(request.Amount, request.Item)
 }
 
-type goRequest struct {
+// go command describes a go command
+type goCommand struct {
 	Destination string
 }
 
-// _go handles a go action
-func (t *textUI) _go(request *goRequest) (bool, error) {
+// _go handles a go command
+func (t *textUI) _go(request *goCommand) (bool, error) {
 	switch {
 	case request.Destination == "":
 		adjacency := t.i.ListAdjacentLocations()
@@ -56,26 +58,27 @@ func (t *textUI) _go(request *goRequest) (bool, error) {
 			return false, err
 		}
 
-		t.look(&lookRequest{})
+		t.look(&lookCommand{})
 	}
 	return false, nil
 }
 
-type helpRequest struct {
+// help command describes a help command
+type helpCommand struct {
 	Command string
 }
 
-// help handles a help action
-func (t *textUI) help(request *helpRequest) (bool, error) {
+// help handles a help command
+func (t *textUI) help(request *helpCommand) (bool, error) {
 	switch {
 	case request.Command == "":
 		legalCommands := t.i.ListLocalCommands()
-		for _, command := range actionHelpOrder {
+		for _, command := range commandHelpOrder {
 			_, exist := legalCommands[command]
 			if !exist {
 				continue
 			}
-			description, ok := actionDescriptionMap[command]
+			description, ok := commandDescriptionMap[command]
 			if !ok {
 				return false, errors.Errorf("internal: unknown command %v", command)
 			}
@@ -94,7 +97,7 @@ func (t *textUI) help(request *helpRequest) (bool, error) {
 		case 0:
 			return false, e.NewUnknownCommandError(request.Command)
 		case 1:
-			description, ok := actionDescriptionMap[request.Command]
+			description, ok := commandDescriptionMap[request.Command]
 			if !ok {
 				return false, e.NewUnknownCommandError(request.Command)
 			}
@@ -107,10 +110,11 @@ func (t *textUI) help(request *helpRequest) (bool, error) {
 	return false, nil
 }
 
-type lookRequest struct{}
+// lookCommand describes a look command
+type lookCommand struct{}
 
-// look handles a look action
-func (t *textUI) look(request *lookRequest) (bool, error) {
+// look handles a look command
+func (t *textUI) look(request *lookCommand) (bool, error) {
 	location := t.i.LocalLocation()
 	t.s.Out.Println(strings.Join([]string{"You are at ", location.Name, ", ", location.Description, "."}, ""))
 
@@ -122,26 +126,29 @@ func (t *textUI) look(request *lookRequest) (bool, error) {
 	return false, nil
 }
 
-type digRequest struct{}
+// dig command describes a dis command
+type digCommand struct{}
 
-// dig handles a mining action
-func (t *textUI) dig(request *digRequest) (bool, error) {
+// dig handles a mining command
+func (t *textUI) dig(request *digCommand) (bool, error) {
 	return false, t.a.Dig()
 }
 
-type quitRequest struct{}
+// quitCommand describes a quit command
+type quitCommand struct{}
 
 // quit handles a quit command
-func (t *textUI) quit(request *quitRequest) (bool, error) {
+func (t *textUI) quit(request *quitCommand) (bool, error) {
 	return true, nil
 }
 
-type sellRequest struct {
+// sellCommand describes a sell command
+type sellCommand struct {
 	Amount int
 	Item   string
 }
 
-// sell handles a sell action
-func (t *textUI) sell(request *sellRequest) (bool, error) {
+// sell handles a sell command
+func (t *textUI) sell(request *sellCommand) (bool, error) {
 	return false, t.a.Sell(request.Amount, request.Item)
 }

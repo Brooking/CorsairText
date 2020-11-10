@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestParseAction(t *testing.T) {
+func TestParseCommandLine(t *testing.T) {
 	testCases := []struct {
 		name   string
 		input  string
@@ -25,7 +25,7 @@ func TestParseAction(t *testing.T) {
 			input: "h",
 			assert: func(request interface{}, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &helpRequest{}, request)
+				assert.IsType(t, &helpCommand{}, request)
 			},
 		},
 		{
@@ -33,7 +33,7 @@ func TestParseAction(t *testing.T) {
 			input: "hel",
 			assert: func(request interface{}, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &helpRequest{}, request)
+				assert.IsType(t, &helpCommand{}, request)
 			},
 		},
 		{
@@ -48,7 +48,7 @@ func TestParseAction(t *testing.T) {
 			input: "Help",
 			assert: func(request interface{}, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &helpRequest{}, request)
+				assert.IsType(t, &helpCommand{}, request)
 			},
 		},
 		{
@@ -56,8 +56,8 @@ func TestParseAction(t *testing.T) {
 			input: "Help Buy",
 			assert: func(request interface{}, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &helpRequest{}, request)
-				r := request.(*helpRequest)
+				assert.IsType(t, &helpCommand{}, request)
+				r := request.(*helpCommand)
 				assert.Equal(t, "Buy", r.Command)
 			},
 		},
@@ -73,8 +73,8 @@ func TestParseAction(t *testing.T) {
 			input: "G",
 			assert: func(request interface{}, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &goRequest{}, request)
-				r := request.(*goRequest)
+				assert.IsType(t, &goCommand{}, request)
+				r := request.(*goCommand)
 				assert.Equal(t, "", r.Destination)
 			},
 		},
@@ -83,8 +83,8 @@ func TestParseAction(t *testing.T) {
 			input: "G moon",
 			assert: func(request interface{}, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &goRequest{}, request)
-				r := request.(*goRequest)
+				assert.IsType(t, &goCommand{}, request)
+				r := request.(*goCommand)
 				assert.Equal(t, "moon", r.Destination)
 			},
 		},
@@ -100,8 +100,8 @@ func TestParseAction(t *testing.T) {
 			input: "Sell 14 ore",
 			assert: func(request interface{}, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &sellRequest{}, request)
-				r := request.(*sellRequest)
+				assert.IsType(t, &sellCommand{}, request)
+				r := request.(*sellCommand)
 				assert.Equal(t, 14, r.Amount)
 				assert.Equal(t, "ore", r.Item)
 			},

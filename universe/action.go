@@ -1,8 +1,8 @@
 package universe
 
 import (
-	"corsairtext/action"
 	"corsairtext/e"
+	"corsairtext/universe/action"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -21,7 +21,7 @@ type Action interface {
 // Buy acquires a certain amount of a commodity at a base
 func (u *universe) Buy(amount int, commodity string) error {
 	if !u.allowed(action.TypeBuy) {
-		return e.NewBadSpotError(u.current, action.TypeBuy)
+		return e.NewBadSpotError(u.current, action.TypeBuy.String())
 	}
 	return errors.New("buy not yet implemented")
 }
@@ -29,7 +29,7 @@ func (u *universe) Buy(amount int, commodity string) error {
 // Go moves current to a new spot
 func (u *universe) Go(destination string) error {
 	if !u.allowed(action.TypeGo) {
-		return e.NewBadSpotError(u.current, action.TypeGo)
+		return e.NewBadSpotError(u.current, action.TypeGo.String())
 	}
 
 	_, ok := u.index[strings.ToLower(destination)]
@@ -50,7 +50,7 @@ func (u *universe) Go(destination string) error {
 // Help returns the list of actions available at the current spot
 func (u *universe) Help() (action.List, error) {
 	if !u.allowed(action.TypeHelp) {
-		return nil, e.NewBadSpotError(u.current, action.TypeHelp)
+		return nil, e.NewBadSpotError(u.current, action.TypeHelp.String())
 	}
 	return u.current.Actions(), nil
 }
@@ -58,7 +58,7 @@ func (u *universe) Help() (action.List, error) {
 // Dig mines for ore
 func (u *universe) Dig() error {
 	if !u.allowed(action.TypeDig) {
-		return e.NewBadSpotError(u.current, action.TypeDig)
+		return e.NewBadSpotError(u.current, action.TypeDig.String())
 	}
 	return errors.New("dig not yet implemented")
 }
@@ -66,7 +66,7 @@ func (u *universe) Dig() error {
 // Sell sells a certain amount of a commodity at a base
 func (u *universe) Sell(amount int, commodity string) error {
 	if !u.allowed(action.TypeSell) {
-		return e.NewBadSpotError(u.current, action.TypeSell)
+		return e.NewBadSpotError(u.current, action.TypeSell.String())
 	}
 	return errors.New("sell not yet implemented")
 }

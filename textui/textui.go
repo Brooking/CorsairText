@@ -39,7 +39,7 @@ type textUI struct {
 // Run is the main text ui entry point
 func (t *textUI) Run() {
 	var err error
-	_, err = t.call(&lookRequest{})
+	_, err = t.call(&lookCommand{})
 	if err != nil {
 		t.showError(err)
 	}
@@ -82,12 +82,12 @@ func (t *textUI) showError(err error) {
 
 	switch {
 	case e.IsShowAllHelpError(cause):
-		t.call(helpRequest{})
+		t.call(helpCommand{})
 	case e.IsShowHelpError(cause):
-		t.call(helpRequest{
-			Command: e.GetActionTypeForHelp(cause).String(),
+		t.call(helpCommand{
+			Command: e.GetCommandForHelp(cause),
 		})
 	case e.IsShowAdjacencyError(cause):
-		t.call(goRequest{})
+		t.call(goCommand{})
 	}
 }

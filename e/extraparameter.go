@@ -1,15 +1,14 @@
 package e
 
 import (
-	"corsairtext/action"
 	"fmt"
 )
 
-// ExtraParameterError indicates that an action was called with too many parameters
+// ExtraParameterError indicates that a command was called with too many parameters
 type ExtraParameterError struct {
-	ActionType action.Type
-	Actual     int
-	Expected   int
+	Command  string
+	Actual   int
+	Expected int
 }
 
 // Error returns a textual representation of the ExtraParameterError
@@ -20,17 +19,17 @@ func (e *ExtraParameterError) Error() string {
 // IsShowToUser marks this error to show the error to the user
 func (e *ExtraParameterError) IsShowToUser() {}
 
-// GetActionType marks this error to show a specific help screen
-func (e *ExtraParameterError) GetActionType() *action.Type {
-	return &e.ActionType
+// GetCommand marks this error to show a specific help screen
+func (e *ExtraParameterError) GetCommand() string {
+	return e.Command
 }
 
 // NewExtraParameterError creates a ExtraParameterError
-func NewExtraParameterError(actionType action.Type, expected int, actual int) error {
+func NewExtraParameterError(command string, expected int, actual int) error {
 	return &ExtraParameterError{
-		ActionType: actionType,
-		Actual:     actual,
-		Expected:   expected,
+		Command:  command,
+		Actual:   actual,
+		Expected: expected,
 	}
 }
 

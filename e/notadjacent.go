@@ -1,6 +1,6 @@
 package e
 
-// NotAdjacentError indicates that an action was prohibited at a spot
+// NotAdjacentError indicates that a go was prohibited at a spot
 type NotAdjacentError struct {
 	Current     string
 	Destination string

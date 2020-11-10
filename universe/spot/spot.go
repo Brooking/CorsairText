@@ -1,8 +1,8 @@
 package spot
 
 import (
-	"corsairtext/action"
 	"corsairtext/support"
+	"corsairtext/universe/action"
 	"corsairtext/universe/base"
 )
 

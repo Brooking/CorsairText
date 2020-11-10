@@ -8,34 +8,34 @@ import (
 )
 
 // Request is a parsed command
-// parse matches the input string with an action's regex
+// parse matches the input string with a command's regex
 func (t *textUI) parse(input string) (interface{}, error) {
 	var (
-		rawWords      []string = strings.Split(input, " ")
-		rawCommand    string   = strings.ToLower(rawWords[0])
-		rawParameters []string = rawWords[1:]
-
-		targetDescription *actionDescription
+		words       []string = strings.Split(input, " ")
+		command     string   = strings.ToLower(words[0])
+		parameters  []string = words[1:]
+		description *commandDescription
+		err         error
 	)
 
 	// find the command
-	targetDescription, err := t.parseCommand(rawCommand)
+	description, err = t.parseCommand(command)
 	if err != nil {
 		return nil, err
 	}
 
 	// validate the parameters
-	return targetDescription.ParseParameters(t, rawParameters)
+	return description.ParseParameters(t, parameters)
 }
 
-// parseCommand matches a command to an action
-func (t *textUI) parseCommand(rawCommand string) (*actionDescription, error) {
+// parseCommand matches a string to a command
+func (t *textUI) parseCommand(rawCommand string) (*commandDescription, error) {
 	commands := t.commandMatcher.Match(rawCommand)
 	switch len(commands) {
 	case 0:
 		return nil, e.NewUnknownCommandError(rawCommand)
 	case 1:
-		description, ok := actionDescriptionMap[commands[0]]
+		description, ok := commandDescriptionMap[commands[0]]
 		if !ok {
 			return nil, e.NewUnknownCommandError(commands[0])
 		}

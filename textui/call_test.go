@@ -23,7 +23,7 @@ func TestCall(t *testing.T) {
 	}{
 		{
 			name:    "success quit",
-			request: &quitRequest{},
+			request: &quitCommand{},
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, true, quit)
@@ -73,7 +73,7 @@ func TestCallBuy(t *testing.T) {
 	}{
 		{
 			name: "buy success",
-			request: &buyRequest{
+			request: &buyCommand{
 				Amount: 3,
 				Item:   "computers",
 			},
@@ -87,7 +87,7 @@ func TestCallBuy(t *testing.T) {
 		},
 		{
 			name: "buy call fail",
-			request: &buyRequest{
+			request: &buyCommand{
 				Amount: 3,
 				Item:   "computers",
 			},
@@ -146,7 +146,7 @@ func TestCallGo(t *testing.T) {
 	}{
 		{
 			name: "go success with dest",
-			request: &goRequest{
+			request: &goCommand{
 				Destination: "mars",
 			},
 			goDestination:      "mars",
@@ -159,7 +159,7 @@ func TestCallGo(t *testing.T) {
 		},
 		{
 			name: "go call fail",
-			request: &goRequest{
+			request: &goCommand{
 				Destination: "mars",
 			},
 			goDestination: "mars",
@@ -272,7 +272,7 @@ func TestCallGoList(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(&goRequest{})
+			quit, err := textui.call(&goCommand{})
 
 			// assert
 			testCase.assert(quit, err)
@@ -292,9 +292,9 @@ func TestCallHelp(t *testing.T) {
 	}{
 		{
 			name:    "success 0 params (returning go)",
-			request: &helpRequest{},
+			request: &helpCommand{},
 			listLocalReturn: map[string]interface{}{
-				"go": nil,
+				CommandGo: nil,
 			},
 			listLocalCalls: 1,
 			outInput:       "go   - Travel",
@@ -306,9 +306,9 @@ func TestCallHelp(t *testing.T) {
 		},
 		{
 			name:    "success 0 params (returning Look)",
-			request: &helpRequest{},
+			request: &helpCommand{},
 			listLocalReturn: map[string]interface{}{
-				"look": nil,
+				CommandLook: nil,
 			},
 			listLocalCalls: 1,
 			outInput:       "look - Look around",
@@ -320,8 +320,8 @@ func TestCallHelp(t *testing.T) {
 		},
 		{
 			name: "success 1 param",
-			request: &helpRequest{
-				Command: "go",
+			request: &helpCommand{
+				Command: CommandGo,
 			},
 			outInput: "go <destination> - Travel to destination",
 			outCalls: 1,
@@ -332,7 +332,7 @@ func TestCallHelp(t *testing.T) {
 		},
 		{
 			name: "fail 1 unknown param",
-			request: &helpRequest{
+			request: &helpCommand{
 				Command: "DoAFlip",
 			},
 			assert: func(quit bool, err error) {
@@ -394,7 +394,7 @@ func TestCallLook(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			request: &lookRequest{},
+			request: &lookCommand{},
 			localLocationReturn: &universe.View{
 				Name:        "Mars",
 				Description: "a red planet",
@@ -466,7 +466,7 @@ func TestCallSell(t *testing.T) {
 	}{
 		{
 			name: "sell success",
-			request: &sellRequest{
+			request: &sellCommand{
 				Amount: 3,
 				Item:   "computers",
 			},
@@ -480,7 +480,7 @@ func TestCallSell(t *testing.T) {
 		},
 		{
 			name: "sell call fail",
-			request: &sellRequest{
+			request: &sellCommand{
 				Amount: 3,
 				Item:   "computers",
 			},

@@ -5,7 +5,7 @@
 package mockbase
 
 import (
-	action "corsairtext/action"
+	action "corsairtext/universe/action"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )

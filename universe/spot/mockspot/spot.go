@@ -5,7 +5,7 @@
 package mockspot
 
 import (
-	action "corsairtext/action"
+	action "corsairtext/universe/action"
 	spot "corsairtext/universe/spot"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"

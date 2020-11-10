@@ -1,9 +1,5 @@
 package e
 
-import (
-	"corsairtext/action"
-)
-
 // ShowAllHelpError is the interface that marks an error for full help
 type ShowAllHelpError interface {
 	IsShowAllHelp()
@@ -17,7 +13,7 @@ func IsShowAllHelpError(err error) bool {
 
 // ShowHelpError is the interface that marks an error for command specific help
 type ShowHelpError interface {
-	GetActionType() *action.Type
+	GetCommand() string
 }
 
 // IsShowHelpError indicates whether the error should be followed by a command specific help screen
@@ -26,14 +22,14 @@ func IsShowHelpError(err error) bool {
 	return ok
 }
 
-// GetActionTypeForHelp gets the hidden action type within the error to facilitate showing the correct help
-func GetActionTypeForHelp(err error) *action.Type {
-	var actionType action.Type
+// GetCommandForHelp gets the hidden command within the error to facilitate showing the correct help
+func GetCommandForHelp(err error) string {
+	var command string
 	showHelpError, ok := err.(ShowHelpError)
 	if !ok {
-		return &actionType
+		return command
 	}
-	return showHelpError.GetActionType()
+	return showHelpError.GetCommand()
 }
 
 // ShowToUserError is the interface that marks an error for display to the user

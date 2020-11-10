@@ -1,11 +1,9 @@
 package e
 
-import "corsairtext/action"
-
 // BadParameterError indicates that there was an unrecognized parameter
 type BadParameterError struct {
-	ActionType action.Type
-	Parameter  string
+	Command   string
+	Parameter string
 }
 
 // Error returns a textual representation of the BadParameterError
@@ -16,16 +14,16 @@ func (e *BadParameterError) Error() string {
 // IsShowToUser marks this error to show the error to the user
 func (e *BadParameterError) IsShowToUser() {}
 
-// GetActionType marks this error to show a specific help screen
-func (e *BadParameterError) GetActionType() *action.Type {
-	return &e.ActionType
+// GetCommand marks this error to show a specific help screen
+func (e *BadParameterError) GetCommand() string {
+	return e.Command
 }
 
 // NewBadParameterError creates a BadParameterError
-func NewBadParameterError(actionType action.Type, parameter string) error {
+func NewBadParameterError(command string, parameter string) error {
 	return &BadParameterError{
-		ActionType: actionType,
-		Parameter:  parameter,
+		Command:   command,
+		Parameter: parameter,
 	}
 }
 
