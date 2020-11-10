@@ -19,30 +19,28 @@ func TestCall(t *testing.T) {
 	testCases := []struct {
 		name    string
 		command interface{}
-		assert  func(bool, error)
+		assert  func(error)
 	}{
 		{
 			name:    "success quit",
 			command: &quitCommand{},
-			assert: func(quit bool, err error) {
-				assert.NoError(t, err)
-				assert.Equal(t, true, quit)
+			assert: func(err error) {
+				assert.Error(t, err)
+				assert.True(t, e.IsQuitError(err))
 			},
 		},
 		{
 			name:    "fail bad struct",
 			command: e.AmbiguousCommandError{},
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.Error(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 		{
 			name:    "fail nil struct",
 			command: nil,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.Error(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 	}
@@ -53,10 +51,10 @@ func TestCall(t *testing.T) {
 			textui := &textUI{}
 
 			// act
-			quit, err := textui.call(testCase.command)
+			err := textui.call(testCase.command)
 
 			// assert
-			testCase.assert(quit, err)
+			testCase.assert(err)
 		})
 	}
 }
@@ -69,7 +67,7 @@ func TestCallBuy(t *testing.T) {
 		buyItem   string
 		buyReturn error
 		buyCalls  int
-		assert    func(bool, error)
+		assert    func(error)
 	}{
 		{
 			name: "buy success",
@@ -80,9 +78,8 @@ func TestCallBuy(t *testing.T) {
 			buyAmount: 3,
 			buyItem:   "computers",
 			buyCalls:  1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 		{
@@ -95,9 +92,8 @@ func TestCallBuy(t *testing.T) {
 			buyItem:   "computers",
 			buyReturn: errors.New("some buy error"),
 			buyCalls:  1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.Error(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 	}
@@ -126,10 +122,10 @@ func TestCallBuy(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.command)
+			err := textui.call(testCase.command)
 
 			// assert
-			testCase.assert(quit, err)
+			testCase.assert(err)
 		})
 	}
 }
@@ -142,7 +138,7 @@ func TestCallGo(t *testing.T) {
 		goReturn           error
 		goCalls            int
 		localLocationCalls int
-		assert             func(bool, error)
+		assert             func(error)
 	}{
 		{
 			name: "go success with dest",
@@ -152,9 +148,8 @@ func TestCallGo(t *testing.T) {
 			goDestination:      "mars",
 			goCalls:            1,
 			localLocationCalls: 1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 		{
@@ -165,9 +160,8 @@ func TestCallGo(t *testing.T) {
 			goDestination: "mars",
 			goReturn:      errors.New("some go error"),
 			goCalls:       1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.Error(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 	}
@@ -215,10 +209,10 @@ func TestCallGo(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.command)
+			err := textui.call(testCase.command)
 
 			// assert
-			testCase.assert(quit, err)
+			testCase.assert(err)
 		})
 	}
 }
@@ -230,7 +224,7 @@ func TestCallGoList(t *testing.T) {
 		golistCalls  int
 		outInput     string
 		outCalls     int
-		assert       func(bool, error)
+		assert       func(error)
 	}{
 		{
 			name:         "go success no params",
@@ -238,9 +232,8 @@ func TestCallGoList(t *testing.T) {
 			golistCalls:  1,
 			outInput:     "Moon",
 			outCalls:     1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 	}
@@ -277,10 +270,10 @@ func TestCallGoList(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(&goCommand{})
+			err := textui.call(&goCommand{})
 
 			// assert
-			testCase.assert(quit, err)
+			testCase.assert(err)
 		})
 	}
 }
@@ -293,7 +286,7 @@ func TestCallHelp(t *testing.T) {
 		listLocalCalls  int
 		outInput        string
 		outCalls        int
-		assert          func(bool, error)
+		assert          func(error)
 	}{
 		{
 			name:    "success 0 params (returning go)",
@@ -304,9 +297,8 @@ func TestCallHelp(t *testing.T) {
 			listLocalCalls: 1,
 			outInput:       "go   - Travel",
 			outCalls:       1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 		{
@@ -318,9 +310,8 @@ func TestCallHelp(t *testing.T) {
 			listLocalCalls: 1,
 			outInput:       "look - Look around",
 			outCalls:       1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 		{
@@ -330,9 +321,8 @@ func TestCallHelp(t *testing.T) {
 			},
 			outInput: "go <destination> - Travel to destination",
 			outCalls: 1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 		{
@@ -340,9 +330,8 @@ func TestCallHelp(t *testing.T) {
 			command: &helpCommand{
 				Command: "DoAFlip",
 			},
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.Error(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 	}
@@ -379,10 +368,10 @@ func TestCallHelp(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.command)
+			err := textui.call(testCase.command)
 
 			// assert
-			testCase.assert(quit, err)
+			testCase.assert(err)
 		})
 	}
 }
@@ -395,7 +384,7 @@ func TestCallLook(t *testing.T) {
 		out1Expected        string
 		out2Expected        string
 		outCalls            int
-		assert              func(bool, error)
+		assert              func(error)
 	}{
 		{
 			name:    "success",
@@ -408,9 +397,8 @@ func TestCallLook(t *testing.T) {
 			out1Expected: "You are at Mars, a red planet.",
 			out2Expected: "sol/Mars/",
 			outCalls:     1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 	}
@@ -451,10 +439,10 @@ func TestCallLook(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.command)
+			err := textui.call(testCase.command)
 
 			// assert
-			testCase.assert(quit, err)
+			testCase.assert(err)
 		})
 	}
 }
@@ -467,7 +455,7 @@ func TestCallSell(t *testing.T) {
 		sellItem   string
 		sellReturn error
 		sellCalls  int
-		assert     func(bool, error)
+		assert     func(error)
 	}{
 		{
 			name: "sell success",
@@ -478,9 +466,8 @@ func TestCallSell(t *testing.T) {
 			sellAmount: 3,
 			sellItem:   "computers",
 			sellCalls:  1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 		{
@@ -493,9 +480,8 @@ func TestCallSell(t *testing.T) {
 			sellItem:   "computers",
 			sellReturn: errors.New("some sell error"),
 			sellCalls:  1,
-			assert: func(quit bool, err error) {
+			assert: func(err error) {
 				assert.Error(t, err)
-				assert.Equal(t, false, quit)
 			},
 		},
 	}
@@ -524,10 +510,10 @@ func TestCallSell(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.command)
+			err := textui.call(testCase.command)
 
 			// assert
-			testCase.assert(quit, err)
+			testCase.assert(err)
 		})
 	}
 }

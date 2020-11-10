@@ -41,7 +41,7 @@ type textUI struct {
 // Run is the main text ui entry point
 func (t *textUI) Run() {
 	var err error
-	_, err = t.call(&lookCommand{})
+	err = t.call(&lookCommand{})
 	if err != nil {
 		t.showError(err)
 	}
@@ -53,8 +53,8 @@ func (t *textUI) Run() {
 			return
 		}
 
-		quit, err := t.act(text)
-		if quit {
+		err = t.act(text)
+		if e.IsQuitError(err) {
 			break
 		}
 
@@ -65,10 +65,10 @@ func (t *textUI) Run() {
 }
 
 // act handles a user's command
-func (t *textUI) act(commandString string) (bool, error) {
+func (t *textUI) act(commandString string) error {
 	command, err := t.parse(commandString)
 	if err != nil {
-		return false, errors.Wrap(err, "parsing action")
+		return errors.Wrap(err, "parsing action")
 	}
 	return t.call(command)
 }
