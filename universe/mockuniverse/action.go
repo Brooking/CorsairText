@@ -5,8 +5,6 @@
 package mockuniverse
 
 import (
-	action "corsairtext/action"
-	universe "corsairtext/universe"
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 )
@@ -60,51 +58,6 @@ func (m *MockAction) Go(arg0 string) error {
 func (mr *MockActionMockRecorder) Go(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Go", reflect.TypeOf((*MockAction)(nil).Go), arg0)
-}
-
-// GoList mocks base method
-func (m *MockAction) GoList() ([]universe.Neighbor, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GoList")
-	ret0, _ := ret[0].([]universe.Neighbor)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GoList indicates an expected call of GoList
-func (mr *MockActionMockRecorder) GoList() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GoList", reflect.TypeOf((*MockAction)(nil).GoList))
-}
-
-// Help mocks base method
-func (m *MockAction) Help() (action.List, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Help")
-	ret0, _ := ret[0].(action.List)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Help indicates an expected call of Help
-func (mr *MockActionMockRecorder) Help() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Help", reflect.TypeOf((*MockAction)(nil).Help))
-}
-
-// Look mocks base method
-func (m *MockAction) Look() (*universe.View, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Look")
-	ret0, _ := ret[0].(*universe.View)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Look indicates an expected call of Look
-func (mr *MockActionMockRecorder) Look() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Look", reflect.TypeOf((*MockAction)(nil).Look))
 }
 
 // Dig mocks base method

@@ -6,12 +6,12 @@ import (
 )
 
 // NewUniverse creates a new Universe
-func NewUniverse(s support.Support) Action {
+func NewUniverse(s support.Support) (Action, Information) {
 	u := &universe{
 		s: s,
 	}
 	u.root, u.current, _ = u.generateMap()
-	return u
+	return u, u
 }
 
 // universe is the concrete implimentation of Universe

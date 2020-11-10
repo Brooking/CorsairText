@@ -35,15 +35,11 @@ func (t *textUI) parseCommand(rawCommand string) (*actionDescription, error) {
 	case 0:
 		return nil, e.NewUnknownCommandError(rawCommand)
 	case 1:
-		command := commands[0]
-		for _, description := range actionDescriptionTable {
-			// TODO move this into a map for fast lookup
-			if command != description.Name {
-				continue
-			}
-			return description, nil
+		description, ok := actionDescriptionMap[commands[0]]
+		if !ok {
+			return nil, e.NewUnknownCommandError(commands[0])
 		}
-		return nil, e.NewUnknownCommandError(command)
+		return description, nil
 	default:
 		return nil, e.NewAmbiguousCommandError(rawCommand, commands)
 	}

@@ -19,10 +19,11 @@ type TextUI interface {
 }
 
 // NewTextUI create a new text ui
-func NewTextUI(s support.Support, u universe.Action) TextUI {
+func NewTextUI(s support.Support, a universe.Action, i universe.Information) TextUI {
 	return &textUI{
 		s:              s,
-		u:              u,
+		a:              a,
+		i:              i,
 		commandMatcher: MakeCommandMatcher(),
 	}
 }
@@ -30,7 +31,8 @@ func NewTextUI(s support.Support, u universe.Action) TextUI {
 // textUI is the concrete implementation of TextUI
 type textUI struct {
 	s              support.Support
-	u              universe.Action
+	a              universe.Action
+	i              universe.Information
 	commandMatcher match.Matcher
 }
 

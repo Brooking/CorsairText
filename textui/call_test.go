@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"corsairtext/action"
 	"corsairtext/e"
 	"corsairtext/match/mockmatch"
 	"corsairtext/support"
@@ -109,13 +108,12 @@ func TestCallBuy(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			universeMock := mockuniverse.NewMockAction(ctrl)
-			universeMock.EXPECT().
+			actionMock := mockuniverse.NewMockAction(ctrl)
+			actionMock.EXPECT().
 				Buy(testCase.buyAmount, testCase.buyItem).
 				Return(testCase.buyReturn).
 				Times(testCase.buyCalls)
 			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
 				DoAndReturn(func(s string) []string {
@@ -123,7 +121,7 @@ func TestCallBuy(t *testing.T) {
 				}).
 				AnyTimes()
 			textui := &textUI{
-				u:              universeMock,
+				a:              actionMock,
 				commandMatcher: matcherMock,
 			}
 
@@ -138,22 +136,22 @@ func TestCallBuy(t *testing.T) {
 
 func TestCallGo(t *testing.T) {
 	testCases := []struct {
-		name          string
-		request       interface{}
-		goDestination string
-		goReturn      error
-		goCalls       int
-		lookCalls     int
-		assert        func(bool, error)
+		name               string
+		request            interface{}
+		goDestination      string
+		goReturn           error
+		goCalls            int
+		localLocationCalls int
+		assert             func(bool, error)
 	}{
 		{
 			name: "go success with dest",
 			request: &goRequest{
 				Destination: "mars",
 			},
-			goDestination: "mars",
-			goCalls:       1,
-			lookCalls:     1,
+			goDestination:      "mars",
+			goCalls:            1,
+			localLocationCalls: 1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, false, quit)
@@ -180,15 +178,16 @@ func TestCallGo(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			universeMock := mockuniverse.NewMockAction(ctrl)
-			universeMock.EXPECT().
+			actionMock := mockuniverse.NewMockAction(ctrl)
+			actionMock.EXPECT().
 				Go(testCase.goDestination).
 				Return(testCase.goReturn).
 				Times(testCase.goCalls)
-			universeMock.EXPECT().
-				Look().
-				Return(&universe.View{}, nil).
-				Times(testCase.lookCalls)
+			informationMock := mockuniverse.NewMockInformation(ctrl)
+			informationMock.EXPECT().
+				LocalLocation().
+				Return(&universe.View{}).
+				Times(testCase.localLocationCalls)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			outMock.EXPECT().
 				Println(gomock.Any()).
@@ -197,7 +196,6 @@ func TestCallGo(t *testing.T) {
 				Out: outMock,
 			}
 			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
 				DoAndReturn(func(s string) []string {
@@ -206,7 +204,8 @@ func TestCallGo(t *testing.T) {
 				AnyTimes()
 			textui := &textUI{
 				s:              support,
-				u:              universeMock,
+				a:              actionMock,
+				i:              informationMock,
 				commandMatcher: matcherMock,
 			}
 
@@ -222,8 +221,7 @@ func TestCallGo(t *testing.T) {
 func TestCallGoList(t *testing.T) {
 	testCases := []struct {
 		name         string
-		golistReturn []universe.Neighbor
-		golistError  error
+		golistReturn []string
 		golistCalls  int
 		outInput     string
 		outCalls     int
@@ -231,7 +229,7 @@ func TestCallGoList(t *testing.T) {
 	}{
 		{
 			name:         "go success no params",
-			golistReturn: []universe.Neighbor{{Index: 0, Name: "Moon"}},
+			golistReturn: []string{"Moon"},
 			golistCalls:  1,
 			outInput:     "Moon",
 			outCalls:     1,
@@ -248,10 +246,10 @@ func TestCallGoList(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			universeMock := mockuniverse.NewMockAction(ctrl)
-			universeMock.EXPECT().
-				GoList().
-				Return(testCase.golistReturn, testCase.golistError).
+			informationMock := mockuniverse.NewMockInformation(ctrl)
+			informationMock.EXPECT().
+				ListAdjacentLocations().
+				Return(testCase.golistReturn).
 				Times(testCase.golistCalls)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			outMock.EXPECT().
@@ -261,7 +259,6 @@ func TestCallGoList(t *testing.T) {
 				Out: outMock,
 			}
 			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
 				DoAndReturn(func(s string) []string {
@@ -270,7 +267,7 @@ func TestCallGoList(t *testing.T) {
 				AnyTimes()
 			textui := &textUI{
 				s:              support,
-				u:              universeMock,
+				i:              informationMock,
 				commandMatcher: matcherMock,
 			}
 
@@ -285,24 +282,23 @@ func TestCallGoList(t *testing.T) {
 
 func TestCallHelp(t *testing.T) {
 	testCases := []struct {
-		name       string
-		request    interface{}
-		helpReturn []action.Type
-		helpError  error
-		helpCalls  int
-		outInput   string
-		outCalls   int
-		assert     func(bool, error)
+		name            string
+		request         interface{}
+		listLocalReturn []string
+		listLocalCalls  int
+		outInput        string
+		outCalls        int
+		assert          func(bool, error)
 	}{
 		{
 			name:    "success 0 params (returning go)",
 			request: &helpRequest{},
-			helpReturn: []action.Type{
-				action.TypeGo,
+			listLocalReturn: []string{
+				"go",
 			},
-			helpCalls: 1,
-			outInput:  "go   - Travel",
-			outCalls:  1,
+			listLocalCalls: 1,
+			outInput:       "go   - Travel",
+			outCalls:       1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, false, quit)
@@ -311,24 +307,14 @@ func TestCallHelp(t *testing.T) {
 		{
 			name:    "success 0 params (returning Look)",
 			request: &helpRequest{},
-			helpReturn: []action.Type{
-				action.TypeLook,
+			listLocalReturn: []string{
+				"look",
 			},
-			helpCalls: 1,
-			outInput:  "look - Look around",
-			outCalls:  1,
+			listLocalCalls: 1,
+			outInput:       "look - Look around",
+			outCalls:       1,
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
-		{
-			name:      "help call fail",
-			request:   &helpRequest{},
-			helpError: errors.New("some go error"),
-			helpCalls: 1,
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
 				assert.Equal(t, false, quit)
 			},
 		},
@@ -362,11 +348,11 @@ func TestCallHelp(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			universeMock := mockuniverse.NewMockAction(ctrl)
-			universeMock.EXPECT().
-				Help().
-				Return(testCase.helpReturn, testCase.helpError).
-				Times(testCase.helpCalls)
+			informationMock := mockuniverse.NewMockInformation(ctrl)
+			informationMock.EXPECT().
+				ListLocalCommands().
+				Return(testCase.listLocalReturn).
+				Times(testCase.listLocalCalls)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			outMock.EXPECT().
 				Println(testCase.outInput).
@@ -375,7 +361,6 @@ func TestCallHelp(t *testing.T) {
 				Out: outMock,
 			}
 			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
 				DoAndReturn(func(s string) []string {
@@ -384,7 +369,7 @@ func TestCallHelp(t *testing.T) {
 				AnyTimes()
 			textui := &textUI{
 				s:              support,
-				u:              universeMock,
+				i:              informationMock,
 				commandMatcher: matcherMock,
 			}
 
@@ -399,19 +384,18 @@ func TestCallHelp(t *testing.T) {
 
 func TestCallLook(t *testing.T) {
 	testCases := []struct {
-		name         string
-		request      interface{}
-		lookReturn   *universe.View
-		lookError    error
-		out1Expected string
-		out2Expected string
-		outCalls     int
-		assert       func(bool, error)
+		name                string
+		request             interface{}
+		localLocationReturn *universe.View
+		out1Expected        string
+		out2Expected        string
+		outCalls            int
+		assert              func(bool, error)
 	}{
 		{
 			name:    "success",
 			request: &lookRequest{},
-			lookReturn: &universe.View{
+			localLocationReturn: &universe.View{
 				Name:        "Mars",
 				Description: "a red planet",
 				Path:        []string{"sol", "Mars"},
@@ -424,15 +408,6 @@ func TestCallLook(t *testing.T) {
 				assert.Equal(t, false, quit)
 			},
 		},
-		{
-			name:      "call failed",
-			request:   &lookRequest{},
-			lookError: errors.New("some look error"),
-			assert: func(quit bool, err error) {
-				assert.Error(t, err)
-				assert.Equal(t, false, quit)
-			},
-		},
 	}
 
 	for _, testCase := range testCases {
@@ -441,10 +416,10 @@ func TestCallLook(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			universeMock := mockuniverse.NewMockAction(ctrl)
-			universeMock.EXPECT().
-				Look().
-				Return(testCase.lookReturn, testCase.lookError).
+			informationMock := mockuniverse.NewMockInformation(ctrl)
+			informationMock.EXPECT().
+				LocalLocation().
+				Return(testCase.localLocationReturn).
 				Times(1)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			first := outMock.EXPECT().
@@ -458,7 +433,6 @@ func TestCallLook(t *testing.T) {
 				Out: outMock,
 			}
 			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
 				DoAndReturn(func(s string) []string {
@@ -467,7 +441,7 @@ func TestCallLook(t *testing.T) {
 				AnyTimes()
 			textui := &textUI{
 				s:              support,
-				u:              universeMock,
+				i:              informationMock,
 				commandMatcher: matcherMock,
 			}
 
@@ -533,7 +507,6 @@ func TestCallSell(t *testing.T) {
 				Return(testCase.sellReturn).
 				Times(testCase.sellCalls)
 			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().Ingest(gomock.Any()).AnyTimes()
 			matcherMock.EXPECT().
 				Match(gomock.Any()).
 				DoAndReturn(func(s string) []string {
@@ -541,7 +514,7 @@ func TestCallSell(t *testing.T) {
 				}).
 				AnyTimes()
 			textui := &textUI{
-				u:              universeMock,
+				a:              universeMock,
 				commandMatcher: matcherMock,
 			}
 

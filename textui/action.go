@@ -11,8 +11,8 @@ import (
 // MakeCommandMatcher creates a text matcher seeded with commands
 func MakeCommandMatcher() match.Matcher {
 	var commands []string
-	for _, description := range actionDescriptionTable {
-		commands = append(commands, description.Name)
+	for name := range actionDescriptionMap {
+		commands = append(commands, name)
 	}
 	return match.NewMatcher(commands, false)
 }
@@ -28,9 +28,9 @@ type actionDescription struct {
 	ParseParameters func(*textUI, []string) (interface{}, error)
 }
 
-// actionDescriptionTable is the complete list of action descriptions
-var actionDescriptionTable = []*actionDescription{
-	{
+// actionDescriptionMap is the complete list of action descriptions
+var actionDescriptionMap = map[string]*actionDescription{
+	"help": {
 		actionType:      action.TypeHelp,
 		ShortUsage:      "help - List commands",
 		Usage:           "help <command> - List command(s)",
@@ -48,7 +48,7 @@ var actionDescriptionTable = []*actionDescription{
 			}
 		},
 	},
-	{
+	"quit": {
 		actionType:      action.TypeQuit,
 		Usage:           "quit - Leave the game",
 		Name:            "quit",
@@ -62,7 +62,7 @@ var actionDescriptionTable = []*actionDescription{
 			}
 		},
 	},
-	{
+	"look": {
 		actionType:      action.TypeLook,
 		Usage:           "look - Look around",
 		Name:            "look",
@@ -76,7 +76,7 @@ var actionDescriptionTable = []*actionDescription{
 			}
 		},
 	},
-	{
+	"go": {
 		actionType:      action.TypeGo,
 		ShortUsage:      "go   - Travel",
 		Usage:           "go <destination> - Travel to destination",
@@ -94,7 +94,7 @@ var actionDescriptionTable = []*actionDescription{
 			}
 		},
 	},
-	{
+	"dig": {
 		actionType:      action.TypeDig,
 		Usage:           "dig  - Mine for ore",
 		Name:            "dig",
@@ -108,7 +108,7 @@ var actionDescriptionTable = []*actionDescription{
 			}
 		},
 	},
-	{
+	"buy": {
 		actionType:      action.TypeBuy,
 		ShortUsage:      "buy  - Purchase items",
 		Usage:           "buy <amount> <item> - Purchase specified amount of items",
@@ -130,7 +130,7 @@ var actionDescriptionTable = []*actionDescription{
 			}
 		},
 	},
-	{
+	"sell": {
 		actionType:      action.TypeSell,
 		ShortUsage:      "sell - Sell items",
 		Usage:           "sell <amount> <item> - Sell specified amount of items",
@@ -152,17 +152,6 @@ var actionDescriptionTable = []*actionDescription{
 			}
 		},
 	},
-}
-
-// describe returns a complete description of a Type
-func describe(actionType action.Type) *actionDescription {
-	for _, description := range actionDescriptionTable {
-		if description.actionType != actionType {
-			continue
-		}
-		return description
-	}
-	return nil
 }
 
 // parameterType enum describes a parameter

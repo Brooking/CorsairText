@@ -44,18 +44,6 @@ func (mr *MockMatcherMockRecorder) Add(word interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Add", reflect.TypeOf((*MockMatcher)(nil).Add), word)
 }
 
-// Ingest mocks base method
-func (m *MockMatcher) Ingest(wordList []string) {
-	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "Ingest", wordList)
-}
-
-// Ingest indicates an expected call of Ingest
-func (mr *MockMatcherMockRecorder) Ingest(wordList interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Ingest", reflect.TypeOf((*MockMatcher)(nil).Ingest), wordList)
-}
-
 // Match mocks base method
 func (m *MockMatcher) Match(target string) []string {
 	m.ctrl.T.Helper()

@@ -35,7 +35,7 @@ type buyRequest struct {
 
 // buy handles a buy action
 func (t *textUI) buy(request *buyRequest) (bool, error) {
-	return false, t.u.Buy(request.Amount, request.Item)
+	return false, t.a.Buy(request.Amount, request.Item)
 }
 
 type goRequest struct {
@@ -46,15 +46,12 @@ type goRequest struct {
 func (t *textUI) _go(request *goRequest) (bool, error) {
 	switch {
 	case request.Destination == "":
-		adjacency, err := t.u.GoList()
-		if err != nil {
-			return false, errors.Wrap(err, "internal: unable to get adjacency list")
-		}
+		adjacency := t.i.ListAdjacentLocations()
 		for _, neighbor := range adjacency {
-			t.s.Out.Println(neighbor.Name)
+			t.s.Out.Println(neighbor)
 		}
 	default:
-		err := t.u.Go(request.Destination)
+		err := t.a.Go(request.Destination)
 		if err != nil {
 			return false, err
 		}
@@ -72,12 +69,11 @@ type helpRequest struct {
 func (t *textUI) help(request *helpRequest) (bool, error) {
 	switch {
 	case request.Command == "":
-		actionList, err := t.u.Help()
-		if err != nil {
-			return false, errors.Wrap(err, "internal: unable to get help list")
-		}
-		for _, actionType := range actionList {
-			description := describe(actionType)
+		for _, command := range t.i.ListLocalCommands() {
+			description, ok := actionDescriptionMap[command]
+			if !ok {
+				return false, errors.Errorf("internal: unknown command %v", command)
+			}
 			usage := description.ShortUsage
 			if usage == "" {
 				usage = description.Usage
@@ -93,13 +89,12 @@ func (t *textUI) help(request *helpRequest) (bool, error) {
 		case 0:
 			return false, e.NewUnknownCommandError(request.Command)
 		case 1:
-			for _, description := range actionDescriptionTable {
-				if commands[0] == description.Name {
-					t.s.Out.Println(description.Usage)
-					return false, nil
-				}
+			description, ok := actionDescriptionMap[request.Command]
+			if !ok {
+				return false, e.NewUnknownCommandError(request.Command)
 			}
-			return false, e.NewUnknownCommandError(request.Command)
+			t.s.Out.Println(description.Usage)
+			return false, nil
 		default:
 			return false, e.NewUnknownCommandError(request.Command)
 		}
@@ -111,15 +106,11 @@ type lookRequest struct{}
 
 // look handles a look action
 func (t *textUI) look(request *lookRequest) (bool, error) {
-	view, err := t.u.Look()
-	if err != nil {
-		return false, errors.Wrap(err, "internal: look failed")
-	}
-
-	t.s.Out.Println(strings.Join([]string{"You are at ", view.Name, ", ", view.Description, "."}, ""))
+	location := t.i.LocalLocation()
+	t.s.Out.Println(strings.Join([]string{"You are at ", location.Name, ", ", location.Description, "."}, ""))
 
 	var path string
-	for _, spot := range view.Path {
+	for _, spot := range location.Path {
 		path = path + spot + "/"
 	}
 	t.s.Out.Println(path)
@@ -130,7 +121,7 @@ type digRequest struct{}
 
 // dig handles a mining action
 func (t *textUI) dig(request *digRequest) (bool, error) {
-	return false, t.u.Dig()
+	return false, t.a.Dig()
 }
 
 type quitRequest struct{}
@@ -147,5 +138,5 @@ type sellRequest struct {
 
 // sell handles a sell action
 func (t *textUI) sell(request *sellRequest) (bool, error) {
-	return false, t.u.Sell(request.Amount, request.Item)
+	return false, t.a.Sell(request.Amount, request.Item)
 }

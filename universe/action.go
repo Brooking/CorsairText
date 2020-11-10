@@ -13,24 +13,9 @@ import (
 type Action interface {
 	Buy(int, string) error
 	Go(string) error
-	GoList() ([]Neighbor, error)
-	Help() (action.List, error)
-	Look() (*View, error)
+	//	Help() (action.List, error)
 	Dig() error
 	Sell(int, string) error
-}
-
-// View is what you get when you look
-type View struct {
-	Name        string
-	Description string
-	Path        []string
-}
-
-// Neighbor is used to designate destinations
-type Neighbor struct {
-	Index int
-	Name  string
 }
 
 // Buy acquires a certain amount of a commodity at a base
@@ -62,38 +47,12 @@ func (u *universe) Go(destination string) error {
 	return e.NewNotAdjacentError(u.current.Name(), destination)
 }
 
-// GoList returns a list of go targets
-func (u *universe) GoList() ([]Neighbor, error) {
-	if !u.allowed(action.TypeGo) {
-		return nil, e.NewBadSpotError(u.current, action.TypeGo)
-	}
-
-	var list []Neighbor
-	adjacencies := u.current.ListAdjacent()
-	for i, adjacent := range adjacencies {
-		list = append(list, Neighbor{Index: i, Name: adjacent.Name()})
-	}
-	return list, nil
-}
-
 // Help returns the list of actions available at the current spot
 func (u *universe) Help() (action.List, error) {
 	if !u.allowed(action.TypeHelp) {
 		return nil, e.NewBadSpotError(u.current, action.TypeHelp)
 	}
 	return u.current.Actions(), nil
-}
-
-// Look returns information about the current spot
-func (u *universe) Look() (*View, error) {
-	if !u.allowed(action.TypeLook) {
-		return nil, e.NewBadSpotError(u.current, action.TypeLook)
-	}
-	return &View{
-		Description: u.current.Description(),
-		Name:        u.current.Name(),
-		Path:        u.current.Path(),
-	}, nil
 }
 
 // Dig mines for ore

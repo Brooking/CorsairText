@@ -9,7 +9,7 @@ import (
 // main is the entry point for corsair text
 func main() {
 	s := support.NewSupport()
-	u := universe.NewUniverse(s)
-	ui := textui.NewTextUI(s, u)
+	a, i := universe.NewUniverse(s)
+	ui := textui.NewTextUI(s, a, i)
 	ui.Run()
 }
