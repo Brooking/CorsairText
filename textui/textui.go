@@ -63,12 +63,12 @@ func (t *textUI) Run() {
 }
 
 // act handles a user's command
-func (t *textUI) act(command string) (bool, error) {
-	request, err := t.parse(command)
+func (t *textUI) act(commandString string) (bool, error) {
+	command, err := t.parse(commandString)
 	if err != nil {
 		return false, errors.Wrap(err, "parsing action")
 	}
-	return t.call(request)
+	return t.call(command)
 }
 
 func (t *textUI) showError(err error) {

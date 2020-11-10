@@ -18,12 +18,12 @@ import (
 func TestCall(t *testing.T) {
 	testCases := []struct {
 		name    string
-		request interface{}
+		command interface{}
 		assert  func(bool, error)
 	}{
 		{
 			name:    "success quit",
-			request: &quitCommand{},
+			command: &quitCommand{},
 			assert: func(quit bool, err error) {
 				assert.NoError(t, err)
 				assert.Equal(t, true, quit)
@@ -31,7 +31,7 @@ func TestCall(t *testing.T) {
 		},
 		{
 			name:    "fail bad struct",
-			request: e.AmbiguousCommandError{},
+			command: e.AmbiguousCommandError{},
 			assert: func(quit bool, err error) {
 				assert.Error(t, err)
 				assert.Equal(t, false, quit)
@@ -39,7 +39,7 @@ func TestCall(t *testing.T) {
 		},
 		{
 			name:    "fail nil struct",
-			request: nil,
+			command: nil,
 			assert: func(quit bool, err error) {
 				assert.Error(t, err)
 				assert.Equal(t, false, quit)
@@ -53,7 +53,7 @@ func TestCall(t *testing.T) {
 			textui := &textUI{}
 
 			// act
-			quit, err := textui.call(testCase.request)
+			quit, err := textui.call(testCase.command)
 
 			// assert
 			testCase.assert(quit, err)
@@ -64,7 +64,7 @@ func TestCall(t *testing.T) {
 func TestCallBuy(t *testing.T) {
 	testCases := []struct {
 		name      string
-		request   interface{}
+		command   interface{}
 		buyAmount int
 		buyItem   string
 		buyReturn error
@@ -73,7 +73,7 @@ func TestCallBuy(t *testing.T) {
 	}{
 		{
 			name: "buy success",
-			request: &buyCommand{
+			command: &buyCommand{
 				Amount: 3,
 				Item:   "computers",
 			},
@@ -87,7 +87,7 @@ func TestCallBuy(t *testing.T) {
 		},
 		{
 			name: "buy call fail",
-			request: &buyCommand{
+			command: &buyCommand{
 				Amount: 3,
 				Item:   "computers",
 			},
@@ -126,7 +126,7 @@ func TestCallBuy(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.request)
+			quit, err := textui.call(testCase.command)
 
 			// assert
 			testCase.assert(quit, err)
@@ -137,7 +137,7 @@ func TestCallBuy(t *testing.T) {
 func TestCallGo(t *testing.T) {
 	testCases := []struct {
 		name               string
-		request            interface{}
+		command            interface{}
 		goDestination      string
 		goReturn           error
 		goCalls            int
@@ -146,7 +146,7 @@ func TestCallGo(t *testing.T) {
 	}{
 		{
 			name: "go success with dest",
-			request: &goCommand{
+			command: &goCommand{
 				Destination: "mars",
 			},
 			goDestination:      "mars",
@@ -159,7 +159,7 @@ func TestCallGo(t *testing.T) {
 		},
 		{
 			name: "go call fail",
-			request: &goCommand{
+			command: &goCommand{
 				Destination: "mars",
 			},
 			goDestination: "mars",
@@ -210,7 +210,7 @@ func TestCallGo(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.request)
+			quit, err := textui.call(testCase.command)
 
 			// assert
 			testCase.assert(quit, err)
@@ -283,7 +283,7 @@ func TestCallGoList(t *testing.T) {
 func TestCallHelp(t *testing.T) {
 	testCases := []struct {
 		name            string
-		request         interface{}
+		command         interface{}
 		listLocalReturn map[string]interface{}
 		listLocalCalls  int
 		outInput        string
@@ -292,7 +292,7 @@ func TestCallHelp(t *testing.T) {
 	}{
 		{
 			name:    "success 0 params (returning go)",
-			request: &helpCommand{},
+			command: &helpCommand{},
 			listLocalReturn: map[string]interface{}{
 				CommandGo: nil,
 			},
@@ -306,7 +306,7 @@ func TestCallHelp(t *testing.T) {
 		},
 		{
 			name:    "success 0 params (returning Look)",
-			request: &helpCommand{},
+			command: &helpCommand{},
 			listLocalReturn: map[string]interface{}{
 				CommandLook: nil,
 			},
@@ -320,7 +320,7 @@ func TestCallHelp(t *testing.T) {
 		},
 		{
 			name: "success 1 param",
-			request: &helpCommand{
+			command: &helpCommand{
 				Command: CommandGo,
 			},
 			outInput: "go <destination> - Travel to destination",
@@ -332,7 +332,7 @@ func TestCallHelp(t *testing.T) {
 		},
 		{
 			name: "fail 1 unknown param",
-			request: &helpCommand{
+			command: &helpCommand{
 				Command: "DoAFlip",
 			},
 			assert: func(quit bool, err error) {
@@ -374,7 +374,7 @@ func TestCallHelp(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.request)
+			quit, err := textui.call(testCase.command)
 
 			// assert
 			testCase.assert(quit, err)
@@ -385,7 +385,7 @@ func TestCallHelp(t *testing.T) {
 func TestCallLook(t *testing.T) {
 	testCases := []struct {
 		name                string
-		request             interface{}
+		command             interface{}
 		localLocationReturn *universe.View
 		out1Expected        string
 		out2Expected        string
@@ -394,7 +394,7 @@ func TestCallLook(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			request: &lookCommand{},
+			command: &lookCommand{},
 			localLocationReturn: &universe.View{
 				Name:        "Mars",
 				Description: "a red planet",
@@ -446,7 +446,7 @@ func TestCallLook(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.request)
+			quit, err := textui.call(testCase.command)
 
 			// assert
 			testCase.assert(quit, err)
@@ -457,7 +457,7 @@ func TestCallLook(t *testing.T) {
 func TestCallSell(t *testing.T) {
 	testCases := []struct {
 		name       string
-		request    interface{}
+		command    interface{}
 		sellAmount int
 		sellItem   string
 		sellReturn error
@@ -466,7 +466,7 @@ func TestCallSell(t *testing.T) {
 	}{
 		{
 			name: "sell success",
-			request: &sellCommand{
+			command: &sellCommand{
 				Amount: 3,
 				Item:   "computers",
 			},
@@ -480,7 +480,7 @@ func TestCallSell(t *testing.T) {
 		},
 		{
 			name: "sell call fail",
-			request: &sellCommand{
+			command: &sellCommand{
 				Amount: 3,
 				Item:   "computers",
 			},
@@ -519,7 +519,7 @@ func TestCallSell(t *testing.T) {
 			}
 
 			// act
-			quit, err := textui.call(testCase.request)
+			quit, err := textui.call(testCase.command)
 
 			// assert
 			testCase.assert(quit, err)

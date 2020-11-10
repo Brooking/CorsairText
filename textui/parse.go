@@ -7,7 +7,6 @@ import (
 	"strings"
 )
 
-// Request is a parsed command
 // parse matches the input string with a command's regex
 func (t *textUI) parse(input string) (interface{}, error) {
 	var (

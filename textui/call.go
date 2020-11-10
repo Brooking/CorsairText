@@ -35,8 +35,8 @@ type buyCommand struct {
 }
 
 // buy handles a buy command
-func (t *textUI) buy(request *buyCommand) (bool, error) {
-	return false, t.a.Buy(request.Amount, request.Item)
+func (t *textUI) buy(command *buyCommand) (bool, error) {
+	return false, t.a.Buy(command.Amount, command.Item)
 }
 
 // go command describes a go command
@@ -45,15 +45,15 @@ type goCommand struct {
 }
 
 // _go handles a go command
-func (t *textUI) _go(request *goCommand) (bool, error) {
+func (t *textUI) _go(command *goCommand) (bool, error) {
 	switch {
-	case request.Destination == "":
+	case command.Destination == "":
 		adjacency := t.i.ListAdjacentLocations()
 		for _, neighbor := range adjacency {
 			t.s.Out.Println(neighbor)
 		}
 	default:
-		err := t.a.Go(request.Destination)
+		err := t.a.Go(command.Destination)
 		if err != nil {
 			return false, err
 		}
@@ -69,9 +69,9 @@ type helpCommand struct {
 }
 
 // help handles a help command
-func (t *textUI) help(request *helpCommand) (bool, error) {
+func (t *textUI) help(command *helpCommand) (bool, error) {
 	switch {
-	case request.Command == "":
+	case command.Command == "":
 		legalCommands := t.i.ListLocalCommands()
 		for _, command := range commandHelpOrder {
 			_, exist := legalCommands[command]
@@ -92,19 +92,19 @@ func (t *textUI) help(request *helpCommand) (bool, error) {
 			t.s.Out.Println(usage)
 		}
 	default:
-		commands := t.commandMatcher.Match(request.Command)
+		commands := t.commandMatcher.Match(command.Command)
 		switch len(commands) {
 		case 0:
-			return false, e.NewUnknownCommandError(request.Command)
+			return false, e.NewUnknownCommandError(command.Command)
 		case 1:
-			description, ok := commandDescriptionMap[request.Command]
+			description, ok := commandDescriptionMap[command.Command]
 			if !ok {
-				return false, e.NewUnknownCommandError(request.Command)
+				return false, e.NewUnknownCommandError(command.Command)
 			}
 			t.s.Out.Println(description.Usage)
 			return false, nil
 		default:
-			return false, e.NewUnknownCommandError(request.Command)
+			return false, e.NewUnknownCommandError(command.Command)
 		}
 	}
 	return false, nil
@@ -114,7 +114,7 @@ func (t *textUI) help(request *helpCommand) (bool, error) {
 type lookCommand struct{}
 
 // look handles a look command
-func (t *textUI) look(request *lookCommand) (bool, error) {
+func (t *textUI) look(command *lookCommand) (bool, error) {
 	location := t.i.LocalLocation()
 	t.s.Out.Println(strings.Join([]string{"You are at ", location.Name, ", ", location.Description, "."}, ""))
 
@@ -130,7 +130,7 @@ func (t *textUI) look(request *lookCommand) (bool, error) {
 type digCommand struct{}
 
 // dig handles a mining command
-func (t *textUI) dig(request *digCommand) (bool, error) {
+func (t *textUI) dig(command *digCommand) (bool, error) {
 	return false, t.a.Dig()
 }
 
@@ -138,7 +138,7 @@ func (t *textUI) dig(request *digCommand) (bool, error) {
 type quitCommand struct{}
 
 // quit handles a quit command
-func (t *textUI) quit(request *quitCommand) (bool, error) {
+func (t *textUI) quit(command *quitCommand) (bool, error) {
 	return true, nil
 }
 
@@ -149,6 +149,6 @@ type sellCommand struct {
 }
 
 // sell handles a sell command
-func (t *textUI) sell(request *sellCommand) (bool, error) {
-	return false, t.a.Sell(request.Amount, request.Item)
+func (t *textUI) sell(command *sellCommand) (bool, error) {
+	return false, t.a.Sell(command.Amount, command.Item)
 }
