@@ -16,7 +16,7 @@ type Information interface {
 
 	ListItems() []string
 
-	Inventory() []string
+	Inventory() Ship
 }
 
 // ListLocalCommands returns a list of commands valid at the current spot
@@ -66,7 +66,30 @@ func (u *universe) ListItems() []string {
 	return nil
 }
 
+// ItemLot is a homogenous bundle of items
+type ItemLot struct {
+	Count    int
+	UnitCost int
+	Origin   string
+}
+
+// Ship contains your inventory
+type Ship struct {
+	Money        int
+	ItemCapacity int
+	Items        map[string]*ItemLot
+}
+
+// Load returns how much cargo is on board
+func (s *Ship) Load() int {
+	var result int
+	for _, lot := range s.Items {
+		result += lot.Count
+	}
+	return result
+}
+
 // Inventory returns a description of the ship
-func (u *universe) Inventory() []string {
-	return nil
+func (u *universe) Inventory() Ship {
+	return *u.ship
 }

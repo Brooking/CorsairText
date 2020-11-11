@@ -32,6 +32,9 @@ var (
 	// CommandHelp the help command
 	CommandHelp = "help"
 
+	// CommandInventory the inventory command
+	CommandInventory = "inventory"
+
 	// CommandLook the look command
 	CommandLook = "look"
 
@@ -47,6 +50,7 @@ var commandHelpOrder = []string{
 	CommandHelp,
 	CommandQuit,
 	CommandLook,
+	CommandInventory,
 	CommandGo,
 	CommandDig,
 	CommandBuy,
@@ -116,6 +120,17 @@ var commandDescriptionMap = map[string]*commandDescription{
 				return &helpCommand{Command: arg[0]}, nil
 			default:
 				return nil, e.NewExtraParameterError(CommandHelp, 1, len(arg))
+			}
+		},
+	},
+	CommandInventory: {
+		Usage: "inventory - Look at your ship",
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &inventoryCommand{}, nil
+			default:
+				return nil, e.NewExtraParameterError(CommandInventory, 0, len(arg))
 			}
 		},
 	},

@@ -3,6 +3,7 @@ package textui
 import (
 	"corsairtext/e"
 	"corsairtext/textui/match"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -19,6 +20,8 @@ func (t *textUI) call(command interface{}) error {
 		return t._go(r)
 	case *helpCommand:
 		return t.help(r)
+	case *inventoryCommand:
+		return t.inventory(r)
 	case *lookCommand:
 		return t.look(r)
 	case *quitCommand:
@@ -124,6 +127,21 @@ func (t *textUI) help(command *helpCommand) error {
 		default:
 			return e.NewUnknownCommandError(command.Command)
 		}
+	}
+	return nil
+}
+
+// inventoryCommand describes an inventory command
+type inventoryCommand struct{}
+
+// inventory handles an inventory command
+func (t *textUI) inventory(command *inventoryCommand) error {
+	inventory := t.i.Inventory()
+	t.s.Out.Println(fmt.Sprintf("Money: %d", inventory.Money))
+	t.s.Out.Println(fmt.Sprintf("Capacity: %d", inventory.ItemCapacity))
+	t.s.Out.Println(fmt.Sprintf("Load: %d", inventory.Load()))
+	for item, lot := range inventory.Items {
+		t.s.Out.Println(fmt.Sprintf(" %s: %d", item, lot.Count))
 	}
 	return nil
 }

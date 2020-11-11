@@ -34,7 +34,7 @@ func (p screenPrinter) Print(a ...interface{}) {
 
 // Println places text on the screen with a terminating \n
 func (p screenPrinter) Println(a string) {
-	_, err := fmt.Println(a)
+	_, err := fmt.Println(" ", a)
 	if err != nil {
 		panic(errors.Wrap(err, "fmt.Println"))
 	}

@@ -9,8 +9,13 @@ import (
 func NewUniverse(s support.Support) (Action, Information) {
 	u := &universe{
 		s: s,
+		ship: &Ship{
+			Money:        1,
+			ItemCapacity: 5,
+			Items:        make(map[string]*ItemLot),
+		},
 	}
-	u.root, u.current, _ = u.generateMap()
+	u.generateMap()
 	return u, u
 }
 
@@ -20,4 +25,5 @@ type universe struct {
 	root    spot.Spot
 	current spot.Spot
 	index   map[string]spot.Spot
+	ship    *Ship
 }

@@ -104,10 +104,10 @@ func (mr *MockInformationMockRecorder) ListItems() *gomock.Call {
 }
 
 // Inventory mocks base method
-func (m *MockInformation) Inventory() []string {
+func (m *MockInformation) Inventory() universe.Ship {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Inventory")
-	ret0, _ := ret[0].([]string)
+	ret0, _ := ret[0].(universe.Ship)
 	return ret0
 }
 

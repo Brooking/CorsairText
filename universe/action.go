@@ -3,6 +3,7 @@ package universe
 import (
 	"corsairtext/e"
 	"corsairtext/universe/action"
+	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -22,6 +23,8 @@ func (u *universe) Buy(amount int, commodity string) error {
 	if !u.allowed(action.TypeBuy) {
 		return e.NewBadSpotError(u.current, action.TypeBuy.String())
 	}
+
+	// todo - add a market (supply, buy price, sell price)
 	return errors.New("buy not yet implemented")
 }
 
@@ -33,7 +36,7 @@ func (u *universe) Go(destination string) error {
 
 	_, ok := u.index[strings.ToLower(destination)]
 	if !ok {
-		return e.NewUnknownLocationError(destination)
+		return e.NewNoItemRoomError(destination)
 	}
 
 	adjacencies := u.current.ListAdjacent()
@@ -51,7 +54,18 @@ func (u *universe) Dig() error {
 	if !u.allowed(action.TypeDig) {
 		return e.NewBadSpotError(u.current, action.TypeDig.String())
 	}
-	return errors.New("dig not yet implemented")
+
+	if u.ship.ItemCapacity <= u.ship.Load() {
+		return e.NewNoItemRoomError("ore")
+	}
+	itemLot, ok := u.ship.Items["ore"]
+	if !ok {
+		u.ship.Items["ore"] = &ItemLot{}
+		itemLot = u.ship.Items["ore"]
+	}
+	itemLot.Count++
+	fmt.Println(u.ship)
+	return nil
 }
 
 // Sell sells a certain amount of a commodity at a base
@@ -59,7 +73,22 @@ func (u *universe) Sell(amount int, commodity string) error {
 	if !u.allowed(action.TypeSell) {
 		return e.NewBadSpotError(u.current, action.TypeSell.String())
 	}
-	return errors.New("sell not yet implemented")
+
+	itemLot, ok := u.ship.Items[commodity]
+	if !ok {
+		return e.NewNotEnoughItemError(commodity, 0, amount)
+	}
+	if itemLot.Count < amount {
+		return e.NewNotEnoughItemError(commodity, itemLot.Count, amount)
+	}
+
+	// todo - add a market (supply, buy price, sell price, unwanted items)
+	u.ship.Money += amount // * unitCost
+	itemLot.Count -= amount
+	if itemLot.Count == 0 {
+		delete(u.ship.Items, commodity)
+	}
+	return nil
 }
 
 // allowed checks whether the action is allowed at the current spot
