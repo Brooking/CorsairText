@@ -1,5 +1,10 @@
 package universe
 
+import (
+	"sort"
+	"strings"
+)
+
 // Information is the interface to the universe's information
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Information interface {
@@ -21,7 +26,14 @@ func (u *universe) ListLocalCommands() map[string]interface{} {
 
 // ListLocations returns a list of all locations
 func (u *universe) ListLocations() []string {
-	return nil
+	var result []string
+	for _, spot := range u.index {
+		result = append(result, spot.Name())
+	}
+	sort.Slice(result, func(i, j int) bool {
+		return strings.Compare(strings.ToLower(result[i]), strings.ToLower(result[j])) < 0
+	})
+	return result
 }
 
 // ListAdjacentLocations returns a list of all locations adjacent to the current spot

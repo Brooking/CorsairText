@@ -8,7 +8,11 @@ type NotAdjacentError struct {
 
 // Error returns a textual representation of the NotAdjacentError
 func (e *NotAdjacentError) Error() string {
-	return e.Destination + " not adjacent to " + e.Current
+	result := e.Destination + " not adjacent"
+	if e.Current != "" {
+		result = result + " to " + e.Current
+	}
+	return result
 }
 
 // IsShowToUser marks this error to show the error to the user

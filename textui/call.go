@@ -3,7 +3,6 @@ package textui
 import (
 	"corsairtext/e"
 	"corsairtext/match"
-	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -57,11 +56,17 @@ func (t *textUI) _go(command *goCommand) error {
 		}
 	default:
 		destinations := match.NewMatcher(adjacency, false).Match(command.Destination)
-		fmt.Println(destinations)
 		switch len(destinations) {
 		case 0:
-			// todo: add non-adjacent hints
-			return e.NewUnknownLocationError(command.Destination)
+			destinations = t.locationMatcher.Match(command.Destination)
+			switch len(destinations) {
+			case 0:
+				return e.NewUnknownLocationError(command.Destination)
+			case 1:
+				return e.NewNotAdjacentError("", destinations[0])
+			default:
+				return e.NewAmbiguousLocationError(command.Destination, nil, destinations)
+			}
 		case 1:
 			err := t.a.Go(destinations[0])
 			if err != nil {
@@ -70,7 +75,7 @@ func (t *textUI) _go(command *goCommand) error {
 
 			t.look(&lookCommand{})
 		default:
-			return e.NewAmbiguousLocationError(command.Destination, destinations)
+			return e.NewAmbiguousLocationError(command.Destination, destinations, nil)
 		}
 	}
 	return nil

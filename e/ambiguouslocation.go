@@ -2,8 +2,9 @@ package e
 
 // AmbiguousLocationError indicates that the entered location was not recognized
 type AmbiguousLocationError struct {
-	Location      string
-	Possibilities []string
+	Location                string
+	Possibilities           []string
+	OutOfRangePossibilities []string
 }
 
 // Error returns a textual representation of the AmbiguousLocationError
@@ -12,6 +13,12 @@ func (e *AmbiguousLocationError) Error() string {
 	for _, location := range e.Possibilities {
 		result = result + location + "\n"
 	}
+	if len(e.OutOfRangePossibilities) > 0 {
+		result = result + "Or (out of range):"
+		for _, location := range e.OutOfRangePossibilities {
+			result = result + location + "\n"
+		}
+	}
 	return result
 }
 
@@ -19,10 +26,11 @@ func (e *AmbiguousLocationError) Error() string {
 func (e *AmbiguousLocationError) IsShowToUser() {}
 
 // NewAmbiguousLocationError creates a UnknownCommandError
-func NewAmbiguousLocationError(location string, possibilities []string) error {
+func NewAmbiguousLocationError(location string, possibilities []string, outOfRange []string) error {
 	return &AmbiguousLocationError{
-		Location:      location,
-		Possibilities: possibilities,
+		Location:                location,
+		Possibilities:           possibilities,
+		OutOfRangePossibilities: outOfRange,
 	}
 }
 
