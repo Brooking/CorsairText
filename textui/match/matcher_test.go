@@ -1,7 +1,6 @@
 package match
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -99,7 +98,6 @@ func TestMatcher(t *testing.T) {
 			wordList:  []string{"same", "same"},
 			inputWord: "same",
 			assert: func(actual []string) {
-				fmt.Println(actual)
 				assert.Equal(t, 1, len(actual))
 				assert.Equal(t, "same", actual[0])
 			},
@@ -109,7 +107,7 @@ func TestMatcher(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			// arrange
-			m := NewRegexMatcher(testCase.wordList, testCase.matchCase)
+			m := NewMatcher(testCase.wordList, testCase.matchCase)
 
 			// act
 			returnedWords := m.Match(testCase.inputWord)

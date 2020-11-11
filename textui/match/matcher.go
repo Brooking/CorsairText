@@ -1,5 +1,9 @@
 package match
 
+import (
+	"corsairtext/textui/match/regex"
+)
+
 // Matcher is an interface that allows us to find words in a dictionary that
 // a given prefix uniquely identifies .
 // It is useful in matching names and commands.
@@ -14,12 +18,5 @@ type Matcher interface {
 
 // NewMatcher creates a new Matcher
 func NewMatcher(wordList []string, matchCase bool) Matcher {
-	return NewRegexMatcher(wordList, matchCase)
-}
-
-// Ingest adds a word list to the matcher's dictionary
-func Ingest(m Matcher, wordList []string) {
-	for _, word := range wordList {
-		m.Add(word)
-	}
+	return regex.NewRegexMatcher(wordList, matchCase)
 }

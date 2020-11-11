@@ -1,4 +1,4 @@
-package match
+package regex
 
 import (
 	"regexp"
@@ -7,24 +7,26 @@ import (
 	"github.com/pkg/errors"
 )
 
-// NewRegexMatcher is a temporary constructor for a regex based matcher
-func NewRegexMatcher(wordList []string, matchCase bool) Matcher {
-	matcher := &regexmatcher{
-		MatchCase: matchCase,
+// Matcher is a concrete matcher based on regex
+type Matcher struct {
+	matchCase bool
+	list      map[string]interface{}
+}
+
+// NewRegexMatcher is the constructor for a regex based matcher
+func NewRegexMatcher(wordList []string, matchCase bool) *Matcher {
+	matcher := &Matcher{
+		matchCase: matchCase,
 		list:      make(map[string]interface{}),
 	}
-	Ingest(matcher, wordList)
+	for _, word := range wordList {
+		matcher.Add(word)
+	}
 	return matcher
 }
 
-// regexmatcher is a concrete matcher based on regex
-type regexmatcher struct {
-	MatchCase bool
-	//todo make into map to avoid duplicates
-	list map[string]interface{}
-}
-
-func (m *regexmatcher) Add(word string) {
+// Add adds a word to the matcher
+func (m *Matcher) Add(word string) {
 	_, exists := m.list[word]
 	if exists {
 		// todo what about duplicates with instance data
@@ -33,7 +35,8 @@ func (m *regexmatcher) Add(word string) {
 	m.list[word] = nil
 }
 
-func (m *regexmatcher) Match(target string) []string {
+// Match takes a string and finds its matches
+func (m *Matcher) Match(target string) []string {
 	if target == "" {
 		return []string{}
 	}
@@ -43,7 +46,7 @@ func (m *regexmatcher) Match(target string) []string {
 		regex  string
 	)
 
-	switch m.MatchCase {
+	switch m.matchCase {
 	case true:
 		regex = `^` + target
 	default:
@@ -65,7 +68,7 @@ func (m *regexmatcher) Match(target string) []string {
 }
 
 // PrintOrdered not implemented for regex matcher
-func (m *regexmatcher) PrintOrdered() {}
+func (m *Matcher) PrintOrdered() {}
 
 // PrintOrdered not implemented for regex matcher
-func (m *regexmatcher) PrintTree() {}
+func (m *Matcher) PrintTree() {}

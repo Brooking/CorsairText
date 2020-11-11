@@ -1,26 +1,28 @@
-package match
+package tree
 
 import (
 	"strings"
 )
 
-// NewTreeMatcher creates a new tree based Matcher
-func NewTreeMatcher(wordList []string, matchCase bool) Matcher {
-	matcher := &treematcher{
-		matchCase: matchCase,
-	}
-	Ingest(matcher, wordList)
-	return matcher
-}
-
-// treematcher is our concrete implementation of Matcher
-type treematcher struct {
+// Matcher is our concrete implementation of Matcher
+type Matcher struct {
 	matchCase bool
 	root      *node
 }
 
+// NewTreeMatcher creates a new tree based Matcher
+func NewTreeMatcher(wordList []string, matchCase bool) *Matcher {
+	matcher := &Matcher{
+		matchCase: matchCase,
+	}
+	for _, word := range wordList {
+		matcher.Add(word)
+	}
+	return matcher
+}
+
 // Add adds a word to the matcher's dictionary
-func (m *treematcher) Add(originalWord string) {
+func (m *Matcher) Add(originalWord string) {
 	comparisonWord := originalWord
 	if !m.matchCase {
 		comparisonWord = strings.ToLower(originalWord)
@@ -29,7 +31,7 @@ func (m *treematcher) Add(originalWord string) {
 }
 
 // Match finds the stored words that the given word uniquely identifies
-func (m *treematcher) Match(word string) []string {
+func (m *Matcher) Match(word string) []string {
 	if !m.matchCase {
 		word = strings.ToLower(word)
 	}

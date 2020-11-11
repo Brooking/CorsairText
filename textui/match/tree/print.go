@@ -1,4 +1,4 @@
-package match
+package tree
 
 import (
 	"fmt"
@@ -7,14 +7,16 @@ import (
 
 const indentBase = " "
 
-func (m *treematcher) PrintOrdered() {
+// PrintOrdered displays the tree in ordinal order
+func (m *Matcher) PrintOrdered() {
 	fmt.Println("Ordered:")
 	printOrdered(m.root, 0)
 }
 
 var trees []layer
 
-func (m *treematcher) PrintTree() {
+// PrintTree displays the tree in storage order
+func (m *Matcher) PrintTree() {
 	fmt.Println("root:")
 	trees = append(trees, layer{root: m.root})
 	for {
