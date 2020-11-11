@@ -29,7 +29,6 @@ func NewRegexMatcher(wordList []string, matchCase bool) *Matcher {
 func (m *Matcher) Add(word string) {
 	_, exists := m.list[word]
 	if exists {
-		// todo what about duplicates with instance data
 		return
 	}
 	m.list[word] = nil

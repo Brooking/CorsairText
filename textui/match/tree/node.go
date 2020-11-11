@@ -59,7 +59,6 @@ func addLetter(letter string, word string, root *node, trailer **node) *node {
 
 	switch {
 	case letter == root.Letter:
-		// Todo what to do about duplicates with instance data?
 		_, exists := root.Words[word]
 		if exists {
 			return root

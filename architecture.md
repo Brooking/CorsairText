@@ -21,7 +21,7 @@ The base component
 ## UI
 ### Text
 The initial UI is console text only
-* may contain translations of all Univers interfaces
+* may contain translations of all Universe interfaces
 ### Curses basic
 * Operates like Text, but with separate view and input areas
 ### Curses advanced
