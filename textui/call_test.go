@@ -376,6 +376,95 @@ func TestCallHelp(t *testing.T) {
 	}
 }
 
+func TestCallInventory(t *testing.T) {
+	testCases := []struct {
+		name            string
+		command         interface{}
+		inventoryReturn universe.Ship
+		out1Expected    string
+		out2Expected    string
+		out3Expected    string
+		out4Expected    string
+		outCalls        int
+		assert          func(error)
+	}{
+		{
+			name:    "success",
+			command: &inventoryCommand{},
+			inventoryReturn: universe.Ship{
+				Money:        12,
+				ItemCapacity: 3,
+				Items: map[string]*universe.ItemLot{
+					"ore": {
+						Count:    3,
+						UnitCost: 1,
+						Origin:   "Tranquility",
+					},
+				},
+			},
+			out1Expected: "Money: 12",
+			out2Expected: "Capacity: 3",
+			out3Expected: "Load: 3",
+			out4Expected: " ore: 3",
+			outCalls:     1,
+			assert: func(err error) {
+				assert.NoError(t, err)
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			// arrange
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+
+			informationMock := mockuniverse.NewMockInformation(ctrl)
+			informationMock.EXPECT().
+				Inventory().
+				Return(testCase.inventoryReturn).
+				Times(1)
+			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
+			first := outMock.EXPECT().
+				Println(testCase.out1Expected).
+				Times(testCase.outCalls)
+			second := outMock.EXPECT().
+				Println(testCase.out2Expected).
+				After(first).
+				Times(testCase.outCalls)
+			third := outMock.EXPECT().
+				Println(testCase.out3Expected).
+				After(second).
+				Times(testCase.outCalls)
+			outMock.EXPECT().
+				Println(testCase.out4Expected).
+				After(third).
+				Times(testCase.outCalls)
+			support := support.Support{
+				Out: outMock,
+			}
+			matcherMock := mockmatch.NewMockMatcher(ctrl)
+			matcherMock.EXPECT().
+				Match(gomock.Any()).
+				DoAndReturn(func(s string) []string {
+					return []string{s}
+				}).
+				AnyTimes()
+			textui := &textUI{
+				s:              support,
+				i:              informationMock,
+				commandMatcher: matcherMock,
+			}
+
+			// act
+			err := textui.call(testCase.command)
+
+			// assert
+			testCase.assert(err)
+		})
+	}
+}
+
 func TestCallLook(t *testing.T) {
 	testCases := []struct {
 		name                string
