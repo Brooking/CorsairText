@@ -13,7 +13,6 @@ import (
 type Action interface {
 	Buy(int, string) error
 	Go(string) error
-	//	Help() (action.List, error)
 	Dig() error
 	Sell(int, string) error
 }
@@ -45,14 +44,6 @@ func (u *universe) Go(destination string) error {
 		}
 	}
 	return e.NewNotAdjacentError(u.current.Name(), destination)
-}
-
-// Help returns the list of actions available at the current spot
-func (u *universe) Help() (action.List, error) {
-	if !u.allowed(action.TypeHelp) {
-		return nil, e.NewBadSpotError(u.current, action.TypeHelp.String())
-	}
-	return u.current.Actions(), nil
 }
 
 // Dig mines for ore

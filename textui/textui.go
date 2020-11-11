@@ -2,8 +2,8 @@ package textui
 
 import (
 	"corsairtext/e"
-	"corsairtext/match"
 	"corsairtext/support"
+	"corsairtext/textui/match"
 	"corsairtext/universe"
 
 	"strings"

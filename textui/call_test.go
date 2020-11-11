@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"corsairtext/e"
-	"corsairtext/match/mockmatch"
 	"corsairtext/support"
 	"corsairtext/support/screenprinter/mockscreenprinter"
+	"corsairtext/textui/match/mockmatch"
 	"corsairtext/universe"
 	"corsairtext/universe/mockuniverse"
 

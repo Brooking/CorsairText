@@ -2,7 +2,7 @@ package textui
 
 import (
 	"corsairtext/e"
-	"corsairtext/match"
+	"corsairtext/textui/match"
 
 	"github.com/pkg/errors"
 )
