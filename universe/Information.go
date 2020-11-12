@@ -9,17 +9,26 @@ import (
 // Information is the interface to the universe's information
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Information interface {
+	// ListLocalCommands returns a list of commands that are legal at the current location
 	ListLocalCommands() map[string]interface{}
 
+	// ListLocations returns a list of all locations
 	ListLocations() []string
+
+	// ListAdjacentLocations returns a list of all adjacent locations
 	ListAdjacentLocations() []string
+
+	// LocalLocation returns a view of the current location
 	LocalLocation() *View
 
+	// ListItems returns a list of all commodities
 	ListItems() []string
 
+	// Inventory returns a view of the ship
 	Inventory() Ship
 
-	Map(anchor string) *MapNode
+	// Map returns a map (centered on name if specified)
+	Map(name string) *MapNode
 }
 
 // ListLocalCommands returns a list of commands valid at the current spot
@@ -97,12 +106,14 @@ func (u *universe) Inventory() Ship {
 	return *u.ship
 }
 
+// MapNode is the basis for a printable map
 type MapNode struct {
 	Name     string
 	Parent   *MapNode
 	Children []*MapNode
 }
 
+// Map returns a printable map
 func (u *universe) Map(name string) *MapNode {
 	root, target := mapWorker(u.root, nil, name)
 	if target != nil {
@@ -111,6 +122,7 @@ func (u *universe) Map(name string) *MapNode {
 	return root
 }
 
+// mapWorker traverses the spot grid and produces a map
 func mapWorker(root spot.Spot, parent *MapNode, name string) (*MapNode, *MapNode) {
 	node := &MapNode{
 		Name:   root.Name(),
