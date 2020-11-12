@@ -38,6 +38,9 @@ var (
 	// CommandLook the look command
 	CommandLook = "look"
 
+	// CommandMap the map command
+	CommandMap = "map"
+
 	// CommandQuit the quit command
 	CommandQuit = "quit"
 
@@ -51,6 +54,7 @@ var commandHelpOrder = []string{
 	CommandQuit,
 	CommandLook,
 	CommandInventory,
+	CommandMap,
 	CommandGo,
 	CommandDig,
 	CommandBuy,
@@ -142,6 +146,20 @@ var commandDescriptionMap = map[string]*commandDescription{
 				return &lookCommand{}, nil
 			default:
 				return nil, e.NewExtraParameterError(CommandLook, 0, len(arg))
+			}
+		},
+	},
+	CommandMap: {
+		ShortUsage: "map  - Show the map",
+		Usage:      "map <location> - Show the map around the location",
+		ParseParameters: func(t *textUI, arg []string) (interface{}, error) {
+			switch len(arg) {
+			case 0:
+				return &mapCommand{}, nil
+			case 1:
+				return &mapCommand{Location: arg[0]}, nil
+			default:
+				return nil, e.NewExtraParameterError(CommandMap, 0, len(arg))
 			}
 		},
 	},

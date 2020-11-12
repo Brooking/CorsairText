@@ -116,3 +116,17 @@ func (mr *MockInformationMockRecorder) Inventory() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Inventory", reflect.TypeOf((*MockInformation)(nil).Inventory))
 }
+
+// Map mocks base method
+func (m *MockInformation) Map(anchor string) *universe.MapNode {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Map", anchor)
+	ret0, _ := ret[0].(*universe.MapNode)
+	return ret0
+}
+
+// Map indicates an expected call of Map
+func (mr *MockInformationMockRecorder) Map(anchor interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Map", reflect.TypeOf((*MockInformation)(nil).Map), anchor)
+}

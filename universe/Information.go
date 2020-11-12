@@ -1,6 +1,7 @@
 package universe
 
 import (
+	"corsairtext/universe/spot"
 	"sort"
 	"strings"
 )
@@ -17,6 +18,8 @@ type Information interface {
 	ListItems() []string
 
 	Inventory() Ship
+
+	Map(anchor string) *MapNode
 }
 
 // ListLocalCommands returns a list of commands valid at the current spot
@@ -92,4 +95,40 @@ func (s *Ship) Load() int {
 // Inventory returns a description of the ship
 func (u *universe) Inventory() Ship {
 	return *u.ship
+}
+
+type MapNode struct {
+	Name     string
+	Parent   *MapNode
+	Children []*MapNode
+}
+
+func (u *universe) Map(name string) *MapNode {
+	root, target := mapWorker(u.root, nil, name)
+	if target != nil {
+		return target
+	}
+	return root
+}
+
+func mapWorker(root spot.Spot, parent *MapNode, name string) (*MapNode, *MapNode) {
+	node := &MapNode{
+		Name:   root.Name(),
+		Parent: parent,
+	}
+
+	var target *MapNode
+	for _, spot := range root.Children() {
+		child, possibleTarget := mapWorker(spot, node, name)
+		node.Children = append(node.Children, child)
+
+		if possibleTarget != nil {
+			target = possibleTarget
+		}
+	}
+
+	if root.Name() == name {
+		target = node
+	}
+	return node, target
 }
