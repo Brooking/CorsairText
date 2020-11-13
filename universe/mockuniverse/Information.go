@@ -33,18 +33,18 @@ func (m *MockInformation) EXPECT() *MockInformationMockRecorder {
 	return m.recorder
 }
 
-// ListLocalCommands mocks base method
-func (m *MockInformation) ListLocalCommands() map[string]interface{} {
+// ListLocalActions mocks base method
+func (m *MockInformation) ListLocalActions() map[string]interface{} {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListLocalCommands")
+	ret := m.ctrl.Call(m, "ListLocalActions")
 	ret0, _ := ret[0].(map[string]interface{})
 	return ret0
 }
 
-// ListLocalCommands indicates an expected call of ListLocalCommands
-func (mr *MockInformationMockRecorder) ListLocalCommands() *gomock.Call {
+// ListLocalActions indicates an expected call of ListLocalActions
+func (mr *MockInformationMockRecorder) ListLocalActions() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLocalCommands", reflect.TypeOf((*MockInformation)(nil).ListLocalCommands))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLocalActions", reflect.TypeOf((*MockInformation)(nil).ListLocalActions))
 }
 
 // ListLocations mocks base method
@@ -118,7 +118,7 @@ func (mr *MockInformationMockRecorder) Inventory() *gomock.Call {
 }
 
 // Map mocks base method
-func (m *MockInformation) Map(anchor string) *universe.MapNode {
+func (m *MockInformation) Map(anchor *string) *universe.MapNode {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Map", anchor)
 	ret0, _ := ret[0].(*universe.MapNode)
