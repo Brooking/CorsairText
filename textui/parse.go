@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-// parse matches the input string with a command's regex
-func (t *textUI) parse(input string) (interface{}, error) {
+// act handles a user's command
+func (t *textUI) act(commandString string) error {
 	var (
-		words       []string = strings.Split(input, " ")
+		words       []string = strings.Split(commandString, " ")
 		command     string   = strings.ToLower(words[0])
 		parameters  []string = words[1:]
 		description *commandDescription
@@ -20,11 +20,11 @@ func (t *textUI) parse(input string) (interface{}, error) {
 	// find the command
 	description, err = t.parseCommand(command)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// validate the parameters
-	return description.ParseParameters(t, parameters)
+	// handle the command
+	return description.Handler(t, parameters)
 }
 
 // parseCommand matches a string to a command
@@ -33,14 +33,14 @@ func (t *textUI) parseCommand(rawCommand string) (*commandDescription, error) {
 	switch len(commands) {
 	case 0:
 		return nil, e.NewUnknownCommandError(rawCommand)
+	default:
+		return nil, e.NewAmbiguousCommandError(rawCommand, commands)
 	case 1:
 		description, ok := commandDescriptionMap[commands[0]]
 		if !ok {
 			return nil, e.NewUnknownCommandError(commands[0])
 		}
 		return description, nil
-	default:
-		return nil, e.NewAmbiguousCommandError(rawCommand, commands)
 	}
 }
 

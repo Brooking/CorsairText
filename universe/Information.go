@@ -9,30 +9,30 @@ import (
 // Information is the interface to the universe's information
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Information interface {
-	// ListLocalCommands returns a list of commands that are legal at the current location
-	ListLocalCommands() map[string]interface{}
+	// ListLocalActions returns a list of actions valid at the current spot
+	ListLocalActions() map[string]interface{}
 
-	// ListLocations returns a list of all locations
+	// ListLocations returns all locations
 	ListLocations() []string
 
-	// ListAdjacentLocations returns a list of all adjacent locations
+	// ListAdjacentLocations returns all adjacent locations
 	ListAdjacentLocations() []string
 
 	// LocalLocation returns a view of the current location
 	LocalLocation() *View
 
-	// ListItems returns a list of all commodities
+	// ListItems lists all known items
 	ListItems() []string
 
-	// Inventory returns a view of the ship
+	// Inventory returns a view of your stuff
 	Inventory() Ship
 
-	// Map returns a map (centered on name if specified)
-	Map(name string) *MapNode
+	// map lists all locations
+	Map(anchor *string) *MapNode
 }
 
-// ListLocalCommands returns a list of commands valid at the current spot
-func (u *universe) ListLocalCommands() map[string]interface{} {
+// ListLocalActions returns a list of actions valid at the current spot
+func (u *universe) ListLocalActions() map[string]interface{} {
 	return u.current.Actions().Map()
 }
 
@@ -113,34 +113,39 @@ type MapNode struct {
 	Children []*MapNode
 }
 
-// Map returns a printable map
-func (u *universe) Map(name string) *MapNode {
-	root, target := mapWorker(u.root, nil, name)
-	if target != nil {
-		return target
+// Map returns a tree of locations
+func (u *universe) Map(name *string) *MapNode {
+	var target string
+	if name != nil {
+		target = *name
+	}
+
+	root, anchor := mapWorker(u.root, nil, target)
+	if anchor != nil {
+		return anchor
 	}
 	return root
 }
 
-// mapWorker traverses the spot grid and produces a map
-func mapWorker(root spot.Spot, parent *MapNode, name string) (*MapNode, *MapNode) {
+// mapWorker is the recursive worker for Map
+func mapWorker(root spot.Spot, parent *MapNode, target string) (*MapNode, *MapNode) {
 	node := &MapNode{
 		Name:   root.Name(),
 		Parent: parent,
 	}
 
-	var target *MapNode
+	var anchor *MapNode
 	for _, spot := range root.Children() {
-		child, possibleTarget := mapWorker(spot, node, name)
+		child, possibleAnchor := mapWorker(spot, node, target)
 		node.Children = append(node.Children, child)
 
-		if possibleTarget != nil {
-			target = possibleTarget
+		if possibleAnchor != nil {
+			anchor = possibleAnchor
 		}
 	}
 
-	if root.Name() == name {
-		target = node
+	if root.Name() == target {
+		anchor = node
 	}
-	return node, target
+	return node, anchor
 }

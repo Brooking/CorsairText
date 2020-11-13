@@ -3,7 +3,6 @@ package universe
 import (
 	"corsairtext/e"
 	"corsairtext/universe/action"
-	"fmt"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -64,7 +63,6 @@ func (u *universe) Dig() error {
 		itemLot = u.ship.Items["ore"]
 	}
 	itemLot.Count++
-	fmt.Println(u.ship)
 	return nil
 }
 

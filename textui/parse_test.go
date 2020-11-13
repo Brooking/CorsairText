@@ -11,106 +11,60 @@ func TestParseCommandLine(t *testing.T) {
 	testCases := []struct {
 		name   string
 		input  string
-		assert func(interface{}, error)
+		assert func(*commandDescription, error)
 	}{
 		{
 			name:  "empty",
 			input: "",
-			assert: func(command interface{}, err error) {
+			assert: func(description *commandDescription, err error) {
 				assert.Error(t, err)
 			},
 		},
 		{
 			name:  "matches h",
 			input: "h",
-			assert: func(command interface{}, err error) {
+			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &helpCommand{}, command)
+				assert.Equal(t, commandDescriptionMap[CommandHelp], description)
 			},
 		},
 		{
 			name:  "matches hel",
 			input: "hel",
-			assert: func(command interface{}, err error) {
+			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &helpCommand{}, command)
+				assert.Equal(t, commandDescriptionMap[CommandHelp], description)
 			},
 		},
 		{
 			name:  "fails helps",
 			input: "helps",
-			assert: func(command interface{}, err error) {
+			assert: func(description *commandDescription, err error) {
 				assert.Error(t, err)
 			},
 		},
 		{
 			name:  "matches Help",
 			input: "Help",
-			assert: func(command interface{}, err error) {
+			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &helpCommand{}, command)
-			},
-		},
-		{
-			name:  "matches Help with one parameter",
-			input: "Help Buy",
-			assert: func(command interface{}, err error) {
-				assert.NoError(t, err)
-				assert.IsType(t, &helpCommand{}, command)
-				r := command.(*helpCommand)
-				assert.Equal(t, "Buy", r.Command)
-			},
-		},
-		{
-			name:  "fails Help with two parameters",
-			input: "Help look go",
-			assert: func(command interface{}, err error) {
-				assert.Error(t, err)
+				assert.Equal(t, commandDescriptionMap[CommandHelp], description)
 			},
 		},
 		{
 			name:  "matches Go without parameters",
 			input: "G",
-			assert: func(command interface{}, err error) {
+			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &goCommand{}, command)
-				r := command.(*goCommand)
-				assert.Equal(t, "", r.Destination)
+				assert.Equal(t, commandDescriptionMap[CommandGo], description)
 			},
 		},
 		{
-			name:  "matches Go with 1 parameter",
-			input: "G moon",
-			assert: func(command interface{}, err error) {
+			name:  "matches Sell",
+			input: "Sell",
+			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.IsType(t, &goCommand{}, command)
-				r := command.(*goCommand)
-				assert.Equal(t, "moon", r.Destination)
-			},
-		},
-		{
-			name:  "fails Go 2 parameters",
-			input: "Go to mars",
-			assert: func(command interface{}, err error) {
-				assert.Error(t, err)
-			},
-		},
-		{
-			name:  "matches Sell with good parameters",
-			input: "Sell 14 ore",
-			assert: func(command interface{}, err error) {
-				assert.NoError(t, err)
-				assert.IsType(t, &sellCommand{}, command)
-				r := command.(*sellCommand)
-				assert.Equal(t, 14, r.Amount)
-				assert.Equal(t, "ore", r.Item)
-			},
-		},
-		{
-			name:  "fails Sell with bad parameter",
-			input: "Sell fifty computers",
-			assert: func(command interface{}, err error) {
-				assert.Error(t, err)
+				assert.Equal(t, commandDescriptionMap[CommandSell], description)
 			},
 		},
 	}
@@ -126,7 +80,7 @@ func TestParseCommandLine(t *testing.T) {
 			}
 
 			// act
-			command, err := textui.parse(testCase.input)
+			command, err := textui.parseCommand(testCase.input)
 
 			// assert
 			testCase.assert(command, err)
