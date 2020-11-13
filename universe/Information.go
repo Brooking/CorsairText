@@ -19,7 +19,7 @@ type Information interface {
 
 	Inventory() Ship
 
-	Map(anchor string) *MapNode
+	Map(anchor *string) *MapNode
 }
 
 // ListLocalCommands returns a list of commands valid at the current spot
@@ -103,32 +103,37 @@ type MapNode struct {
 	Children []*MapNode
 }
 
-func (u *universe) Map(name string) *MapNode {
-	root, target := mapWorker(u.root, nil, name)
-	if target != nil {
-		return target
+func (u *universe) Map(name *string) *MapNode {
+	var target string
+	if name != nil {
+		target = *name
+	}
+
+	root, anchor := mapWorker(u.root, nil, target)
+	if anchor != nil {
+		return anchor
 	}
 	return root
 }
 
-func mapWorker(root spot.Spot, parent *MapNode, name string) (*MapNode, *MapNode) {
+func mapWorker(root spot.Spot, parent *MapNode, target string) (*MapNode, *MapNode) {
 	node := &MapNode{
 		Name:   root.Name(),
 		Parent: parent,
 	}
 
-	var target *MapNode
+	var anchor *MapNode
 	for _, spot := range root.Children() {
-		child, possibleTarget := mapWorker(spot, node, name)
+		child, possibleAnchor := mapWorker(spot, node, target)
 		node.Children = append(node.Children, child)
 
-		if possibleTarget != nil {
-			target = possibleTarget
+		if possibleAnchor != nil {
+			anchor = possibleAnchor
 		}
 	}
 
-	if root.Name() == name {
-		target = node
+	if root.Name() == target {
+		anchor = node
 	}
-	return node, target
+	return node, anchor
 }

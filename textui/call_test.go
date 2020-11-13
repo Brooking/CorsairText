@@ -1,44 +1,43 @@
 package textui
 
 import (
-	"errors"
-	"testing"
-
 	"corsairtext/e"
 	"corsairtext/support"
 	"corsairtext/support/screenprinter/mockscreenprinter"
 	"corsairtext/textui/match/mockmatch"
 	"corsairtext/universe"
 	"corsairtext/universe/mockuniverse"
+	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestCall(t *testing.T) {
 	testCases := []struct {
 		name    string
-		command interface{}
+		command string
 		assert  func(error)
 	}{
 		{
 			name:    "success quit",
-			command: &quitCommand{},
+			command: "qui",
 			assert: func(err error) {
 				assert.Error(t, err)
 				assert.True(t, e.IsQuitError(err))
 			},
 		},
 		{
-			name:    "fail bad struct",
-			command: e.AmbiguousCommandError{},
+			name:    "fail bad command",
+			command: "abcxyz",
 			assert: func(err error) {
 				assert.Error(t, err)
 			},
 		},
 		{
-			name:    "fail nil struct",
-			command: nil,
+			name:    "fail empty command",
+			command: "",
 			assert: func(err error) {
 				assert.Error(t, err)
 			},
@@ -48,10 +47,12 @@ func TestCall(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			// arrange
-			textui := &textUI{}
+			textui := &textUI{
+				commandMatcher: NewCommandMatcher(),
+			}
 
 			// act
-			err := textui.call(testCase.command)
+			err := textui.act(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -62,7 +63,7 @@ func TestCall(t *testing.T) {
 func TestCallBuy(t *testing.T) {
 	testCases := []struct {
 		name      string
-		command   interface{}
+		command   string
 		buyAmount int
 		buyItem   string
 		buyReturn error
@@ -70,11 +71,8 @@ func TestCallBuy(t *testing.T) {
 		assert    func(error)
 	}{
 		{
-			name: "buy success",
-			command: &buyCommand{
-				Amount: 3,
-				Item:   "computers",
-			},
+			name:      "buy success",
+			command:   "BUY 3 computers",
 			buyAmount: 3,
 			buyItem:   "computers",
 			buyCalls:  1,
@@ -83,15 +81,26 @@ func TestCallBuy(t *testing.T) {
 			},
 		},
 		{
-			name: "buy call fail",
-			command: &buyCommand{
-				Amount: 3,
-				Item:   "computers",
-			},
+			name:      "buy call fail",
+			command:   "BUY 3 computers",
 			buyAmount: 3,
 			buyItem:   "computers",
 			buyReturn: errors.New("some buy error"),
 			buyCalls:  1,
+			assert: func(err error) {
+				assert.Error(t, err)
+			},
+		},
+		{
+			name:    "buy missing param",
+			command: "BUY 3",
+			assert: func(err error) {
+				assert.Error(t, err)
+			},
+		},
+		{
+			name:    "buy bad param",
+			command: "BUY three computers",
 			assert: func(err error) {
 				assert.Error(t, err)
 			},
@@ -109,20 +118,13 @@ func TestCallBuy(t *testing.T) {
 				Buy(testCase.buyAmount, testCase.buyItem).
 				Return(testCase.buyReturn).
 				Times(testCase.buyCalls)
-			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().
-				Match(gomock.Any()).
-				DoAndReturn(func(s string) []string {
-					return []string{s}
-				}).
-				AnyTimes()
 			textui := &textUI{
 				a:              actionMock,
-				commandMatcher: matcherMock,
+				commandMatcher: NewCommandMatcher(),
 			}
 
 			// act
-			err := textui.call(testCase.command)
+			err := textui.act(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -133,7 +135,7 @@ func TestCallBuy(t *testing.T) {
 func TestCallGo(t *testing.T) {
 	testCases := []struct {
 		name               string
-		command            interface{}
+		command            string
 		goDestination      string
 		goReturn           error
 		goCalls            int
@@ -141,10 +143,8 @@ func TestCallGo(t *testing.T) {
 		assert             func(error)
 	}{
 		{
-			name: "go success with dest",
-			command: &goCommand{
-				Destination: "mars",
-			},
+			name:               "go success with dest",
+			command:            "gO mars",
 			goDestination:      "mars",
 			goCalls:            1,
 			localLocationCalls: 1,
@@ -153,13 +153,18 @@ func TestCallGo(t *testing.T) {
 			},
 		},
 		{
-			name: "go call fail",
-			command: &goCommand{
-				Destination: "mars",
-			},
+			name:          "go call fail",
+			command:       "go mars",
 			goDestination: "mars",
 			goReturn:      errors.New("some go error"),
 			goCalls:       1,
+			assert: func(err error) {
+				assert.Error(t, err)
+			},
+		},
+		{
+			name:    "go fail too many params",
+			command: "go mars jupiter",
 			assert: func(err error) {
 				assert.Error(t, err)
 			},
@@ -204,12 +209,12 @@ func TestCallGo(t *testing.T) {
 				s:               support,
 				a:               actionMock,
 				i:               informationMock,
-				commandMatcher:  matcherMock,
+				commandMatcher:  NewCommandMatcher(),
 				locationMatcher: matcherMock,
 			}
 
 			// act
-			err := textui.call(testCase.command)
+			err := textui.act(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -266,11 +271,11 @@ func TestCallGoList(t *testing.T) {
 			textui := &textUI{
 				s:              support,
 				i:              informationMock,
-				commandMatcher: matcherMock,
+				commandMatcher: NewCommandMatcher(),
 			}
 
 			// act
-			err := textui.call(&goCommand{})
+			err := textui.act("G")
 
 			// assert
 			testCase.assert(err)
@@ -281,44 +286,42 @@ func TestCallGoList(t *testing.T) {
 func TestCallHelp(t *testing.T) {
 	testCases := []struct {
 		name            string
-		command         interface{}
+		command         string
 		listLocalReturn map[string]interface{}
 		listLocalCalls  int
 		outInput        string
 		outCalls        int
 		assert          func(error)
 	}{
+		// {
+		// 	name:    "success 0 params (returning dig)",
+		// 	command: "help",
+		// 	listLocalReturn: map[string]interface{}{
+		// 		CommandDig: nil,
+		// 	},
+		// 	listLocalCalls: 1,
+		// 	outInput:       "dig - Mine for ore",
+		// 	outCalls:       1,
+		// 	assert: func(err error) {
+		// 		assert.NoError(t, err)
+		// 	},
+		// },
+		// {
+		// 	name:    "success 0 params (returning Look)",
+		// 	command: "hel",
+		// 	listLocalReturn: map[string]interface{}{
+		// 		CommandLook: nil,
+		// 	},
+		// 	listLocalCalls: 1,
+		// 	outInput:       "look - Look around",
+		// 	outCalls:       1,
+		// 	assert: func(err error) {
+		// 		assert.NoError(t, err)
+		// 	},
+		// },
 		{
-			name:    "success 0 params (returning go)",
-			command: &helpCommand{},
-			listLocalReturn: map[string]interface{}{
-				CommandGo: nil,
-			},
-			listLocalCalls: 1,
-			outInput:       "go   - Travel",
-			outCalls:       1,
-			assert: func(err error) {
-				assert.NoError(t, err)
-			},
-		},
-		{
-			name:    "success 0 params (returning Look)",
-			command: &helpCommand{},
-			listLocalReturn: map[string]interface{}{
-				CommandLook: nil,
-			},
-			listLocalCalls: 1,
-			outInput:       "look - Look around",
-			outCalls:       1,
-			assert: func(err error) {
-				assert.NoError(t, err)
-			},
-		},
-		{
-			name: "success 1 param",
-			command: &helpCommand{
-				Command: CommandGo,
-			},
+			name:     "success 1 param",
+			command:  "help go",
 			outInput: "go <destination> - Travel to destination",
 			outCalls: 1,
 			assert: func(err error) {
@@ -326,10 +329,8 @@ func TestCallHelp(t *testing.T) {
 			},
 		},
 		{
-			name: "fail 1 unknown param",
-			command: &helpCommand{
-				Command: "DoAFlip",
-			},
+			name:    "fail 1 unknown param",
+			command: "help DoAFlip",
 			assert: func(err error) {
 				assert.Error(t, err)
 			},
@@ -354,21 +355,15 @@ func TestCallHelp(t *testing.T) {
 			support := support.Support{
 				Out: outMock,
 			}
-			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().
-				Match(gomock.Any()).
-				DoAndReturn(func(s string) []string {
-					return []string{s}
-				}).
-				AnyTimes()
 			textui := &textUI{
 				s:              support,
 				i:              informationMock,
-				commandMatcher: matcherMock,
+				commandMatcher: NewCommandMatcher(),
 			}
+			commandDescriptionMap[CommandHelp].Handler = helpHandlerTableEntry
 
 			// act
-			err := textui.call(testCase.command)
+			err := textui.act(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -379,8 +374,9 @@ func TestCallHelp(t *testing.T) {
 func TestCallInventory(t *testing.T) {
 	testCases := []struct {
 		name            string
-		command         interface{}
+		command         string
 		inventoryReturn universe.Ship
+		inventoryCalls  int
 		out1Expected    string
 		out2Expected    string
 		out3Expected    string
@@ -390,7 +386,7 @@ func TestCallInventory(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			command: &inventoryCommand{},
+			command: "inventory",
 			inventoryReturn: universe.Ship{
 				Money:        12,
 				ItemCapacity: 3,
@@ -402,13 +398,21 @@ func TestCallInventory(t *testing.T) {
 					},
 				},
 			},
-			out1Expected: "Money: 12",
-			out2Expected: "Capacity: 3",
-			out3Expected: "Load: 3",
-			out4Expected: " ore: 3",
-			outCalls:     1,
+			inventoryCalls: 1,
+			out1Expected:   "Money: 12",
+			out2Expected:   "Capacity: 3",
+			out3Expected:   "Load: 3",
+			out4Expected:   " ore: 3",
+			outCalls:       1,
 			assert: func(err error) {
 				assert.NoError(t, err)
+			},
+		},
+		{
+			name:    "too many parameters",
+			command: "inventory bluck",
+			assert: func(err error) {
+				assert.Error(t, err)
 			},
 		},
 	}
@@ -423,7 +427,7 @@ func TestCallInventory(t *testing.T) {
 			informationMock.EXPECT().
 				Inventory().
 				Return(testCase.inventoryReturn).
-				Times(1)
+				Times(testCase.inventoryCalls)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			first := outMock.EXPECT().
 				Println(testCase.out1Expected).
@@ -443,21 +447,14 @@ func TestCallInventory(t *testing.T) {
 			support := support.Support{
 				Out: outMock,
 			}
-			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().
-				Match(gomock.Any()).
-				DoAndReturn(func(s string) []string {
-					return []string{s}
-				}).
-				AnyTimes()
 			textui := &textUI{
 				s:              support,
 				i:              informationMock,
-				commandMatcher: matcherMock,
+				commandMatcher: NewCommandMatcher(),
 			}
 
 			// act
-			err := textui.call(testCase.command)
+			err := textui.act(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -468,8 +465,9 @@ func TestCallInventory(t *testing.T) {
 func TestCallLook(t *testing.T) {
 	testCases := []struct {
 		name                string
-		command             interface{}
+		command             string
 		localLocationReturn *universe.View
+		localLocationCalls  int
 		out1Expected        string
 		out2Expected        string
 		outCalls            int
@@ -477,17 +475,25 @@ func TestCallLook(t *testing.T) {
 	}{
 		{
 			name:    "success",
-			command: &lookCommand{},
+			command: "lOOk",
 			localLocationReturn: &universe.View{
 				Name:        "Mars",
 				Description: "a red planet",
 				Path:        []string{"sol", "Mars"},
 			},
-			out1Expected: "You are at Mars, a red planet.",
-			out2Expected: "sol/Mars/",
-			outCalls:     1,
+			localLocationCalls: 1,
+			out1Expected:       "You are at Mars, a red planet.",
+			out2Expected:       "sol/Mars/",
+			outCalls:           1,
 			assert: func(err error) {
 				assert.NoError(t, err)
+			},
+		},
+		{
+			name:    "extra parameters",
+			command: "look around",
+			assert: func(err error) {
+				assert.Error(t, err)
 			},
 		},
 	}
@@ -502,7 +508,7 @@ func TestCallLook(t *testing.T) {
 			informationMock.EXPECT().
 				LocalLocation().
 				Return(testCase.localLocationReturn).
-				Times(1)
+				Times(testCase.localLocationCalls)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			first := outMock.EXPECT().
 				Println(testCase.out1Expected).
@@ -514,21 +520,14 @@ func TestCallLook(t *testing.T) {
 			support := support.Support{
 				Out: outMock,
 			}
-			matcherMock := mockmatch.NewMockMatcher(ctrl)
-			matcherMock.EXPECT().
-				Match(gomock.Any()).
-				DoAndReturn(func(s string) []string {
-					return []string{s}
-				}).
-				AnyTimes()
 			textui := &textUI{
 				s:              support,
 				i:              informationMock,
-				commandMatcher: matcherMock,
+				commandMatcher: NewCommandMatcher(),
 			}
 
 			// act
-			err := textui.call(testCase.command)
+			err := textui.act(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -539,7 +538,7 @@ func TestCallLook(t *testing.T) {
 func TestCallSell(t *testing.T) {
 	testCases := []struct {
 		name       string
-		command    interface{}
+		command    string
 		sellAmount int
 		sellItem   string
 		sellReturn error
@@ -547,11 +546,8 @@ func TestCallSell(t *testing.T) {
 		assert     func(error)
 	}{
 		{
-			name: "sell success",
-			command: &sellCommand{
-				Amount: 3,
-				Item:   "computers",
-			},
+			name:       "sell success",
+			command:    "sell 3 computers",
 			sellAmount: 3,
 			sellItem:   "computers",
 			sellCalls:  1,
@@ -560,15 +556,26 @@ func TestCallSell(t *testing.T) {
 			},
 		},
 		{
-			name: "sell call fail",
-			command: &sellCommand{
-				Amount: 3,
-				Item:   "computers",
-			},
+			name:       "sell call fail",
+			command:    "sell 3 computers",
 			sellAmount: 3,
 			sellItem:   "computers",
 			sellReturn: errors.New("some sell error"),
 			sellCalls:  1,
+			assert: func(err error) {
+				assert.Error(t, err)
+			},
+		},
+		{
+			name:    "sell missing param",
+			command: "SELL 3",
+			assert: func(err error) {
+				assert.Error(t, err)
+			},
+		},
+		{
+			name:    "sell bad param",
+			command: "sell three computers",
 			assert: func(err error) {
 				assert.Error(t, err)
 			},
@@ -595,11 +602,11 @@ func TestCallSell(t *testing.T) {
 				AnyTimes()
 			textui := &textUI{
 				a:              universeMock,
-				commandMatcher: matcherMock,
+				commandMatcher: NewCommandMatcher(),
 			}
 
 			// act
-			err := textui.call(testCase.command)
+			err := textui.act(testCase.command)
 
 			// assert
 			testCase.assert(err)

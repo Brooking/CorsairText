@@ -20,6 +20,9 @@ type TextUI interface {
 
 // NewTextUI create a new text ui
 func NewTextUI(s support.Support, a universe.Action, i universe.Information) TextUI {
+	// this line is to work around an initialization cycle in our command table (help refers back to the table)
+	commandDescriptionMap[CommandHelp].Handler = helpHandlerTableEntry
+
 	return &textUI{
 		s:               s,
 		a:               a,
@@ -41,7 +44,7 @@ type textUI struct {
 // Run is the main text ui entry point
 func (t *textUI) Run() {
 	var err error
-	err = t.call(&lookCommand{})
+	err = t.showLook()
 	if err != nil {
 		t.showError(err)
 	}
@@ -64,15 +67,7 @@ func (t *textUI) Run() {
 	}
 }
 
-// act handles a user's command
-func (t *textUI) act(commandString string) error {
-	command, err := t.parse(commandString)
-	if err != nil {
-		return errors.Wrap(err, "parsing action")
-	}
-	return t.call(command)
-}
-
+// showError handles displaying errors and any extra needed data
 func (t *textUI) showError(err error) {
 	cause := errors.Cause(err)
 	switch {
@@ -84,12 +79,10 @@ func (t *textUI) showError(err error) {
 
 	switch {
 	case e.IsShowAllHelpError(cause):
-		t.call(helpCommand{})
+		t.showAllHelp()
 	case e.IsShowHelpError(cause):
-		t.call(helpCommand{
-			Command: e.GetCommandForHelp(cause),
-		})
+		t.showHelp(e.GetCommandForHelp(cause))
 	case e.IsShowAdjacencyError(cause):
-		t.call(goCommand{})
+		t.showAdjacency()
 	}
 }

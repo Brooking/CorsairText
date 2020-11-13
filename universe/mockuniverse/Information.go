@@ -118,7 +118,7 @@ func (mr *MockInformationMockRecorder) Inventory() *gomock.Call {
 }
 
 // Map mocks base method
-func (m *MockInformation) Map(anchor string) *universe.MapNode {
+func (m *MockInformation) Map(anchor *string) *universe.MapNode {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Map", anchor)
 	ret0, _ := ret[0].(*universe.MapNode)
