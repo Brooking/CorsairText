@@ -67,16 +67,20 @@ var commandHelpOrder = []string{
 type commandDescription struct {
 	Action     bool
 	Handler    func(*textUI, []string) error
+	ShortName  string
+	LongName   string
 	ShortUsage string
-	Usage      string
+	LongUsage  string
 }
 
 // commandDescriptionMap is the complete list of command descriptions
 var commandDescriptionMap = map[string]*commandDescription{
 	CommandBuy: {
 		Action:     true,
-		ShortUsage: "buy  - Purchase items",
-		Usage:      "buy <amount> <item> - Purchase specified amount of items",
+		ShortName:  "buy",
+		LongName:   "buy <amount> <item>",
+		ShortUsage: "Purchase items",
+		LongUsage:  "Purchase specified amount of items",
 		Handler: func(t *textUI, arg []string) error {
 			switch len(arg) {
 			case 0, 1:
@@ -93,8 +97,9 @@ var commandDescriptionMap = map[string]*commandDescription{
 		},
 	},
 	CommandDig: {
-		Action: true,
-		Usage:  "dig  - Mine for ore",
+		Action:     true,
+		ShortName:  "dig",
+		ShortUsage: "Mine for ore",
 		Handler: func(t *textUI, arg []string) error {
 			switch len(arg) {
 			default:
@@ -105,8 +110,10 @@ var commandDescriptionMap = map[string]*commandDescription{
 		},
 	},
 	CommandGo: {
-		ShortUsage: "go   - Travel",
-		Usage:      "go <destination> - Travel to destination",
+		ShortName:  "go",
+		LongName:   "go <destination>",
+		ShortUsage: "Travel",
+		LongUsage:  "Travel to destination",
 		Handler: func(t *textUI, arg []string) error {
 			switch len(arg) {
 			default:
@@ -144,12 +151,15 @@ var commandDescriptionMap = map[string]*commandDescription{
 		},
 	},
 	CommandHelp: {
-		ShortUsage: "help - List commands",
-		Usage:      "help <command> - List command(s)",
+		ShortName:  "help",
+		LongName:   "help <command>",
+		ShortUsage: "List commands",
+		LongUsage:  "List command(s)",
 		Handler:    nil,
 	},
 	CommandInventory: {
-		Usage: "inventory - Look at what you have",
+		ShortName:  "inventory",
+		ShortUsage: "Look at what you have",
 		Handler: func(t *textUI, arg []string) error {
 			switch len(arg) {
 			default:
@@ -167,7 +177,8 @@ var commandDescriptionMap = map[string]*commandDescription{
 		},
 	},
 	CommandLook: {
-		Usage: "look - Look around",
+		ShortName:  "look",
+		ShortUsage: "Look around",
 		Handler: func(t *textUI, arg []string) error {
 			switch len(arg) {
 			default:
@@ -178,8 +189,10 @@ var commandDescriptionMap = map[string]*commandDescription{
 		},
 	},
 	CommandMap: {
-		ShortUsage: "map  - Show the map",
-		Usage:      "map <location> - Show the map around the location",
+		ShortName:  "map",
+		LongName:   "map <location>",
+		ShortUsage: "Show the map",
+		LongUsage:  "Show the map around the location",
 		Handler: func(t *textUI, arg []string) error {
 			switch len(arg) {
 			default:
@@ -197,15 +210,18 @@ var commandDescriptionMap = map[string]*commandDescription{
 		},
 	},
 	CommandQuit: {
-		Usage: "quit - Leave the game",
+		ShortName:  "quit",
+		ShortUsage: "Leave the game",
 		Handler: func(t *textUI, arg []string) error {
 			return e.NewQuitError()
 		},
 	},
 	CommandSell: {
 		Action:     true,
-		ShortUsage: "sell - Sell items",
-		Usage:      "sell <amount> <item> - Sell specified amount of items",
+		ShortName:  "sell",
+		LongName:   "sell <amount> <item>",
+		ShortUsage: "Sell items",
+		LongUsage:  "Sell specified amount of items",
 		Handler: func(t *textUI, arg []string) error {
 			switch len(arg) {
 			case 0, 1:
@@ -238,6 +254,8 @@ func (t *textUI) showLook() error {
 
 // showAllHelp implements the all help command
 func (t *textUI) showAllHelp() error {
+	var commands []*commandDescription
+	var maxLen int
 	legalActions := t.i.ListLocalActions()
 	for _, command := range commandHelpOrder {
 		description, ok := commandDescriptionMap[command]
@@ -250,14 +268,15 @@ func (t *textUI) showAllHelp() error {
 				continue
 			}
 		}
-		usage := description.ShortUsage
-		if usage == "" {
-			usage = description.Usage
+		commands = append(commands, description)
+		if len(description.ShortName) > maxLen {
+			maxLen = len(description.ShortName)
 		}
-		if usage == "" {
-			continue
-		}
-		t.s.Out.Println(usage)
+	}
+
+	for _, description := range commands {
+		name := description.ShortName + strings.Repeat(" ", maxLen-len(description.ShortName))
+		t.s.Out.Println(strings.Join([]string{name, " - ", description.ShortUsage}, ""))
 	}
 	return nil
 }
@@ -275,7 +294,16 @@ func (t *textUI) showHelp(command string) error {
 		if !ok {
 			return e.NewUnknownCommandError(command)
 		}
-		t.s.Out.Println(description.Usage)
+
+		name := description.LongName
+		if name == "" {
+			name = description.ShortName
+		}
+		usage := description.LongUsage
+		if usage == "" {
+			usage = description.ShortUsage
+		}
+		t.s.Out.Println(strings.Join([]string{name, " - ", usage}, ""))
 		return nil
 	}
 }
