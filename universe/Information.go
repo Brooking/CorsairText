@@ -9,21 +9,30 @@ import (
 // Information is the interface to the universe's information
 //go:generate ${GOPATH}/bin/mockgen -destination ./mock${GOPACKAGE}/${GOFILE} -package=mock${GOPACKAGE} -source=${GOFILE}
 type Information interface {
-	ListLocalCommands() map[string]interface{}
+	// ListLocalActions returns a list of actions valid at the current spot
+	ListLocalActions() map[string]interface{}
 
+	// ListLocations returns all locations
 	ListLocations() []string
+
+	// ListAdjacentLocations returns all adjacent locations
 	ListAdjacentLocations() []string
+
+	// LocalLocation returns a view of the current location
 	LocalLocation() *View
 
+	// ListItems lists all known items
 	ListItems() []string
 
+	// Inventory returns a view of your stuff
 	Inventory() Ship
 
+	// map lists all locations
 	Map(anchor *string) *MapNode
 }
 
-// ListLocalCommands returns a list of commands valid at the current spot
-func (u *universe) ListLocalCommands() map[string]interface{} {
+// ListLocalActions returns a list of actions valid at the current spot
+func (u *universe) ListLocalActions() map[string]interface{} {
 	return u.current.Actions().Map()
 }
 
@@ -103,6 +112,7 @@ type MapNode struct {
 	Children []*MapNode
 }
 
+// Map returns a tree of locations
 func (u *universe) Map(name *string) *MapNode {
 	var target string
 	if name != nil {
@@ -116,6 +126,7 @@ func (u *universe) Map(name *string) *MapNode {
 	return root
 }
 
+// mapWorker is the recursive worker for Map
 func mapWorker(root spot.Spot, parent *MapNode, target string) (*MapNode, *MapNode) {
 	node := &MapNode{
 		Name:   root.Name(),

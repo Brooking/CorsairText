@@ -238,7 +238,7 @@ func (t *textUI) showLook() error {
 
 // showAllHelp implements the all help command
 func (t *textUI) showAllHelp() error {
-	legalActions := t.i.ListLocalCommands()
+	legalActions := t.i.ListLocalActions()
 	for _, command := range commandHelpOrder {
 		description, ok := commandDescriptionMap[command]
 		if !ok {

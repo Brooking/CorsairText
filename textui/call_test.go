@@ -345,7 +345,7 @@ func TestCallHelp(t *testing.T) {
 
 			informationMock := mockuniverse.NewMockInformation(ctrl)
 			informationMock.EXPECT().
-				ListLocalCommands().
+				ListLocalActions().
 				Return(testCase.listLocalReturn).
 				Times(testCase.listLocalCalls)
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
