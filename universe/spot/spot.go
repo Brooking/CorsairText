@@ -36,7 +36,7 @@ type Spot interface {
 
 // Init is the Spot initializer
 type Init struct {
-	Support     support.Support
+	Support     *support.SupportStruct
 	Description string
 	BaseType    base.Type
 	Name        string
@@ -62,7 +62,7 @@ func NewSpot(init Init) Spot {
 
 // spot implements the Spot interface
 type spot struct {
-	s           support.Support
+	s           *support.SupportStruct
 	actions     action.List
 	children    []Spot
 	description string

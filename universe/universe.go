@@ -6,7 +6,7 @@ import (
 )
 
 // NewUniverse creates a new Universe
-func NewUniverse(s support.Support) (Action, Information) {
+func NewUniverse(s *support.SupportStruct) (Action, Information) {
 	u := &universe{
 		s: s,
 		ship: &Ship{
@@ -21,7 +21,7 @@ func NewUniverse(s support.Support) (Action, Information) {
 
 // universe is the concrete implimentation of Universe
 type universe struct {
-	s       support.Support
+	s       *support.SupportStruct
 	root    spot.Spot
 	current spot.Spot
 	index   map[string]spot.Spot

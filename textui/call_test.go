@@ -195,7 +195,7 @@ func TestCallGo(t *testing.T) {
 			outMock.EXPECT().
 				Println(gomock.Any()).
 				AnyTimes()
-			support := support.Support{
+			support := &support.SupportStruct{
 				Out: outMock,
 			}
 			matcherMock := mockmatch.NewMockMatcher(ctrl)
@@ -258,7 +258,7 @@ func TestCallGoList(t *testing.T) {
 			outMock.EXPECT().
 				Println(testCase.outInput).
 				Times(testCase.outCalls)
-			support := support.Support{
+			support := &support.SupportStruct{
 				Out: outMock,
 			}
 			matcherMock := mockmatch.NewMockMatcher(ctrl)
@@ -352,7 +352,7 @@ func TestCallHelp(t *testing.T) {
 			outMock.EXPECT().
 				Println(testCase.outInput).
 				Times(testCase.outCalls)
-			support := support.Support{
+			support := &support.SupportStruct{
 				Out: outMock,
 			}
 			textui := &textUI{
@@ -444,7 +444,7 @@ func TestCallInventory(t *testing.T) {
 				Println(testCase.out4Expected).
 				After(third).
 				Times(testCase.outCalls)
-			support := support.Support{
+			support := &support.SupportStruct{
 				Out: outMock,
 			}
 			textui := &textUI{
@@ -517,7 +517,7 @@ func TestCallLook(t *testing.T) {
 				Println(testCase.out2Expected).
 				After(first).
 				Times(testCase.outCalls)
-			support := support.Support{
+			support := &support.SupportStruct{
 				Out: outMock,
 			}
 			textui := &textUI{

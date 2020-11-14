@@ -19,7 +19,7 @@ type TextUI interface {
 }
 
 // NewTextUI create a new text ui
-func NewTextUI(s support.Support, a universe.Action, i universe.Information) TextUI {
+func NewTextUI(s *support.SupportStruct, a universe.Action, i universe.Information) TextUI {
 	// this line is to work around an initialization cycle in our command table (help refers back to the table)
 	commandDescriptionMap[CommandHelp].Handler = helpHandlerTableEntry
 
@@ -34,7 +34,7 @@ func NewTextUI(s support.Support, a universe.Action, i universe.Information) Tex
 
 // textUI is the concrete implementation of TextUI
 type textUI struct {
-	s               support.Support
+	s               *support.SupportStruct
 	a               universe.Action
 	i               universe.Information
 	commandMatcher  match.Matcher
