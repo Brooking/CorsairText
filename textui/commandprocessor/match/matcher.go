@@ -1,8 +1,6 @@
 package match
 
-import (
-	"corsairtext/textui/match/regex"
-)
+import "corsairtext/textui/commandprocessor/match/regex"
 
 // Matcher is an interface that allows us to find words in a dictionary that
 // a given prefix uniquely identifies .

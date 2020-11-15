@@ -3,7 +3,7 @@ package textui
 import (
 	"corsairtext/e"
 	"corsairtext/support"
-	"corsairtext/textui/match"
+	"corsairtext/textui/commandprocessor"
 	"corsairtext/universe"
 
 	"strings"
@@ -20,31 +20,22 @@ type TextUI interface {
 
 // NewTextUI create a new text ui
 func NewTextUI(s *support.SupportStruct, a universe.Action, i universe.Information) TextUI {
-	// this line is to work around an initialization cycle in our command table (help refers back to the table)
-	commandDescriptionMap[CommandHelp].Handler = helpHandlerTableEntry
-
 	return &textUI{
-		s:               s,
-		a:               a,
-		i:               i,
-		commandMatcher:  NewCommandMatcher(),
-		locationMatcher: match.NewMatcher(i.ListLocations(), false),
+		s:  s,
+		cp: commandprocessor.NewCommandProcessor(s, a, i),
 	}
 }
 
 // textUI is the concrete implementation of TextUI
 type textUI struct {
-	s               *support.SupportStruct
-	a               universe.Action
-	i               universe.Information
-	commandMatcher  match.Matcher
-	locationMatcher match.Matcher
+	s  *support.SupportStruct
+	cp commandprocessor.CommandProcessor
 }
 
 // Run is the main text ui entry point
 func (t *textUI) Run() {
 	var err error
-	err = t.showLook()
+	err = t.cp.ShowLook()
 	if err != nil {
 		t.showError(err)
 	}
@@ -56,7 +47,7 @@ func (t *textUI) Run() {
 			return
 		}
 
-		err = t.act(text)
+		err = t.cp.Obey(text)
 		if e.IsQuitError(err) {
 			break
 		}
@@ -79,10 +70,10 @@ func (t *textUI) showError(err error) {
 
 	switch {
 	case e.IsShowAllHelpError(cause):
-		t.showAllHelp()
+		t.cp.ShowAllHelp()
 	case e.IsShowHelpError(cause):
-		t.showHelp(e.GetCommandForHelp(cause))
+		t.cp.ShowHelp(e.GetCommandForHelp(cause))
 	case e.IsShowAdjacencyError(cause):
-		t.showAdjacency()
+		t.cp.ShowAdjacency()
 	}
 }

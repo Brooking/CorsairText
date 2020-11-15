@@ -1,10 +1,10 @@
-package textui
+package commandprocessor
 
 import (
 	"corsairtext/e"
 	"corsairtext/support"
 	"corsairtext/support/screenprinter/mockscreenprinter"
-	"corsairtext/textui/match/mockmatch"
+	"corsairtext/textui/commandprocessor/match/mockmatch"
 	"corsairtext/universe"
 	"corsairtext/universe/mockuniverse"
 	"testing"
@@ -47,12 +47,10 @@ func TestCall(t *testing.T) {
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			// arrange
-			textui := &textUI{
-				commandMatcher: NewCommandMatcher(),
-			}
+			cp := NewCommandProcessor(nil, nil, nil)
 
 			// act
-			err := textui.act(testCase.command)
+			err := cp.Obey(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -118,13 +116,10 @@ func TestCallBuy(t *testing.T) {
 				Buy(testCase.buyAmount, testCase.buyItem).
 				Return(testCase.buyReturn).
 				Times(testCase.buyCalls)
-			textui := &textUI{
-				a:              actionMock,
-				commandMatcher: NewCommandMatcher(),
-			}
+			cp := NewCommandProcessor(nil, actionMock, nil)
 
 			// act
-			err := textui.act(testCase.command)
+			err := cp.Obey(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -184,9 +179,13 @@ func TestCallGo(t *testing.T) {
 				Times(testCase.goCalls)
 			informationMock := mockuniverse.NewMockInformation(ctrl)
 			informationMock.EXPECT().
+				ListLocations().
+				Return(nil).
+				AnyTimes()
+			informationMock.EXPECT().
 				LocalLocation().
 				Return(&universe.View{}).
-				Times(testCase.localLocationCalls)
+				AnyTimes()
 			informationMock.EXPECT().
 				ListAdjacentLocations().
 				Return([]string{"mars"}).
@@ -205,16 +204,10 @@ func TestCallGo(t *testing.T) {
 					return []string{s}
 				}).
 				AnyTimes()
-			textui := &textUI{
-				s:               support,
-				a:               actionMock,
-				i:               informationMock,
-				commandMatcher:  NewCommandMatcher(),
-				locationMatcher: matcherMock,
-			}
+			cp := NewCommandProcessor(support, actionMock, informationMock)
 
 			// act
-			err := textui.act(testCase.command)
+			err := cp.Obey(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -254,6 +247,10 @@ func TestCallGoList(t *testing.T) {
 				ListAdjacentLocations().
 				Return(testCase.golistReturn).
 				Times(testCase.golistCalls)
+			informationMock.EXPECT().
+				ListLocations().
+				Return(nil).
+				AnyTimes()
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			outMock.EXPECT().
 				Println(testCase.outInput).
@@ -268,14 +265,10 @@ func TestCallGoList(t *testing.T) {
 					return []string{s}
 				}).
 				AnyTimes()
-			textui := &textUI{
-				s:              support,
-				i:              informationMock,
-				commandMatcher: NewCommandMatcher(),
-			}
+			cp := NewCommandProcessor(support, nil, informationMock)
 
 			// act
-			err := textui.act("G")
+			err := cp.Obey("G")
 
 			// assert
 			testCase.assert(err)
@@ -348,6 +341,10 @@ func TestCallHelp(t *testing.T) {
 				ListLocalActions().
 				Return(testCase.listLocalReturn).
 				Times(testCase.listLocalCalls)
+			informationMock.EXPECT().
+				ListLocations().
+				Return(nil).
+				AnyTimes()
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			outMock.EXPECT().
 				Println(testCase.outInput).
@@ -355,15 +352,10 @@ func TestCallHelp(t *testing.T) {
 			support := &support.SupportStruct{
 				Out: outMock,
 			}
-			textui := &textUI{
-				s:              support,
-				i:              informationMock,
-				commandMatcher: NewCommandMatcher(),
-			}
-			commandDescriptionMap[CommandHelp].Handler = helpHandlerTableEntry
+			cp := NewCommandProcessor(support, nil, informationMock)
 
 			// act
-			err := textui.act(testCase.command)
+			err := cp.Obey(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -428,6 +420,10 @@ func TestCallInventory(t *testing.T) {
 				Inventory().
 				Return(testCase.inventoryReturn).
 				Times(testCase.inventoryCalls)
+			informationMock.EXPECT().
+				ListLocations().
+				Return(nil).
+				AnyTimes()
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			first := outMock.EXPECT().
 				Println(testCase.out1Expected).
@@ -447,14 +443,10 @@ func TestCallInventory(t *testing.T) {
 			support := &support.SupportStruct{
 				Out: outMock,
 			}
-			textui := &textUI{
-				s:              support,
-				i:              informationMock,
-				commandMatcher: NewCommandMatcher(),
-			}
+			cp := NewCommandProcessor(support, nil, informationMock)
 
 			// act
-			err := textui.act(testCase.command)
+			err := cp.Obey(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -508,7 +500,11 @@ func TestCallLook(t *testing.T) {
 			informationMock.EXPECT().
 				LocalLocation().
 				Return(testCase.localLocationReturn).
-				Times(testCase.localLocationCalls)
+				AnyTimes()
+			informationMock.EXPECT().
+				ListLocations().
+				Return(nil).
+				AnyTimes()
 			outMock := mockscreenprinter.NewMockScreenPrinter(ctrl)
 			first := outMock.EXPECT().
 				Println(testCase.out1Expected).
@@ -520,14 +516,10 @@ func TestCallLook(t *testing.T) {
 			support := &support.SupportStruct{
 				Out: outMock,
 			}
-			textui := &textUI{
-				s:              support,
-				i:              informationMock,
-				commandMatcher: NewCommandMatcher(),
-			}
+			cp := NewCommandProcessor(support, nil, informationMock)
 
 			// act
-			err := textui.act(testCase.command)
+			err := cp.Obey(testCase.command)
 
 			// assert
 			testCase.assert(err)
@@ -588,8 +580,8 @@ func TestCallSell(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			universeMock := mockuniverse.NewMockAction(ctrl)
-			universeMock.EXPECT().
+			actionMock := mockuniverse.NewMockAction(ctrl)
+			actionMock.EXPECT().
 				Sell(testCase.sellAmount, testCase.sellItem).
 				Return(testCase.sellReturn).
 				Times(testCase.sellCalls)
@@ -600,13 +592,10 @@ func TestCallSell(t *testing.T) {
 					return []string{s}
 				}).
 				AnyTimes()
-			textui := &textUI{
-				a:              universeMock,
-				commandMatcher: NewCommandMatcher(),
-			}
+			cp := NewCommandProcessor(nil, actionMock, nil)
 
 			// act
-			err := textui.act(testCase.command)
+			err := cp.Obey(testCase.command)
 
 			// assert
 			testCase.assert(err)

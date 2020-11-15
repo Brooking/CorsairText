@@ -1,4 +1,4 @@
-package textui
+package commandprocessor
 
 import (
 	"testing"
@@ -25,7 +25,7 @@ func TestParseCommandLine(t *testing.T) {
 			input: "h",
 			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, commandDescriptionMap[CommandHelp], description)
+				assert.Equal(t, "help", description.ShortName)
 			},
 		},
 		{
@@ -33,7 +33,7 @@ func TestParseCommandLine(t *testing.T) {
 			input: "hel",
 			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, commandDescriptionMap[CommandHelp], description)
+				assert.Equal(t, "help", description.ShortName)
 			},
 		},
 		{
@@ -48,7 +48,7 @@ func TestParseCommandLine(t *testing.T) {
 			input: "Help",
 			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, commandDescriptionMap[CommandHelp], description)
+				assert.Equal(t, "help", description.ShortName)
 			},
 		},
 		{
@@ -56,7 +56,7 @@ func TestParseCommandLine(t *testing.T) {
 			input: "G",
 			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, commandDescriptionMap[CommandGo], description)
+				assert.Equal(t, "go", description.ShortName)
 			},
 		},
 		{
@@ -64,7 +64,7 @@ func TestParseCommandLine(t *testing.T) {
 			input: "Sell",
 			assert: func(description *commandDescription, err error) {
 				assert.NoError(t, err)
-				assert.Equal(t, commandDescriptionMap[CommandSell], description)
+				assert.Equal(t, "sell", description.ShortName)
 			},
 		},
 	}
@@ -75,15 +75,15 @@ func TestParseCommandLine(t *testing.T) {
 			ctrl := gomock.NewController(t)
 			defer ctrl.Finish()
 
-			textui := &textUI{
-				commandMatcher: NewCommandMatcher(),
-			}
+			cp := NewCommandProcessor(nil, nil, nil)
+			realcp, ok := cp.(*commandProcessor)
+			assert.True(t, ok)
 
 			// act
-			command, err := textui.parseCommand(testCase.input)
+			commandDescription, err := realcp.parseCommand(testCase.input)
 
 			// assert
-			testCase.assert(command, err)
+			testCase.assert(commandDescription, err)
 
 		})
 	}
